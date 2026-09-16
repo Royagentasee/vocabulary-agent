@@ -75,3 +75,30 @@ export async function fetchOverview(days = 14): Promise<Overview> {
   if (!resp.ok) throw new Error(`统计加载失败 ${resp.status}`)
   return resp.json()
 }
+
+/* ============ 作者（管理）模式 ============ */
+
+const ADMIN_KEY = 'va-admin'
+
+/** 是否为作者模式 */
+export function isAdmin(): boolean {
+  try {
+    return localStorage.getItem(ADMIN_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+/**
+ * 切换作者模式。
+ * 用法：在任意页面地址后加 `?admin=1` 开启，`?admin=0` 关闭。
+ * 例：http://106.53.41.134/stats?admin=1
+ */
+export function setAdmin(on: boolean): void {
+  try {
+    if (on) localStorage.setItem(ADMIN_KEY, '1')
+    else localStorage.removeItem(ADMIN_KEY)
+  } catch {
+    /* ignore */
+  }
+}

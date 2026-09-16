@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useLearnStore } from '@/stores/learnStore'
-import { fetchOverview, Overview } from '@/services/stats'
+import { fetchOverview, isAdmin, setAdmin, Overview } from '@/services/stats'
 
 const EVENT_LABELS: Record<string, string> = {
   pageview: '页面浏览',
@@ -16,6 +17,21 @@ export function StatsPage() {
   const { todayLearned, todayReviewed, wrongWords, learnedWords } = useLearnStore()
   const total = learnedWords.length
   const progress = total > 0 ? Math.round((todayReviewed / total) * 100) : 0
+
+  // 作者模式：地址后加 ?admin=1 开启，?admin=0 关闭（普通用户看不到使用统计）
+  const [searchParams] = useSearchParams()
+  const [admin, setAdminState] = useState(isAdmin())
+
+  useEffect(() => {
+    const q = searchParams.get('admin')
+    if (q === '1') {
+      setAdmin(true)
+      setAdminState(true)
+    } else if (q === '0') {
+      setAdmin(false)
+      setAdminState(false)
+    }
+  }, [searchParams])
 
   return (
     <div className="space-y-6">
@@ -44,9 +60,6 @@ export function StatsPage() {
         </div>
       </div>
 
-      {/* ============ 用户使用统计 ============ */}
-      <UsageStats />
-
       {wrongWords.length > 0 && (
         <div className="va-card">
           <div className="font-semibold mb-3">错词本（前 10 个）</div>
@@ -67,6 +80,16 @@ export function StatsPage() {
             </div>
           )}
         </div>
+      )}
+
+      {/* ============ 用户使用统计（仅作者可见，放在页面最下端）============ */}
+      {admin && (
+        <>
+          <div className="text-xs text-ink-400 text-center pt-2">
+            🔒 作者模式已开启（访问 ?admin=0 关闭）
+          </div>
+          <UsageStats />
+        </>
       )}
     </div>
   )
