@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vocab-agent-sdk-llm"
+version = "0.1.0"
+description = "Vocabulary Agent LLM SDK（Python 端，多模型统一入口）"
+requires-python = ">=3.10"
+dependencies = [
+    "openai>=1.30.0",
+    "httpx>=0.27.0",
+    "pydantic>=2.7.0",
+]

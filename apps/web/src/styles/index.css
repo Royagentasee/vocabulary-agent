@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+  }
+}
+
+@layer components {
+  .va-btn {
+    @apply inline-flex items-center justify-center rounded-xl font-medium transition-colors;
+  }
+  .va-btn--primary {
+    @apply bg-ink-900 text-white hover:bg-black;
+  }
+  .va-btn--secondary {
+    @apply bg-white text-ink-900 border border-ink-100 hover:bg-ink-50;
+  }
+  .va-btn--ghost {
+    @apply text-ink-500 hover:text-ink-900;
+  }
+  .va-btn--sm { @apply px-3 py-1.5 text-sm; }
+  .va-btn--md { @apply px-4 py-2 text-sm; }
+  .va-btn--lg { @apply px-5 py-3 text-base; }
+  .va-btn--disabled { @apply opacity-50 cursor-not-allowed; }
+
+  .va-card {
+    @apply bg-white rounded-2xl border border-ink-100 p-6;
+  }
+}

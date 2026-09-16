@@ -1,0 +1,105 @@
+word,phonetic,pos,translation,definition,collocation,frq
+the,ðə,art,定冠词,definite article,
+be,bi,v,是,be (present/past tense),is/was/being,99.5
+of,əv,prep,的,belonging to,of course,99.4
+and,ænd,conj,和,also,in addition,99.3
+to,tu,prep,到,used for direction or purpose,to do,99.2
+a,ə,art,一个,indefinite article,
+in,ɪn,prep,在,在里面,in the,99.1
+that,ðæt,pron,那个,that thing or person,
+have,hæv,v,有,possess,have to,98.9
+it,ɪt,pron,它,used for things or animals,98.8
+not,nɒt,adv,不,negation word,not at all,98.7
+for,fɔː,prep,为了,purpose or reason,for example,98.6
+on,ɒn,prep,在上面,on top of,on the,98.5
+with,wɪð,prep,和,accompanying,with me,98.4
+he,hi,pron,他,male pronoun,98.3
+as,æz,conj,如同,like or while,as well,98.2
+you,ju,pron,你,second person,98.1
+do,du,v,做,perform,do well,98.0
+at,æt,prep,在,location or time,at home,97.9
+this,ðɪs,pron,这,this thing,97.8
+but,bʌt,conj,但是,however,but also,97.7
+his,hɪz,pron,他的,possessive (he),97.6
+from,frəm,prep,从,origin,from now,97.5
+they,ðeɪ,pron,他们,they people,97.4
+we,wi,pron,我们,first person plural,we can,97.3
+say,seɪ,v,说,speak,say goodbye,97.2
+her,hɜː,pron,她,possessive (she),with her,97.1
+she,ʃi,pron,她,female pronoun,97.0
+or,ɔː,conj,或者,alternative,or else,96.9
+an,æn,art,一个,indefinite (vowel),96.8
+will,wɪl,v,将,future tense,will be,96.7
+my,maɪ,pron,我的,possessive (I),96.6
+one,wʌn,num,一,number one,96.5
+all,ɔːl,adj,所有,everything,all right,96.4
+would,wʊd,v,会,conditional,would be,96.3
+there,ðeə,adv,那里,that place,96.2
+their,ðeə,pron,他们的,possessive (they),their own,96.1
+what,wɒt,pron,什么,what thing,96.0
+so,səʊ,conj,所以,therefore,so that,95.9
+up,ʌp,adv,向上,upward,95.8
+out,aʊt,adv,出去,outward,out of,95.7
+if,ɪf,conj,如果,conditional,if any,95.6
+about,əˈbaʊt,prep,关于,concerning,95.5
+who,hu,pron,谁,who person,who is,95.4
+get,ɡet,v,得到,obtain,get up,95.3
+which,hwɪtʃ,pron,哪个,which one,95.2
+go,ɡəʊ,v,去,move away,go on,95.1
+me,mi,pron,我,object (I),with me,95.0
+when,wen,adv,何时,when time,when you,94.9
+make,meɪk,v,制作,create,make sure,94.8
+can,kæn,v,能,be able to,94.7
+like,laɪk,v,喜欢,enjoy,would like,94.6
+time,taɪm,n,时间,time period,time to,94.5
+no,nəʊ,adv,不,no way,no longer,94.4
+just,dʒʌst,adv,只是,only,just now,94.3
+him,hɪm,pron,他,object (he),to him,94.2
+know,nəʊ,v,知道,be aware,know how,94.1
+take,teɪk,v,拿,take away,take part,94.0
+people,piːpl,n,人们,persons,people say,93.9
+into,ˈɪntu,prep,进入,into the,93.8
+year,yɪə,n,年,year period,this year,93.7
+your,jɔː,pron,你的,possessive (you),your own,93.6
+good,ɡʊd,adj,好的,excellent,very good,93.5
+could,kʊd,v,能,conditional,could be,93.4
+them,ðəm,pron,他们,object (they),with them,93.3
+see,siː,v,看,look,see you,93.2
+other,ˈʌðə,adj,其他,different,other people,93.1
+than,ðæn,conj,比,comparison,rather than,93.0
+then,ðen,adv,然后,after that,by then,92.9
+now,naʊ,adv,现在,at present,right now,92.8
+look,lʊk,v,看,see,look at,92.7
+only,ˈəʊnli,adv,只有,just,not only,92.6
+come,kʌm,v,来,arrive,come back,92.5
+its,ɪts,pron,它的,possessive (it),92.4
+over,ˈəʊvə,prep,在上面,above,over there,92.3
+think,θɪŋk,v,想,believe,I think,92.2
+also,ˈɔːlsəʊ,adv,也,too,also have,92.1
+back,bæk,adv,后面,behind,come back,92.0
+after,ˈɑːftə,prep,在后面,following,after that,91.9
+use,juːz,v,用,utilize,use to,91.8
+two,tu,num,二,number two,91.7
+how,haʊ,adv,怎样,how way,how many,91.6
+our,aʊə,pron,我们的,possessive (we),91.5
+work,wɜːk,v,工作,job,work hard,91.4
+first,fɜːst,adj,第一,initial,first time,91.3
+well,wel,adv,好,good,well done,91.2
+way,weɪ,n,方式,manner,way to,91.1
+even,iːvn,adv,甚至,also,even more,91.0
+new,nju,adj,新的,novel,something new,90.9
+want,wɒnt,v,想,desire,want to,90.8
+because,bɪˈkɒz,conj,因为,since,because of,90.7
+any,ˈeni,adj,任何,whatever,any more,90.6
+these,ðiːz,pron,这些,this plural,90.5
+give,ɡɪv,v,给,provide,give up,90.4
+day,deɪ,n,天,day time,every day,90.3
+most,məʊst,adj,最多,maximum,most of,90.2
+us,ʌs,pron,我们,object (we),with us,90.1
+is,ɪz,v,是,be present,is not,90.0
+water,ˈwɔːtə,n,水,water drinkable,89.9
+long,lɒŋ,adj,长,length,long time,89.8
+find,faɪnd,v,找到,locate,find out,89.7
+here,hɪə,adv,这里,at here,come here,89.6
+thing,θɪŋ,n,东西,object,thing is,89.5
+many,ˈmeni,adj,多,much,how many,89.4

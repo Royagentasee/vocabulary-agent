@@ -1,0 +1,495 @@
+word,phonetic,pos,translation,definition,collocation,frq
+the,,art,这；那,definite article,,95
+be,,v,是；存在,to exist,,95
+of,,prep,的；属于,belonging to,,95
+and,,conj,和；并且,"also, in addition",,94
+to,,prep,到；向,toward,,94
+in,,prep,在…里,inside,,94
+that,,pron,那个,that thing,,93
+have,,v,有；拥有,to possess,,93
+it,,pron,它,that thing,,93
+for,,prep,为了；因为,for the purpose of,,92
+on,,prep,在…上,on top of,,92
+with,,prep,和；用,accompanying,,92
+do,,v,做；干,to perform,,91
+say,,v,说；讲,to speak,,91
+get,,v,得到；获得,to obtain,,91
+make,,v,制作；做,to create,,90
+go,,v,去；走,to move,,90
+know,,v,知道；认识,to be aware of,,90
+take,,v,拿；取,to grasp,,89
+see,,v,看见；明白,to perceive with eyes,,89
+come,,v,来；到达,to arrive,,89
+think,,v,想；认为,to have an opinion,,88
+look,,v,看；显得,to direct eyes,,88
+want,,v,想要；需要,to desire,,88
+give,,v,给；提供,to provide,,87
+use,,v,使用；利用,to employ,,87
+find,,v,找到；发现,to discover,,87
+tell,,v,告诉；讲述,to inform,,86
+ask,,v,问；请求,to inquire,,86
+work,,v,工作；运转,to labor,,86
+seem,,v,似乎；好像,to appear,,85
+feel,,v,感觉；觉得,to perceive,,85
+try,,v,尝试；努力,to attempt,,85
+leave,,v,离开；留下,to depart,,84
+call,,v,打电话；称呼,to telephone,,84
+need,,v,需要；必需,to require,,84
+become,,v,变成；成为,to come to be,,83
+mean,,v,意味着；打算,to signify,,83
+keep,,v,保持；保留,to retain,,83
+let,,v,让；允许,to allow,,82
+begin,,v,开始,to start,,82
+show,,v,显示；表明,to display,,82
+hear,,v,听见；听说,to perceive sound,,81
+play,,v,玩；演奏,to engage in game,,81
+run,,v,跑；经营,to move quickly,,81
+move,,v,移动；感动,to change position,,80
+live,,v,生活；居住,to reside,,80
+believe,,v,相信；认为,to trust,,80
+hold,,v,握住；举行,to grasp,,79
+bring,,v,带来；引起,to carry to,,79
+happen,,v,发生；碰巧,to occur,,79
+write,,v,写；写作,to compose text,,78
+sit,,v,坐；位于,to be seated,,78
+stand,,v,站；忍受,to be upright,,78
+lose,,v,失去；输,to misplace,,77
+pay,,v,支付；偿还,to give money,,77
+meet,,v,遇见；满足,to encounter,,77
+include,,v,包括；包含,to contain,,76
+continue,,v,继续；延续,to proceed,,76
+set,,v,设置；放置,to place,,76
+learn,,v,学习；得知,to acquire knowledge,,75
+change,,v,改变；更换,to make different,,75
+lead,,v,领导；引导,to guide,,75
+understand,,v,理解；懂,to comprehend,,74
+watch,,v,观看；注视,to observe,,74
+follow,,v,跟随；遵循,to come after,,74
+stop,,v,停止；阻止,to cease,,73
+create,,v,创造；创建,to make new,,73
+speak,,v,说话；发言,to talk,,73
+read,,v,阅读；朗读,to interpret text,,72
+allow,,v,允许；准许,to permit,,72
+add,,v,添加；增加,to join,,72
+spend,,v,花费；度过,to use money/time,,71
+grow,,v,生长；增长,to increase,,71
+open,,v,打开；开放,to unclose,,71
+walk,,v,走；散步,to move on foot,,70
+win,,v,赢；获胜,to be victorious,,70
+offer,,v,提供；提出,to present,,70
+remember,,v,记得；记住,to recall,,69
+love,,v,爱；喜欢,to feel affection,,69
+consider,,v,考虑；认为,to think about,,69
+appear,,v,出现；显得,to come into view,,68
+buy,,v,买；购买,to purchase,,68
+wait,,v,等待；等候,to stay in expectation,,68
+serve,,v,服务；供应,to provide service,,67
+die,,v,死；消亡,to cease living,,67
+send,,v,发送；派遣,to dispatch,,67
+expect,,v,期望；预期,to anticipate,,66
+build,,v,建造；建立,to construct,,66
+stay,,v,停留；保持,to remain,,66
+fall,,v,落下；下降,to drop,,65
+cut,,v,切；削减,to slice,,65
+reach,,v,到达；达到,to arrive at,,65
+kill,,v,杀死,to cause death,,64
+remain,,v,保持；剩余,to stay,,64
+suggest,,v,建议；暗示,to propose,,64
+raise,,v,提高；举起,to lift up,,63
+pass,,v,通过；传递,to go by,,63
+sell,,v,卖；出售,to exchange for money,,63
+require,,v,需要；要求,to need,,62
+report,,v,报告；报道,to give account,,62
+decide,,v,决定；断定,to make a decision,,62
+pull,,v,拉；拖,to draw toward,,61
+return,,v,返回；归还,to come back,,61
+explain,,v,解释；说明,to make clear,,61
+hope,,v,希望；期望,to desire with expectation,,60
+develop,,v,发展；开发,to grow or advance,,60
+carry,,v,携带；搬运,to transport,,60
+break,,v,打破；折断,to separate into pieces,,59
+receive,,v,收到；接受,to get,,59
+agree,,v,同意；赞成,to consent,,59
+support,,v,支持；支撑,to uphold,,58
+produce,,v,生产；产生,to create,,58
+eat,,v,吃,to consume food,,58
+cover,,v,覆盖；包括,to place over,,57
+catch,,v,抓住；赶上,to seize,,57
+draw,,v,画；拉,to sketch,,57
+choose,,v,选择；挑选,to select,,56
+cause,,v,引起；导致,to make happen,,56
+point,,v,指向；指出,to indicate,,56
+listen,,v,听；倾听,to hear attentively,,55
+realize,,v,意识到；实现,to become aware,,55
+place,,v,放置；安置,to put,,55
+close,,v,关闭；结束,to shut,,54
+describe,,v,描述；形容,to give an account,,54
+drive,,v,驾驶；驱动,to operate a vehicle,,54
+cross,,v,穿过；交叉,to go across,,53
+sound,,v,听起来；发声,to make noise,,53
+complete,,v,完成；使完整,to finish,,53
+increase,,v,增加；增长,to make larger,,52
+turn,,v,转动；变成,to rotate,,52
+start,,v,开始；启动,to begin,,52
+fill,,v,填满；充满,to make full,,51
+improve,,v,改善；提高,to make better,,51
+check,,v,检查；核对,to verify,,51
+mention,,v,提及；说起,to refer to,,50
+provide,,v,提供；供给,to supply,,50
+wonder,,v,想知道；疑惑,to be curious,,50
+share,,v,分享；共享,to divide among,,49
+plan,,v,计划；打算,to arrange in advance,,49
+contain,,v,包含；容纳,to hold within,,49
+reduce,,v,减少；降低,to make smaller,,48
+avoid,,v,避免；回避,to keep away from,,48
+compare,,v,比较；对比,to examine differences,,48
+manage,,v,管理；设法,to control,,47
+protect,,v,保护；防护,to keep safe,,47
+remove,,v,移除；去掉,to take away,,47
+discover,,v,发现；发觉,to find out,,46
+establish,,v,建立；确立,to set up,,46
+argue,,v,争论；主张,to debate,,46
+prevent,,v,防止；预防,to stop from happening,,45
+exist,,v,存在；生存,to have being,,45
+perform,,v,执行；表演,to carry out,,45
+accept,,v,接受；同意,to receive willingly,,44
+achieve,,v,实现；取得,to accomplish,,44
+claim,,v,声称；索取,to assert,,44
+assume,,v,假定；承担,to suppose,,43
+apply,,v,申请；应用,to put to use,,43
+attack,,v,攻击；抨击,to assault,,43
+attempt,,v,尝试；企图,to try,,42
+attend,,v,参加；出席,to be present,,42
+behave,,v,表现；举止,to act,,42
+belong,,v,属于,to be owned by,,41
+blame,,v,责备；归咎,to hold responsible,,41
+borrow,,v,借入,to take temporarily,,41
+bother,,v,打扰；烦扰,to annoy,,40
+celebrate,,v,庆祝,to observe a special day,,40
+challenge,,v,挑战；质疑,to dispute,,40
+collect,,v,收集；采集,to gather,,39
+communicate,,v,交流；沟通,to exchange information,,39
+compete,,v,竞争；比赛,to contend,,39
+complain,,v,抱怨；投诉,to express dissatisfaction,,38
+concentrate,,v,集中；专注,to focus attention,,38
+confirm,,v,确认；证实,to verify,,38
+connect,,v,连接；联系,to join together,,37
+consist,,v,组成；在于,to be composed of,,37
+contact,,v,联系；接触,to communicate with,,37
+contribute,,v,贡献；捐助,to give,,36
+control,,v,控制；管理,to direct,,36
+convince,,v,说服；使相信,to persuade,,36
+count,,v,数；计数,to enumerate,,35
+delay,,v,推迟；延误,to postpone,,35
+deliver,,v,递送；发表,to carry to destination,,35
+demand,,v,要求；需要,to ask forcefully,,34
+depend,,v,依赖；取决于,to rely on,,34
+design,,v,设计；构思,to create a plan,,34
+destroy,,v,破坏；毁灭,to ruin,,33
+determine,,v,决定；确定,to decide,,33
+distinguish,,v,区分；辨别,to tell apart,,33
+distribute,,v,分配；分发,to give out,,32
+earn,,v,赚取；获得,to gain by work,,32
+educate,,v,教育；培养,to teach,,32
+eliminate,,v,消除；淘汰,to remove,,31
+emphasize,,v,强调；着重,to stress,,31
+encourage,,v,鼓励；激励,to give courage,,31
+engage,,v,参与；从事,to involve,,30
+enjoy,,v,享受；喜欢,to take pleasure in,,30
+escape,,v,逃跑；逃避,to get away,,30
+estimate,,v,估计；估算,to approximate,,29
+evaluate,,v,评估；评价,to assess,,29
+examine,,v,检查；审查,to inspect closely,,29
+exchange,,v,交换；交流,to trade,,28
+exercise,,v,锻炼；行使,to train body,,28
+expand,,v,扩大；扩展,to enlarge,,28
+express,,v,表达；表示,to convey,,27
+extend,,v,延伸；扩展,to stretch out,,27
+fail,,v,失败；不及格,to not succeed,,27
+fear,,v,害怕；恐惧,to be afraid,,26
+focus,,v,聚焦；集中,to concentrate,,26
+forget,,v,忘记,to fail to remember,,26
+gain,,v,获得；增加,to obtain,,25
+gather,,v,收集；聚集,to bring together,,25
+generate,,v,产生；生成,to produce,,25
+guarantee,,v,保证；担保,to promise,,24
+handle,,v,处理；应付,to manage,,24
+hide,,v,隐藏；躲藏,to conceal,,24
+identify,,v,识别；确认,to recognize,,23
+ignore,,v,忽视；不理,to disregard,,23
+imagine,,v,想象；设想,to form mental image,,23
+imply,,v,暗示；意味着,to suggest,,22
+impress,,v,给…深刻印象,to affect deeply,,22
+indicate,,v,表明；指示,to point out,,22
+influence,,v,影响,to affect,,21
+insist,,v,坚持；坚决要求,to demand firmly,,21
+inspect,,v,检查；视察,to examine carefully,,21
+install,,v,安装；设置,to set up,,20
+intend,,v,打算；意图,to plan,,20
+introduce,,v,介绍；引入,to present,,20
+invest,,v,投资；投入,to put money in,,19
+involve,,v,涉及；包含,to include,,19
+judge,,v,判断；评判,to form opinion,,19
+maintain,,v,维持；保养,to keep up,,18
+measure,,v,测量；衡量,to determine size,,18
+obtain,,v,获得；得到,to acquire,,18
+occur,,v,发生；出现,to happen,,17
+operate,,v,操作；运转,to function,,17
+organize,,v,组织；安排,to arrange,,17
+overcome,,v,克服；战胜,to defeat,,16
+participate,,v,参与；参加,to take part,,16
+perceive,,v,感知；察觉,to become aware,,16
+persuade,,v,说服；劝说,to convince,,15
+possess,,v,拥有；具备,to own,,15
+predict,,v,预测；预言,to foretell,,15
+prepare,,v,准备；预备,to make ready,,14
+present,,v,呈现；赠送,to give,,14
+pretend,,v,假装；装作,to feign,,14
+process,,v,处理；加工,to handle,,13
+promise,,v,承诺；许诺,to pledge,,13
+propose,,v,提议；建议,to suggest,,13
+prove,,v,证明；证实,to demonstrate,,12
+publish,,v,出版；发表,to make public,,12
+purchase,,v,购买,to buy,,12
+pursue,,v,追求；追赶,to follow,,11
+recognize,,v,认出；承认,to identify,,11
+recommend,,v,推荐；建议,to suggest favorably,,11
+recover,,v,恢复；康复,to get back,,10
+refer,,v,提到；参考,to mention,,10
+reflect,,v,反射；反映,to mirror,,10
+refuse,,v,拒绝,to decline,,9
+regard,,v,认为；看待,to consider,,9
+reject,,v,拒绝；驳回,to refuse,,9
+relate,,v,联系；讲述,to connect,,8
+release,,v,释放；发布,to set free,,8
+rely,,v,依赖；信赖,to depend,,8
+represent,,v,代表；象征,to stand for,,7
+request,,v,请求；要求,to ask for,,7
+respond,,v,回应；回答,to reply,,7
+reveal,,v,揭示；透露,to disclose,,6
+satisfy,,v,满足；使满意,to fulfill,,6
+seek,,v,寻求；寻找,to search for,,6
+select,,v,选择；挑选,to choose,,5
+solve,,v,解决；解答,to find solution,,5
+struggle,,v,挣扎；奋斗,to strive,,5
+submit,,v,提交；呈递,to present for review,,5
+succeed,,v,成功；继承,to accomplish,,5
+supply,,v,供应；提供,to provide,,5
+survive,,v,幸存；存活,to remain alive,,5
+tend,,v,倾向；照料,to incline,,5
+threaten,,v,威胁；恐吓,to menace,,5
+transfer,,v,转移；转让,to move,,5
+transform,,v,转变；改造,to change form,,5
+treat,,v,对待；治疗,to deal with,,5
+vary,,v,变化；不同,to differ,,5
+warn,,v,警告；提醒,to caution,,5
+waste,,v,浪费,to use carelessly,,5
+wish,,v,希望；祝愿,to desire,,5
+abandon,,v,放弃；抛弃,to give up completely,,5
+abolish,,v,废除；取消,to officially end,,5
+abstract,,adj,抽象的,existing as an idea,,5
+abundant,,adj,丰富的；充裕的,plentiful,,5
+accelerate,,v,加速；促进,to speed up,,5
+accommodate,,v,容纳；适应,to provide space,,5
+accumulate,,v,积累；积聚,to gather over time,,5
+accurate,,adj,准确的；精确的,"exact, correct",,5
+acknowledge,,v,承认；致谢,to admit,,5
+acquire,,v,获得；习得,to gain,,5
+adapt,,v,适应；改编,to adjust,,5
+adequate,,adj,足够的；适当的,sufficient,,5
+adjacent,,adj,邻近的；毗邻的,next to,,5
+advocate,,v,提倡；主张,to support,,5
+aesthetic,,adj,美学的；审美的,relating to beauty,,5
+aggressive,,adj,侵略性的；好斗的,forceful,,5
+allocate,,v,分配；拨给,to assign,,5
+alternative,,n,替代方案,another option,,5
+ambiguous,,adj,模棱两可的,unclear,,5
+analyze,,v,分析；解析,to examine in detail,,5
+anticipate,,v,预期；预料,to expect,,5
+apparent,,adj,显然的；表面的,obvious,,5
+appreciate,,v,欣赏；感激,to value,,5
+appropriate,,adj,适当的；恰当的,suitable,,5
+arbitrary,,adj,任意的；武断的,random,,5
+artificial,,adj,人工的；人造的,man-made,,5
+assess,,v,评估；评定,to evaluate,,5
+assign,,v,分配；指派,to allocate,,5
+associate,,v,联想；联系,to connect,,5
+attain,,v,达到；获得,to achieve,,5
+attribute,,v,归因于,to credit to,,5
+authentic,,adj,真实的；可靠的,genuine,,5
+aware,,adj,意识到的；知道的,conscious of,,5
+bias,,n,偏见；偏向,prejudice,,5
+capacity,,n,能力；容量,"ability, volume",,5
+category,,n,类别；范畴,"class, group",,5
+cease,,v,停止；终止,to stop,,5
+clarify,,v,澄清；阐明,to make clear,,5
+coherent,,adj,连贯的；一致的,logical,,5
+coincide,,v,巧合；一致,to happen together,,5
+collapse,,v,倒塌；崩溃,to fall down,,5
+commence,,v,开始,to begin,,5
+commodity,,n,商品；货物,goods,,5
+compensate,,v,补偿；赔偿,to make up for,,5
+competent,,adj,有能力的；胜任的,capable,,5
+complement,,v,补充；补足,to complete,,5
+complex,,adj,复杂的,complicated,,5
+comprehensive,,adj,全面的；综合的,"complete, thorough",,5
+comprise,,v,包含；构成,to consist of,,5
+compromise,,n,妥协；折中,settlement,,5
+concept,,n,概念；观念,idea,,5
+conclude,,v,得出结论；结束,"to end, to decide",,5
+concrete,,adj,具体的；实在的,"real, specific",,5
+conduct,,v,进行；引导,to carry out,,5
+confer,,v,授予；商讨,"to grant, to discuss",,5
+confine,,v,限制；禁闭,to restrict,,5
+conform,,v,符合；遵守,to comply,,5
+confront,,v,面对；对抗,to face,,5
+consecutive,,adj,连续的,in a row,,5
+consensus,,n,共识；一致,general agreement,,5
+consequence,,n,后果；结果,result,,5
+conserve,,v,保护；节约,to preserve,,5
+consistent,,adj,一致的；始终如一的,"steady, uniform",,5
+constitute,,v,构成；组成,to form,,5
+constrain,,v,限制；约束,to restrict,,5
+construct,,v,建造；构建,to build,,5
+consult,,v,咨询；查阅,to seek advice,,5
+consume,,v,消耗；消费,to use up,,5
+contemplate,,v,沉思；考虑,to think deeply,,5
+contemporary,,adj,当代的；同时代的,modern,,5
+contradict,,v,反驳；矛盾,to oppose,,5
+controversial,,adj,有争议的,debatable,,5
+conventional,,adj,传统的；常规的,traditional,,5
+convey,,v,传达；运送,to communicate,,5
+crucial,,adj,关键的；重要的,critical,,5
+cultivate,,v,培养；耕作,to nurture,,5
+decline,,v,下降；婉拒,"to decrease, to refuse",,5
+deduce,,v,推断；演绎,to infer,,5
+deficiency,,n,缺乏；不足,shortage,,5
+demonstrate,,v,证明；展示,to show clearly,,5
+derive,,v,源自；获得,to obtain from,,5
+deteriorate,,v,恶化；退化,to worsen,,5
+deviate,,v,偏离；背离,to depart from,,5
+dimension,,n,维度；尺寸,"aspect, size",,5
+diminish,,v,减少；缩小,to decrease,,5
+discriminate,,v,歧视；区别,to distinguish,,5
+displace,,v,取代；转移,"to move, to replace",,5
+dispose,,v,处理；处置,to get rid of,,5
+distinct,,adj,明显的；不同的,clearly different,,5
+distort,,v,扭曲；歪曲,to twist out of shape,,5
+diverse,,adj,多样的；不同的,varied,,5
+dominate,,v,支配；主导,to control,,5
+dramatic,,adj,戏剧性的；剧烈的,striking,,5
+dynamic,,adj,动态的；有活力的,energetic,,5
+elaborate,,adj,详尽的；复杂的,detailed,,5
+emerge,,v,出现；浮现,to come forth,,5
+empirical,,adj,经验的；实证的,based on observation,,5
+enhance,,v,提高；增强,to improve,,5
+enormous,,adj,巨大的,huge,,5
+ensure,,v,确保；保证,to make certain,,5
+equivalent,,adj,相等的；等价的,equal,,5
+evolve,,v,进化；演变,to develop gradually,,5
+exceed,,v,超过；超越,to surpass,,5
+explicit,,adj,明确的；清楚的,"clear, direct",,5
+exploit,,v,利用；剥削,to use for benefit,,5
+external,,adj,外部的；外在的,outside,,5
+facilitate,,v,促进；使便利,to make easier,,5
+fluctuate,,v,波动；起伏,to vary irregularly,,5
+fundamental,,adj,基本的；根本的,basic,,5
+genuine,,adj,真实的；真诚的,authentic,,5
+hypothesis,,n,假设；假说,proposed explanation,,5
+implicit,,adj,含蓄的；隐含的,implied,,5
+incentive,,n,激励；诱因,motivation,,5
+inevitable,,adj,不可避免的,unavoidable,,5
+infer,,v,推断；推论,to deduce,,5
+infrastructure,,n,基础设施,basic facilities,,5
+inherent,,adj,固有的；内在的,intrinsic,,5
+innovation,,n,创新；革新,new idea,,5
+integrate,,v,整合；融合,to combine,,5
+interpret,,v,解释；诠释,to explain,,5
+intervene,,v,干预；介入,to interfere,,5
+intrinsic,,adj,固有的；本质的,essential,,5
+justify,,v,证明…正当,to show to be right,,5
+legitimate,,adj,合法的；正当的,lawful,,5
+levy,,v,征收；征税,to impose tax,,5
+liberal,,adj,开明的；自由的,open-minded,,5
+logic,,n,逻辑；推理,reasoning,,5
+manifest,,adj,明显的,"clear, obvious",,5
+manipulate,,v,操纵；操作,to control,,5
+marginal,,adj,边缘的；微小的,minor,,5
+maximize,,v,最大化,to make as large as possible,,5
+mechanism,,n,机制；机理,process,,5
+mediate,,v,调解；斡旋,to settle dispute,,5
+minimize,,v,最小化；降低,to reduce to minimum,,5
+modify,,v,修改；调整,to change slightly,,5
+monitor,,v,监控；监测,to observe,,5
+mutual,,adj,相互的；共同的,shared,,5
+neglect,,v,忽视；疏忽,to fail to care for,,5
+neutral,,adj,中立的,impartial,,5
+notion,,n,概念；观念,idea,,5
+objective,,adj,客观的,unbiased,,5
+obstacle,,n,障碍；阻碍,barrier,,5
+offset,,v,抵消；补偿,to counterbalance,,5
+ongoing,,adj,持续的；进行中的,continuing,,5
+optimal,,adj,最佳的；最优的,best possible,,5
+orient,,v,使适应；定向,"to adjust, to direct",,5
+paradigm,,n,范式；典范,"model, pattern",,5
+parameter,,n,参数；界限,"factor, limit",,5
+persist,,v,坚持；持续,to continue firmly,,5
+phenomenon,,n,现象,observable event,,5
+potential,,adj,潜在的；可能的,possible,,5
+precede,,v,先于；领先,to come before,,5
+precise,,adj,精确的；准确的,exact,,5
+predominant,,adj,主要的；占主导的,"main, dominant",,5
+preliminary,,adj,初步的；预备的,initial,,5
+presume,,v,假定；推测,to suppose,,5
+prevail,,v,盛行；获胜,"to win, to be common",,5
+principal,,adj,主要的；首要的,main,,5
+principle,,n,原则；原理,"rule, truth",,5
+priority,,n,优先；重点,precedence,,5
+profound,,adj,深刻的；深远的,"deep, intense",,5
+prohibit,,v,禁止,to forbid,,5
+prominent,,adj,突出的；著名的,"famous, noticeable",,5
+promote,,v,促进；晋升,to advance,,5
+prospect,,n,前景；可能性,possibility,,5
+radical,,adj,根本的；激进的,extreme,,5
+random,,adj,随机的；任意的,by chance,,5
+rational,,adj,理性的；合理的,reasonable,,5
+regulate,,v,调节；管理,to control,,5
+reinforce,,v,加强；强化,to strengthen,,5
+relevant,,adj,相关的；切题的,pertinent,,5
+reluctant,,adj,不情愿的；勉强的,unwilling,,5
+resolve,,v,解决；决心,to settle,,5
+restore,,v,恢复；修复,to bring back,,5
+restrict,,v,限制；约束,to limit,,5
+retain,,v,保留；保持,to keep,,5
+reverse,,v,颠倒；反转,to turn around,,5
+rigid,,adj,僵硬的；严格的,"stiff, strict",,5
+scenario,,n,场景；方案,situation,,5
+scheme,,n,计划；方案,plan,,5
+scope,,n,范围；余地,range,,5
+sector,,n,部门；领域,section,,5
+significant,,adj,重要的；显著的,important,,5
+simulate,,v,模拟；仿真,to imitate,,5
+sole,,adj,唯一的；单独的,only,,5
+specify,,v,明确说明；指定,to state precisely,,5
+sphere,,n,领域；范围,"field, domain",,5
+spontaneous,,adj,自发的；自然的,unplanned,,5
+stable,,adj,稳定的；牢固的,steady,,5
+stimulate,,v,刺激；激励,to encourage,,5
+strategy,,n,策略；战略,plan,,5
+subsequent,,adj,随后的；后来的,following,,5
+substitute,,v,替代；替换,to replace,,5
+sufficient,,adj,足够的；充分的,enough,,5
+superior,,adj,优越的；上级的,"better, higher",,5
+sustain,,v,维持；支撑,to support,,5
+temporary,,adj,临时的；暂时的,not permanent,,5
+trigger,,v,触发；引发,to cause,,5
+ultimate,,adj,最终的；根本的,final,,5
+undergo,,v,经历；经受,to experience,,5
+undermine,,v,削弱；破坏,to weaken,,5
+unique,,adj,独特的；唯一的,one of a kind,,5
+utilize,,v,利用；使用,to use,,5
+valid,,adj,有效的；合理的,sound,,5
+viable,,adj,可行的；能存活的,workable,,5
+virtual,,adj,虚拟的；实际上的,simulated,,5
+visible,,adj,可见的；明显的,able to be seen,,5
+widespread,,adj,广泛的；普遍的,extensive,,5

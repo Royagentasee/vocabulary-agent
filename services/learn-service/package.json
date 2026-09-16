@@ -1,0 +1,28 @@
+{
+  "name": "@vocab-agent/learn-service",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "start": "node dist/main.js",
+    "lint": "eslint src --ext .ts",
+    "test": "jest",
+    "clean": "rimraf dist .turbo"
+  },
+  "dependencies": {
+    "@nestjs/core": "^10.3.0",
+    "@nestjs/common": "^10.3.0",
+    "@nestjs/typeorm": "^10.0.0",
+    "@nestjs/microservices": "^10.3.0",
+    "typeorm": "^0.3.0",
+    "pg": "^8.11.0",
+    "ioredis": "^5.3.0",
+    "@vocab-agent/sdk-fsrs": "workspace:*",
+    "@vocab-agent/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^10.3.0",
+    "typescript": "^5.4.0"
+  }
+}

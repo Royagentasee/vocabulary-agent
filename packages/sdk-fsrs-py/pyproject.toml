@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vocab-agent-sdk-fsrs"
+version = "0.1.0"
+description = "FSRS 算法 Python SDK（与 TS 端对齐）"
+requires-python = ">=3.10"
+dependencies = [
+    "fsrs>=4.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

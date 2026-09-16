@@ -1,0 +1,54 @@
+# ============ 依赖与构建产物 ============
+node_modules/
+.pnpm-store/
+dist/
+build/
+.turbo/
+.cache/
+coverage/
+*.tsbuildinfo
+
+# ============ 日志 ============
+*.log
+logs/
+
+# ============ 本地数据库 ============
+*.db
+*.sqlite
+*.sqlite3
+
+# ============ 环境变量（含密钥，绝对不要提交）============
+.env
+.env.local
+.env.*.local
+# 但示例文件要提交，方便别人照着填
+!.env.example
+!.env.*.example
+
+# ============ 部署脚本的临时输出 ============
+deploy/*.txt
+
+# ============ 下载的官方真题原始 PDF ============
+# 体积大（约 45MB），由 tools/seed-data/extract_*.py 自动下载；
+# 提取后的 JSON 题库会提交，不需要原始 PDF。
+tools/seed-data/data/reading/*.pdf
+tools/seed-data/data/writing/*.pdf
+tools/seed-data/data/ecdict.csv
+
+# ============ Python ============
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ============ 编辑器 / 系统 ============
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~

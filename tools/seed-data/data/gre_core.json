@@ -1,0 +1,394 @@
+[
+  {
+    "headword": "ephemeral",
+    "ipa": "/ɪˈfem.ər.əl/",
+    "translation": "adj. 短暂的",
+    "example": "Fashions are ephemeral: classics are eternal.",
+    "exam_tag": "GRE",
+    "frequency": 0.85
+  },
+  {
+    "headword": "ubiquitous",
+    "ipa": "/juːˈbɪk.wɪ.təs/",
+    "translation": "adj. 无处不在的",
+    "example": "Smartphones have become ubiquitous in modern life.",
+    "exam_tag": "GRE",
+    "frequency": 0.88
+  },
+  {
+    "headword": "meticulous",
+    "ipa": "/məˈtɪk.jə.ləs/",
+    "translation": "adj. 一丝不苟的",
+    "example": "The report was the result of meticulous research.",
+    "exam_tag": "GRE",
+    "frequency": 0.90
+  },
+  {
+    "headword": "pragmatic",
+    "ipa": "/præɡˈmæt.ɪk/",
+    "translation": "adj. 务实的",
+    "example": "A pragmatic leader focuses on what works.",
+    "exam_tag": "GRE",
+    "frequency": 0.78
+  },
+  {
+    "headword": "resilient",
+    "ipa": "/rɪˈzɪl.i.ənt/",
+    "translation": "adj. 有韧性的",
+    "example": "Children are remarkably resilient.",
+    "exam_tag": "TOEFL",
+    "frequency": 0.72
+  },
+  {
+    "headword": "scrutinize",
+    "ipa": "/ˈskruː.tə.naɪz/",
+    "translation": "v. 详细检查",
+    "example": "The auditor scrutinized every transaction.",
+    "exam_tag": "GRE",
+    "frequency": 0.82
+  },
+  {
+    "headword": "ambivalent",
+    "ipa": "/æmˈbɪv.ə.lənt/",
+    "translation": "adj. 矛盾的",
+    "example": "She was ambivalent about moving abroad.",
+    "exam_tag": "GRE",
+    "frequency": 0.91
+  },
+  {
+    "headword": "concise",
+    "ipa": "/kənˈsaɪs/",
+    "translation": "adj. 简明的",
+    "example": "Please keep your answer concise.",
+    "exam_tag": "IELTS",
+    "frequency": 0.80
+  },
+  {
+    "headword": "candor",
+    "ipa": "/ˈkæn.dɚ/",
+    "translation": "n. 坦诚",
+    "example": "She spoke with remarkable candor.",
+    "exam_tag": "GRE",
+    "frequency": 0.75
+  },
+  {
+    "headword": "mitigate",
+    "ipa": "/ˈmɪt̬.ə.ɡeɪt/",
+    "translation": "v. 减轻",
+    "example": "Measures to mitigate environmental damage.",
+    "exam_tag": "GRE",
+    "frequency": 0.87
+  },
+  {
+    "headword": "ostensibly",
+    "ipa": "/ɑːˈsten.sə.bli/",
+    "translation": "adv. 表面上",
+    "example": "Ostensibly a friend, he was actually an enemy.",
+    "exam_tag": "GRE",
+    "frequency": 0.83
+  },
+  {
+    "headword": "perfunctory",
+    "ipa": "/pɚˈfʌŋk.tɚ.i/",
+    "translation": "adj. 敷衍的",
+    "example": "He gave a perfunctory nod.",
+    "exam_tag": "GRE",
+    "frequency": 0.79
+  },
+  {
+    "headword": "laconic",
+    "ipa": "/ləˈkɑː.nɪk/",
+    "translation": "adj. 言简意赅的",
+    "example": "His laconic reply suggested disapproval.",
+    "exam_tag": "GRE",
+    "frequency": 0.74
+  },
+  {
+    "headword": "salient",
+    "ipa": "/ˈseɪ.li.ənt/",
+    "translation": "adj. 显著的",
+    "example": "She summarized the salient points.",
+    "exam_tag": "GRE",
+    "frequency": 0.77
+  },
+  {
+    "headword": "tacit",
+    "ipa": "/ˈtæs.ɪt/",
+    "translation": "adj. 默示的",
+    "example": "Their tacit agreement was clear.",
+    "exam_tag": "GRE",
+    "frequency": 0.76
+  },
+  {
+    "headword": "equivocate",
+    "ipa": "/ɪˈkwɪv.ə.keɪt/",
+    "translation": "v. 含糊其辞",
+    "example": "He equivocated on the key issue.",
+    "exam_tag": "GRE",
+    "frequency": 0.71
+  },
+  {
+    "headword": "penchant",
+    "ipa": "/ˈpen.tʃənt/",
+    "translation": "n. 爱好",
+    "example": "She has a penchant for adventure.",
+    "exam_tag": "GRE",
+    "frequency": 0.73
+  },
+  {
+    "headword": "quixotic",
+    "ipa": "/kwɪkˈsɑː.tɪk/",
+    "translation": "adj. 不切实际的",
+    "example": "A quixotic mission to save the world.",
+    "exam_tag": "GRE",
+    "frequency": 0.69
+  },
+  {
+    "headword": "spurious",
+    "ipa": "/ˈspjʊr.i.əs/",
+    "translation": "adj. 伪造的",
+    "example": "Spurious claims were dismissed.",
+    "exam_tag": "GRE",
+    "frequency": 0.84
+  },
+  {
+    "headword": "venerable",
+    "ipa": "/ˈven.ɚ.ə.bəl/",
+    "translation": "adj. 庄严的",
+    "example": "A venerable old professor.",
+    "exam_tag": "GRE",
+    "frequency": 0.68
+  },
+  {
+    "headword": "anachronistic",
+    "ipa": "/əˌnæk.rəˈnɪs.tɪk/",
+    "translation": "adj. 时代错误的",
+    "example": "The sword is anachronistic in a modern setting.",
+    "exam_tag": "GRE",
+    "frequency": 0.65
+  },
+  {
+    "headword": "bombastic",
+    "ipa": "/bɑːmˈbæs.tɪk/",
+    "translation": "adj. 夸大的",
+    "example": "His bombastic speech impressed no one.",
+    "exam_tag": "GRE",
+    "frequency": 0.72
+  },
+  {
+    "headword": "capricious",
+    "ipa": "/kəˈprɪʃ.əs/",
+    "translation": "adj. 反复无常的",
+    "example": "Capricious weather ruined the picnic.",
+    "exam_tag": "GRE",
+    "frequency": 0.78
+  },
+  {
+    "headword": "deride",
+    "ipa": "/dɪˈraɪd/",
+    "translation": "v. 嘲笑",
+    "example": "Critics derided the proposal.",
+    "exam_tag": "GRE",
+    "frequency": 0.81
+  },
+  {
+    "headword": "ebullient",
+    "ipa": "/ɪˈbʊl.i.ənt/",
+    "translation": "adj. 热情洋溢的",
+    "example": "An ebullient stage performance.",
+    "exam_tag": "GRE",
+    "frequency": 0.66
+  },
+  {
+    "headword": "fastidious",
+    "ipa": "/fæˈstɪd.i.əs/",
+    "translation": "adj. 挑剔的",
+    "example": "She is fastidious about her appearance.",
+    "exam_tag": "GRE",
+    "frequency": 0.74
+  },
+  {
+    "headword": "garrulous",
+    "ipa": "/ˈɡær.ə.ləs/",
+    "translation": "adj. 唠叨的",
+    "example": "Garrulous neighbors kept him up.",
+    "exam_tag": "GRE",
+    "frequency": 0.67
+  },
+  {
+    "headword": "hackneyed",
+    "ipa": "/ˈhæk.niːd/",
+    "translation": "adj. 陈腐的",
+    "example": "A hackneyed plot twist.",
+    "exam_tag": "GRE",
+    "frequency": 0.70
+  },
+  {
+    "headword": "iconoclast",
+    "ipa": "/aɪˈkɑː.nə.klæst/",
+    "translation": "n. 反传统者",
+    "example": "An iconoclast in the art world.",
+    "exam_tag": "GRE",
+    "frequency": 0.69
+  },
+  {
+    "headword": "jocular",
+    "ipa": "/ˈdʒɑː.kjə.lɚ/",
+    "translation": "adj. 诙谐的",
+    "example": "His jocular tone lightened the mood.",
+    "exam_tag": "GRE",
+    "frequency": 0.65
+  },
+  {
+    "headword": "knavery",
+    "ipa": "/ˈneɪ.vɚ.i/",
+    "translation": "n. 欺诈",
+    "example": "Reports of pirate knavery.",
+    "exam_tag": "GRE",
+    "frequency": 0.62
+  },
+  {
+    "headword": "languid",
+    "ipa": "/ˈlæŋ.ɡwɪd/",
+    "translation": "adj. 无精打采的",
+    "example": "A languid summer afternoon.",
+    "exam_tag": "GRE",
+    "frequency": 0.68
+  },
+  {
+    "headword": "maverick",
+    "ipa": "/ˈmæv.ɚ.ɪk/",
+    "translation": "n. 特立独行的人",
+    "example": "A political maverick.",
+    "exam_tag": "GRE",
+    "frequency": 0.71
+  },
+  {
+    "headword": "nascent",
+    "ipa": "/ˈnæs.ənt/",
+    "translation": "adj. 新生的",
+    "example": "The nascent industry was growing fast.",
+    "exam_tag": "GRE",
+    "frequency": 0.79
+  },
+  {
+    "headword": "obfuscate",
+    "ipa": "/ˈɑːb.fə.skeɪt/",
+    "translation": "v. 使模糊",
+    "example": "Don't obfuscate the truth.",
+    "exam_tag": "GRE",
+    "frequency": 0.72
+  },
+  {
+    "headword": "panacea",
+    "ipa": "/ˌpæn.əˈsiː.ə/",
+    "translation": "n. 万灵药",
+    "example": "Education is not a panacea.",
+    "exam_tag": "GRE",
+    "frequency": 0.70
+  },
+  {
+    "headword": "quiescent",
+    "ipa": "/kwiˈes.ənt/",
+    "translation": "adj. 静止的",
+    "example": "A quiescent volcano.",
+    "exam_tag": "GRE",
+    "frequency": 0.66
+  },
+  {
+    "headword": "rhetoric",
+    "ipa": "/ˈret.ɚ.ɪk/",
+    "translation": "n. 修辞",
+    "example": "Powerful political rhetoric.",
+    "exam_tag": "GRE",
+    "frequency": 0.86
+  },
+  {
+    "headword": "soporific",
+    "ipa": "/ˌsɑː.pəˈrɪf.ɪk/",
+    "translation": "adj. 催眠的",
+    "example": "A soporific lecture.",
+    "exam_tag": "GRE",
+    "frequency": 0.63
+  },
+  {
+    "headword": "truculent",
+    "ipa": "/ˈtrʌk.jə.lənt/",
+    "translation": "adj. 好斗的",
+    "example": "Truculent comments sparked debate.",
+    "exam_tag": "GRE",
+    "frequency": 0.64
+  },
+  {
+    "headword": "umbrage",
+    "ipa": "/ˈʌm.brɪdʒ/",
+    "translation": "n. 不快",
+    "example": "He took umbrage at the remark.",
+    "exam_tag": "GRE",
+    "frequency": 0.61
+  },
+  {
+    "headword": "verbose",
+    "ipa": "/vɚˈboʊs/",
+    "translation": "adj. 冗长的",
+    "example": "A verbose explanation.",
+    "exam_tag": "GRE",
+    "frequency": 0.76
+  },
+  {
+    "headword": "winsome",
+    "ipa": "/ˈwɪn.səm/",
+    "translation": "adj. 迷人的",
+    "example": "A winsome smile.",
+    "exam_tag": "GRE",
+    "frequency": 0.62
+  },
+  {
+    "headword": "yoke",
+    "ipa": "/joʊk/",
+    "translation": "n. 束缚",
+    "example": "The yoke of oppression.",
+    "exam_tag": "GRE",
+    "frequency": 0.59
+  },
+  {
+    "headword": "zealous",
+    "ipa": "/ˈzel.əs/",
+    "translation": "adj. 热心的",
+    "example": "A zealous advocate.",
+    "exam_tag": "GRE",
+    "frequency": 0.70
+  },
+  {
+    "headword": "arduous",
+    "ipa": "/ˈɑːr.dʒu.əs/",
+    "translation": "adj. 艰巨的",
+    "example": "An arduous journey.",
+    "exam_tag": "GRE",
+    "frequency": 0.75
+  },
+  {
+    "headword": "belie",
+    "ipa": "/bɪˈlaɪ/",
+    "translation": "v. 掩饰",
+    "example": "His calm face belied his panic.",
+    "exam_tag": "GRE",
+    "frequency": 0.78
+  },
+  {
+    "headword": "censure",
+    "ipa": "/ˈsen.ʃɚ/",
+    "translation": "v. 谴责",
+    "example": "The senator was censured for misconduct.",
+    "exam_tag": "GRE",
+    "frequency": 0.73
+  },
+  {
+    "headword": "decorum",
+    "ipa": "/dɪˈkɔːr.əm/",
+    "translation": "n. 礼仪",
+    "example": "Behave with decorum.",
+    "exam_tag": "GRE",
+    "frequency": 0.67
+  }
+]

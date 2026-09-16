@@ -1,0 +1,25 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'ai-gateway'
+    static_configs:
+      - targets: ['ai-gateway:8000']
+    metrics_path: /metrics
+
+  - job_name: 'learn-service'
+    static_configs:
+      - targets: ['learn-service:3001']
+
+  - job_name: 'admin-service'
+    static_configs:
+      - targets: ['admin-service:8001']
+
+rule_files:
+  - "alerts.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']

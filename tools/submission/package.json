@@ -1,0 +1,17 @@
+{
+  "name": "@vocab-agent/tools-submission",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "capture": "node capture-screenshots.mjs",
+    "audit": "node audit-checklist.mjs",
+    "package": "node build-package.mjs",
+    "submit": "node submit-mini.mjs",
+    "ios": "node eas-ios.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.45.0",
+    "sharp": "^0.33.4"
+  }
+}

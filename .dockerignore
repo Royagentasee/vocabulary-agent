@@ -1,0 +1,16 @@
+node_modules
+**/node_modules
+.git
+.gitignore
+dist
+**/dist
+.turbo
+logs
+*.log
+vocab_agent.db
+*.sqlite
+.env
+.env.production
+.DS_Store
+.idea
+.vscode

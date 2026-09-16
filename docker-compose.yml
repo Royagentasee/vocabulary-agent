@@ -1,0 +1,77 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: vocab
+      POSTGRES_PASSWORD: vocab
+      POSTGRES_DB: vocab_agent
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vocab -d vocab_agent"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  ai-gateway:
+    build:
+      context: ./services/ai-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgres://vocab:vocab@postgres:5432/vocab_agent
+      REDIS_URL: redis://redis:6379
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      ZHIPU_API_KEY: ${ZHIPU_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      LLM_PROVIDER: deepseek
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  admin-service:
+    build:
+      context: ./services/admin-service
+    ports:
+      - "8001:8001"
+    environment:
+      DATABASE_URL: postgres://vocab:vocab@postgres:5432/vocab_agent
+      JWT_SECRET: ${JWT_SECRET:-please-change-me-in-production}
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://vocab:vocab@postgres:5432/vocab_agent
+      REDIS_URL: redis://redis:6379
+      AI_GATEWAY_URL: http://ai-gateway:8000
+      ADMIN_SERVICE_URL: http://admin-service:8001
+    depends_on:
+      - ai-gateway
+      - admin-service
+
+volumes:
+  postgres_data:

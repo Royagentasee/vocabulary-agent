@@ -1,0 +1,33 @@
+groups:
+  - name: vocab-agent-infra
+    rules:
+      - alert: AIHighErrorRate
+        expr: |
+          rate(ai_requests_total{status="error"}[5m])
+          / rate(ai_requests_total[5m]) > 0.01
+        for: 5m
+        annotations:
+          summary: "AI 接口错误率超过 1%"
+          description: "5 分钟内错误率 {{ $value | humanizePercentage }}"
+
+      - alert: AISlowResponse
+        expr: |
+          histogram_quantile(0.95, ai_request_duration_seconds) > 8
+        for: 5m
+        annotations:
+          summary: "AI 接口 P95 超过 8 秒"
+
+      - alert: CacheLowHitRate
+        expr: |
+          rate(cache_hits_total[5m])
+          / (rate(cache_hits_total[5m]) + rate(cache_misses_total[5m])) < 0.5
+        for: 30m
+        annotations:
+          summary: "缓存命中率低于 50%"
+
+      - alert: RateLimitSpike
+        expr: |
+          rate(rate_limit_rejected_total[5m]) > 1
+        for: 5m
+        annotations:
+          summary: "限流触发频率异常"

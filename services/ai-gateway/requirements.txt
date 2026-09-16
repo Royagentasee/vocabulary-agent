@@ -1,0 +1,15 @@
+fastapi>=0.110.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.7.0
+pydantic-settings>=2.3.0
+openai>=1.30.0
+httpx>=0.27.0
+python-dotenv>=1.0.1
+loguru>=0.7.2
+redis>=5.0.0
+psycopg[binary]>=3.1.0
+prometheus-client>=0.20.0
+
+# 本地 SDK（相对路径，相对 requirements.txt 解析）
+-e ../../packages/sdk-llm-py
+-e ../../packages/sdk-fsrs-py
