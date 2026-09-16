@@ -6,6 +6,7 @@ import {
   WritingResult,
   WritingPrompt,
 } from '@/services/writing'
+import { trackEvent } from '@/services/stats'
 
 type Mode = 'bank' | 'free'
 
@@ -109,6 +110,7 @@ function BankWriting() {
         item.taskLabel,
       )
       setResult(r)
+      trackEvent('writing_generate', `gre:${item.taskType}`)
     } catch (e: any) {
       setError(e?.message ?? '生成失败')
     } finally {
@@ -229,6 +231,7 @@ function FreeWriting() {
       const words = useLearned ? recentWords : []
       const r = await generateWriting(topic.trim(), words)
       setResult(r)
+      trackEvent('writing_generate', 'free')
     } catch (e: any) {
       setError(e?.message ?? '生成失败')
     } finally {

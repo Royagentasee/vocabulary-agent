@@ -1,4 +1,5 @@
-import { Routes, Route, NavLink } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Routes, Route, NavLink, useLocation } from 'react-router-dom'
 import { HomePage } from '@/pages/HomePage'
 import { WordbooksPage } from '@/pages/WordbooksPage'
 import { LearnPage } from '@/pages/LearnPage'
@@ -9,6 +10,7 @@ import { WritingPage } from '@/pages/WritingPage'
 import { ReadingPage } from '@/pages/ReadingPage'
 import { UIKit } from '@/components/UIKit'
 import { BrowserGuard } from '@/components/BrowserGuard'
+import { trackEvent, trackVisit } from '@/services/stats'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Home' },
@@ -23,6 +25,17 @@ const NAV_ITEMS = [
 ]
 
 export default function App() {
+  const location = useLocation()
+
+  // 统计：每次页面加载记一次访问，路由切换记一次 pageview
+  useEffect(() => {
+    trackVisit()
+  }, [])
+
+  useEffect(() => {
+    if (location.pathname !== '/') trackEvent('pageview', location.pathname)
+  }, [location.pathname])
+
   return (
     <div className="min-h-screen flex flex-col">
       <BrowserGuard />

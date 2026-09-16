@@ -6,6 +6,7 @@ import {
   ReadingQuestion,
   BankItem,
 } from '@/services/reading'
+import { trackEvent } from '@/services/stats'
 
 type Mode = 'bank' | 'ai'
 
@@ -84,6 +85,7 @@ function BankPractice() {
       setItems(r.items)
       setTotal(r.total)
       if (r.items.length === 0) setError('题库为空')
+      else trackEvent('reading_practice', `bank:${r.items.length}`)
     } catch (e: any) {
       setError(e?.message ?? '加载失败')
     } finally {
@@ -232,6 +234,7 @@ function AiPractice() {
     try {
       const r = await generateReading(passage.trim(), numQuestions)
       setResult(r)
+      trackEvent('reading_ai', `questions:${numQuestions}`)
     } catch (e: any) {
       setError(e?.message ?? '生成失败')
     } finally {

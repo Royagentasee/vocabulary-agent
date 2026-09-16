@@ -7,6 +7,7 @@ import { AIExplainPanel } from '@/features/ai/AIExplainPanel'
 import { QuizPanel } from '@/features/ai/QuizPanel'
 import { WordRootCard } from '@/features/learn/WordRootCard'
 import { SpeakButton } from '@/components/SpeakButton'
+import { trackEvent } from '@/services/stats'
 
 interface LearningCardProps {
   word: Word
@@ -59,6 +60,7 @@ export function LearningCard({ word, onRate, progress, cardState }: LearningCard
     setSelected(label)
     setAnswered(true)
     const isCorrect = meaningQuiz && label === meaningQuiz.correct_label
+    trackEvent('learn_answer', isCorrect ? 'correct' : 'wrong')
     setTimeout(() => {
       onRate(isCorrect ? Rating.Good : Rating.Again)
     }, 1200)
@@ -67,6 +69,7 @@ export function LearningCard({ word, onRate, progress, cardState }: LearningCard
   const handleAskAI = async () => {
     setShowExplanation(true)
     setAiLoading(true)
+    trackEvent('ai_explain', word.headword)
     try {
       const result = await explainWord(word.headword)
       setAiExplanation(result)
