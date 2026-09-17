@@ -48,9 +48,6 @@ export function ReviewPage() {
         <div className="text-4xl">🎉</div>
         <h2 className="text-xl font-semibold">复习完成！</h2>
         <p className="text-ink-500">本次复习了 {reviewQueue.length} 个词</p>
-        <Link to="/stats" className="va-btn va-btn--primary va-btn--md inline-block">
-          查看学习报告
-        </Link>
       </div>
     )
   }

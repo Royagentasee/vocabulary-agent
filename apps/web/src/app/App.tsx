@@ -20,7 +20,6 @@ const NAV_ITEMS = [
   { to: '/wrongbook', label: '错题本' },
   { to: '/writing', label: '写作' },
   { to: '/reading', label: '阅读' },
-  { to: '/stats', label: '统计' },
   { to: '/ui', label: 'UI Kit' },
 ]
 
