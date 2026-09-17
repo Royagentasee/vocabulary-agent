@@ -30,6 +30,31 @@ class PlatformCount(BaseModel):
     count: int
 
 
+class RetentionDay(BaseModel):
+    date: str
+    newUsers: int
+    d1Users: int
+    d1Rate: int | None = None   # 窗口未走完时为 null
+    d7Users: int
+    d7Rate: int | None = None
+
+
+class RetentionStats(BaseModel):
+    d1Rate: int = 0     # 次日留存率（%）
+    d1Base: int = 0     # 参与计算的用户数
+    d7Rate: int = 0     # 7 日留存率（%）
+    d7Base: int = 0
+    daily: list[RetentionDay] = []
+
+
+class RecentActivity(BaseModel):
+    time: str
+    device: str
+    platform: str
+    event: str
+    detail: str
+
+
 class OverviewResponse(BaseModel):
     totalUsers: int = 0       # 累计用户（匿名设备数）
     todayUsers: int = 0       # 今日活跃
@@ -42,3 +67,5 @@ class OverviewResponse(BaseModel):
     daily: list[DailyPoint] = []
     topEvents: list[EventCount] = []
     platforms: list[PlatformCount] = []
+    retention: RetentionStats = Field(default_factory=RetentionStats)
+    recent: list[RecentActivity] = []

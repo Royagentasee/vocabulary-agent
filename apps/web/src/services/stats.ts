@@ -56,6 +56,31 @@ export interface DailyPoint {
   visits: number
 }
 
+export interface RetentionDay {
+  date: string
+  newUsers: number
+  d1Users: number
+  d1Rate: number | null
+  d7Users: number
+  d7Rate: number | null
+}
+
+export interface RetentionStats {
+  d1Rate: number
+  d1Base: number
+  d7Rate: number
+  d7Base: number
+  daily: RetentionDay[]
+}
+
+export interface RecentActivity {
+  time: string
+  device: string
+  platform: string
+  event: string
+  detail: string
+}
+
 export interface Overview {
   totalUsers: number
   todayUsers: number
@@ -68,6 +93,8 @@ export interface Overview {
   daily: DailyPoint[]
   topEvents: { event: string; count: number }[]
   platforms: { name: string; count: number }[]
+  retention: RetentionStats
+  recent: RecentActivity[]
 }
 
 export async function fetchOverview(days = 14): Promise<Overview> {

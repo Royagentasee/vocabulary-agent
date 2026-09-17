@@ -123,6 +123,106 @@ def record_event(device_id: str, event: str, detail: str = '', user_agent: str =
         return False
 
 
+def _retention(conn, days: int) -> dict:
+    """留存分析：按「首次出现日期」分组的次日留存 / 7 日留存。"""
+    since = (datetime.now() - timedelta(days=days - 1)).strftime('%Y-%m-%d')
+    rows = conn.execute(
+        """
+        SELECT date(first_seen) AS cohort,
+               COUNT(*) AS new_users,
+               SUM(CASE WHEN EXISTS (
+                     SELECT 1 FROM usage_events e
+                     WHERE e.device_id = usage_devices.device_id
+                       AND date(e.created_at) = date(usage_devices.first_seen, '+1 day')
+                   ) THEN 1 ELSE 0 END) AS d1,
+               SUM(CASE WHEN EXISTS (
+                     SELECT 1 FROM usage_events e
+                     WHERE e.device_id = usage_devices.device_id
+                       AND date(e.created_at) > date(usage_devices.first_seen)
+                       AND date(e.created_at) <= date(usage_devices.first_seen, '+7 day')
+                   ) THEN 1 ELSE 0 END) AS d7
+        FROM usage_devices
+        WHERE date(first_seen) >= ?
+        GROUP BY cohort ORDER BY cohort
+        """,
+        (since,),
+    ).fetchall()
+
+    today = datetime.now().date()
+    daily = []
+    for r in rows:
+        try:
+            cohort_date = datetime.strptime(r['cohort'], '%Y-%m-%d').date()
+        except Exception:
+            continue
+        age = (today - cohort_date).days
+        new_users = int(r['new_users'] or 0)
+        d1 = int(r['d1'] or 0)
+        d7 = int(r['d7'] or 0)
+        # 窗口还没走完就不给留存率，避免误导（早退/新用户当天算 0）
+        daily.append({
+            'date': r['cohort'],
+            'newUsers': new_users,
+            'd1Users': d1,
+            'd1Rate': round(d1 / new_users * 100) if (age >= 1 and new_users) else None,
+            'd7Users': d7,
+            'd7Rate': round(d7 / new_users * 100) if (age >= 7 and new_users) else None,
+        })
+
+    # 整体留存（只统计窗口已走完的用户）
+    tot = conn.execute(
+        """SELECT COUNT(*) FROM usage_devices WHERE date(first_seen) <= date('now','localtime','-1 day')"""
+    ).fetchone()[0] or 0
+    d1_all = conn.execute(
+        """SELECT COUNT(*) FROM usage_devices d
+           WHERE date(d.first_seen) <= date('now','localtime','-1 day')
+             AND EXISTS (SELECT 1 FROM usage_events e WHERE e.device_id=d.device_id
+                         AND date(e.created_at) = date(d.first_seen,'+1 day'))"""
+    ).fetchone()[0] or 0
+    tot7 = conn.execute(
+        """SELECT COUNT(*) FROM usage_devices WHERE date(first_seen) <= date('now','localtime','-7 day')"""
+    ).fetchone()[0] or 0
+    d7_all = conn.execute(
+        """SELECT COUNT(*) FROM usage_devices d
+           WHERE date(d.first_seen) <= date('now','localtime','-7 day')
+             AND EXISTS (SELECT 1 FROM usage_events e WHERE e.device_id=d.device_id
+                         AND date(e.created_at) > date(d.first_seen)
+                         AND date(e.created_at) <= date(d.first_seen,'+7 day'))"""
+    ).fetchone()[0] or 0
+
+    return {
+        'd1Rate': round(d1_all / tot * 100) if tot else 0,
+        'd1Base': tot,
+        'd7Rate': round(d7_all / tot7 * 100) if tot7 else 0,
+        'd7Base': tot7,
+        'daily': daily,
+    }
+
+
+def _recent_activity(conn, limit: int = 30) -> list[dict]:
+    """最近访问明细（时间 / 平台 / 设备短号 / 事件 / 页面）"""
+    rows = conn.execute(
+        """
+        SELECT e.created_at AS t, e.event AS ev, e.detail AS de, e.device_id AS did,
+               COALESCE(NULLIF(d.platform,''),'其他') AS pf
+        FROM usage_events e
+        LEFT JOIN usage_devices d ON d.device_id = e.device_id
+        ORDER BY e.id DESC LIMIT ?
+        """,
+        (limit,),
+    ).fetchall()
+    return [
+        {
+            'time': r['t'],
+            'device': (r['did'] or '')[:6],
+            'platform': r['pf'],
+            'event': r['ev'],
+            'detail': r['de'] or '',
+        }
+        for r in rows
+    ]
+
+
 def _scalar(conn, sql: str, args: tuple = ()) -> int:
     row = conn.execute(sql, args).fetchone()
     return int(row[0]) if row and row[0] is not None else 0
@@ -196,6 +296,9 @@ def get_overview(days: int = 14) -> dict:
             ).fetchall()
             platforms = [{'name': r['p'], 'count': int(r['c'])} for r in plat]
 
+            retention = _retention(conn, days)
+            recent = _recent_activity(conn, 30)
+
         return {
             'totalUsers': total_users,
             'todayUsers': today_users,
@@ -208,6 +311,8 @@ def get_overview(days: int = 14) -> dict:
             'daily': daily,
             'topEvents': top_events,
             'platforms': platforms,
+            'retention': retention,
+            'recent': recent,
         }
     except Exception as e:
         logger.warning(f'analytics: 统计查询失败 {e}')
@@ -225,4 +330,6 @@ def _empty_overview(days: int) -> dict:
         ],
         'topEvents': [],
         'platforms': [],
+        'retention': {'d1Rate': 0, 'd1Base': 0, 'd7Rate': 0, 'd7Base': 0, 'daily': []},
+        'recent': [],
     }

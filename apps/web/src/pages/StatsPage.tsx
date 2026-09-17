@@ -218,6 +218,96 @@ function UsageStats() {
               )}
             </div>
           </div>
+
+          {/* ============ 留存分析 ============ */}
+          <div>
+            <div className="text-sm font-medium mb-1">留存分析</div>
+            <div className="text-xs text-ink-500 mb-3">
+              只看窗口已走完的用户（次日/7日），避免新用户拉低数值
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl border border-ink-100 bg-white p-3 text-center">
+                <div className="text-2xl font-semibold text-ink-900">{data.retention.d1Rate}%</div>
+                <div className="text-xs text-ink-500 mt-0.5">次日留存</div>
+                <div className="text-[10px] text-ink-400 mt-0.5">
+                  基数 {data.retention.d1Base} 人
+                </div>
+              </div>
+              <div className="rounded-xl border border-ink-100 bg-white p-3 text-center">
+                <div className="text-2xl font-semibold text-ink-900">{data.retention.d7Rate}%</div>
+                <div className="text-xs text-ink-500 mt-0.5">7 日留存</div>
+                <div className="text-[10px] text-ink-400 mt-0.5">
+                  基数 {data.retention.d7Base} 人
+                </div>
+              </div>
+            </div>
+
+            {data.retention.daily.length > 0 && (
+              <div className="mt-3 overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="text-ink-500 border-b border-ink-100">
+                      <th className="text-left py-1.5 font-normal">首次日期</th>
+                      <th className="text-right py-1.5 font-normal">新增</th>
+                      <th className="text-right py-1.5 font-normal">次日留存</th>
+                      <th className="text-right py-1.5 font-normal">7日留存</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.retention.daily.slice().reverse().slice(0, 10).map((r) => (
+                      <tr key={r.date} className="border-b border-ink-50">
+                        <td className="py-1.5 text-ink-600">{r.date.slice(5)}</td>
+                        <td className="py-1.5 text-right font-mono">{r.newUsers}</td>
+                        <td className="py-1.5 text-right font-mono">
+                          {r.d1Rate === null ? (
+                            <span className="text-ink-300">—</span>
+                          ) : (
+                            `${r.d1Rate}%`
+                          )}
+                        </td>
+                        <td className="py-1.5 text-right font-mono">
+                          {r.d7Rate === null ? (
+                            <span className="text-ink-300">—</span>
+                          ) : (
+                            `${r.d7Rate}%`
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* ============ 最近访问明细 ============ */}
+          <div>
+            <div className="text-sm font-medium mb-1">最近访问</div>
+            <div className="text-xs text-ink-500 mb-2">最近 30 条操作记录</div>
+            {data.recent.length === 0 ? (
+              <div className="text-xs text-ink-500">暂无数据</div>
+            ) : (
+              <div className="max-h-72 overflow-y-auto rounded-xl border border-ink-100">
+                <table className="w-full text-xs">
+                  <tbody>
+                    {data.recent.map((a, i) => (
+                      <tr key={i} className="border-b border-ink-50 last:border-0">
+                        <td className="py-1.5 px-2 font-mono text-ink-500 whitespace-nowrap">
+                          {a.time.slice(5)}
+                        </td>
+                        <td className="py-1.5 px-2 text-ink-600 whitespace-nowrap">{a.platform}</td>
+                        <td className="py-1.5 px-2 font-mono text-ink-400">#{a.device}</td>
+                        <td className="py-1.5 px-2 text-ink-900">{EVENT_LABELS[a.event] ?? a.event}</td>
+                        <td className="py-1.5 px-2 text-ink-500 truncate max-w-[140px]">
+                          {a.detail}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>
