@@ -32,6 +32,9 @@ export function LearnPage() {
           <Link to="/review" className="va-btn va-btn--primary va-btn--md">
             去复习
           </Link>
+          <Link to="/stats" className="va-btn va-btn--secondary va-btn--md">
+            看统计
+          </Link>
         </div>
       </div>
     )
