@@ -9,6 +9,7 @@ import { AdminUsagePage } from '@/pages/AdminUsagePage'
 import { WrongbookPage } from '@/pages/WrongbookPage'
 import { WritingPage } from '@/pages/WritingPage'
 import { ReadingPage } from '@/pages/ReadingPage'
+import { GrammarPage } from '@/pages/GrammarPage'
 import { UIKit } from '@/components/UIKit'
 import { BrowserGuard } from '@/components/BrowserGuard'
 import { trackEvent, trackVisit } from '@/services/stats'
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
   { to: '/learn', label: '学习' },
   { to: '/review', label: '复习' },
   { to: '/wrongbook', label: '错题本' },
+  { to: '/grammar', label: '语法' },
   { to: '/writing', label: '写作' },
   { to: '/reading', label: '阅读' },
   { to: '/stats', label: '统计' },
@@ -69,6 +71,7 @@ export default function App() {
           <Route path="/learn" element={<LearnPage />} />
           <Route path="/review" element={<ReviewPage />} />
           <Route path="/wrongbook" element={<WrongbookPage />} />
+          <Route path="/grammar" element={<GrammarPage />} />
           <Route path="/writing" element={<WritingPage />} />
           <Route path="/reading" element={<ReadingPage />} />
           <Route path="/stats" element={<StatsPage />} />
