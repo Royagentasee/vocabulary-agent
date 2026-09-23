@@ -11,6 +11,7 @@ class GrammarTopic(BaseModel):
     titleEn: str = ''             # 英文标题，如 Relative Clauses
     description: str = ''         # 一句话说明
     difficulty: str = 'medium'    # easy / medium / hard
+    category: str = ''            # 分类，如「从句」「词类」
     examTags: list[str] = []      # IELTS / TOEFL / GRE / SAT
 
 

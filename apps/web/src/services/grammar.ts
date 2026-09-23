@@ -9,6 +9,7 @@ export interface GrammarTopic {
   titleEn: string
   description: string
   difficulty: string
+  category: string
   examTags: string[]
 }
 

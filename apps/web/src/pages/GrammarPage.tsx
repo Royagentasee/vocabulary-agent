@@ -21,6 +21,18 @@ const DIFF_COLOR: Record<string, string> = {
   hard: 'bg-red-50 text-red-700',
 }
 
+/** 把知识点按 category 分组（后端已排好顺序，这里保持顺序分组） */
+function groupTopics(topics: GrammarTopic[]): { category: string; items: GrammarTopic[] }[] {
+  const groups: { category: string; items: GrammarTopic[] }[] = []
+  for (const t of topics) {
+    const cat = t.category || '其他'
+    const last = groups[groups.length - 1]
+    if (last && last.category === cat) last.items.push(t)
+    else groups.push({ category: cat, items: [t] })
+  }
+  return groups
+}
+
 export function GrammarPage() {
   const [topics, setTopics] = useState<GrammarTopic[]>([])
   const [selected, setSelected] = useState<GrammarTopic | null>(null)
@@ -96,26 +108,35 @@ export function GrammarPage() {
 
       {error && <div className="text-sm text-red-600">{error}</div>}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {topics.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => handleSelect(t)}
-            className="va-card hover:border-ink-900 transition-colors text-left space-y-1.5"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="font-medium">{t.title}</span>
-                {t.titleEn && <span className="font-mono text-xs text-ink-400">{t.titleEn}</span>}
-              </div>
-              <span className={`text-xs px-2 py-0.5 rounded ${DIFF_COLOR[t.difficulty] ?? 'bg-ink-50 text-ink-600'}`}>
-                {DIFF_LABEL[t.difficulty] ?? t.difficulty}
-              </span>
-            </div>
-            <p className="text-sm text-ink-500">{t.description}</p>
-          </button>
-        ))}
-      </div>
+      {/* 按分类分组展示 */}
+      {groupTopics(topics).map((g) => (
+        <section key={g.category} className="space-y-2">
+          <h2 className="text-sm font-semibold text-ink-500 flex items-center gap-2">
+            <span>{g.category}</span>
+            <span className="text-xs text-ink-400 font-normal">{g.items.length} 个知识点</span>
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {g.items.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => handleSelect(t)}
+                className="va-card hover:border-ink-900 transition-colors text-left space-y-1.5"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{t.title}</span>
+                    {t.titleEn && <span className="font-mono text-xs text-ink-400">{t.titleEn}</span>}
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded ${DIFF_COLOR[t.difficulty] ?? 'bg-ink-50 text-ink-600'}`}>
+                    {DIFF_LABEL[t.difficulty] ?? t.difficulty}
+                  </span>
+                </div>
+                <p className="text-sm text-ink-500">{t.description}</p>
+              </button>
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   )
 }

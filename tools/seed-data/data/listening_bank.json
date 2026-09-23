@@ -1,0 +1,938 @@
+[
+ {
+  "id": "toefl-1",
+  "exam": "TOEFL",
+  "type": "lecture",
+  "title": "The Life Cycle of Stars",
+  "passage": "Today we'll discuss the life cycle of stars. Stars are born in nebulae, vast clouds of gas and dust. Gravity pulls material together, and when the core becomes hot and dense enough, nuclear fusion ignites, and a star is born. The star then spends most of its life on the main sequence, fusing hydrogen into helium. How long it stays there depends on its mass. Massive stars burn brighter and hotter, so they exhaust their fuel quickly—in just a few million years. Smaller stars, like our Sun, can shine for billions of years. When the hydrogen runs out, the star expands into a red giant. What happens next depends on mass again. A low-mass star like the Sun will gently shed its outer layers, forming a planetary nebula, and leave behind a white dwarf. But a massive star ends dramatically: it explodes as a supernova, and its core may collapse into a neutron star or, if massive enough, a black hole. So mass is the key factor determining a star's fate.",
+  "questions": [
+   {
+    "question": "What is the main topic of the lecture?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "The formation of planetary nebulae."
+     },
+     {
+      "label": "B",
+      "text": "The life cycle of stars."
+     },
+     {
+      "label": "C",
+      "text": "The differences between neutron stars and black holes."
+     },
+     {
+      "label": "D",
+      "text": "How the Sun will eventually die."
+     }
+    ],
+    "correct_label": "B",
+    "explanation": "主旨题。讲座从恒星诞生、主序星阶段、红巨星到最终结局，全面介绍了恒星的生命周期，因此B正确。A、C、D都只是讲座中提到的细节或例子，不能概括全文。"
+   },
+   {
+    "question": "According to the lecture, what determines how long a star stays on the main sequence?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "Its color."
+     },
+     {
+      "label": "B",
+      "text": "Its distance from Earth."
+     },
+     {
+      "label": "C",
+      "text": "Its mass."
+     },
+     {
+      "label": "D",
+      "text": "The type of nebula it formed in."
+     }
+    ],
+    "correct_label": "C",
+    "explanation": "细节题。讲座明确指出：'How long it stays there depends on its mass.' 并且举例说明大质量恒星燃烧快，小质量恒星燃烧慢，因此C正确。A颜色是质量带来的结果，不是决定因素；B距离和D星云类型在讲座中未提及。"
+   },
+   {
+    "question": "What can be inferred about a massive star compared to a low-mass star?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "It will live longer because it has more fuel."
+     },
+     {
+      "label": "B",
+      "text": "It will end its life more violently."
+     },
+     {
+      "label": "C",
+      "text": "It will never become a red giant."
+     },
+     {
+      "label": "D",
+      "text": "It will always become a black hole."
+     }
+    ],
+    "correct_label": "B",
+    "explanation": "推断题。讲座提到大质量恒星最终会发生超新星爆炸，核心可能塌缩成中子星或黑洞，而低质量恒星则温和地形成行星状星云并留下白矮星，因此大质量恒星的结局更剧烈，B正确。A与讲座相反，大质量恒星寿命更短；C错误，大质量恒星也会经历红巨星阶段；D过于绝对，只有质量足够大才会变成黑洞，并非所有大质量恒星都如此。"
+   }
+  ]
+ },
+ {
+  "id": "toefl-2",
+  "exam": "TOEFL",
+  "type": "lecture",
+  "title": "Coral Reefs and Climate Change",
+  "passage": "Professor: Today we'll look at how climate change is affecting coral reefs. Coral reefs are often called the rainforests of the sea because they support incredible biodiversity. But they're extremely sensitive to temperature changes. When water gets too warm, corals expel the algae living in their tissues, a process called bleaching. Without these algae, corals lose their main food source and their color. Now, bleaching doesn't always kill corals immediately. If the water cools down quickly, they can recover. But if the heat stress lasts for weeks, the corals starve and die. And here's the thing: mass bleaching events used to happen maybe once every 25 years. Now, they're occurring every six years or even less. So reefs don't have enough time to bounce back. This is a serious problem not just for marine life, but for people too. Millions depend on reefs for food, jobs, and coastal protection. So what can we do? Reducing greenhouse gas emissions is the only long-term solution. But scientists are also experimenting with coral restoration, like growing heat-tolerant corals in labs and transplanting them onto damaged reefs.",
+  "questions": [
+   {
+    "question": "What is the main topic of the lecture?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "The biodiversity of coral reefs."
+     },
+     {
+      "label": "B",
+      "text": "How climate change impacts coral reefs and possible solutions."
+     },
+     {
+      "label": "C",
+      "text": "The process of coral bleaching."
+     },
+     {
+      "label": "D",
+      "text": "The economic importance of coral reefs."
+     }
+    ],
+    "correct_label": "B",
+    "explanation": "主旨题。讲座首先讨论气候变化导致珊瑚白化，然后提到对海洋生物和人类的影响，最后提出减少排放和珊瑚恢复等解决方案。B概括了整体内容。A、C、D都是讲座中提到的细节，但并非主旨。"
+   },
+   {
+    "question": "According to the professor, what happens when corals bleach?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "They immediately die."
+     },
+     {
+      "label": "B",
+      "text": "They expel the algae living in their tissues."
+     },
+     {
+      "label": "C",
+      "text": "They grow faster to compensate."
+     },
+     {
+      "label": "D",
+      "text": "They change color to protect themselves."
+     }
+    ],
+    "correct_label": "B",
+    "explanation": "细节题。教授明确说：'When water gets too warm, corals expel the algae living in their tissues, a process called bleaching.' 因此B正确。A错误，因为白化不一定会立即死亡；C和D文中未提及。"
+   },
+   {
+    "question": "What can be inferred about the frequency of mass bleaching events?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "They are becoming more frequent, giving reefs less time to recover."
+     },
+     {
+      "label": "B",
+      "text": "They are becoming less frequent due to conservation efforts."
+     },
+     {
+      "label": "C",
+      "text": "They occur at a stable rate of once every 25 years."
+     },
+     {
+      "label": "D",
+      "text": "They only happen in the lab during experiments."
+     }
+    ],
+    "correct_label": "A",
+    "explanation": "推断题。教授指出：'mass bleaching events used to happen maybe once every 25 years. Now, they're occurring every six years or even less. So reefs don't have enough time to bounce back.' 由此可推断A正确。B与原文相反；C是过去的情况，不是现在；D无依据。"
+   }
+  ]
+ },
+ {
+  "id": "toefl-3",
+  "exam": "TOEFL",
+  "type": "lecture",
+  "title": "Causes of the Industrial Revolution",
+  "passage": "Professor: Today we'll explore why the Industrial Revolution began in Britain in the late 18th century, not elsewhere. Many factors converged. First, Britain had abundant coal and iron ore, essential for fueling machines and building them. Second, agricultural improvements, like the seed drill and crop rotation, increased food production, which supported a growing population and freed up labor for factories. Third, Britain's vast overseas empire provided both raw materials, like cotton, and markets for finished goods. Additionally, a stable political system and property rights encouraged investment. But some historians argue that high wages in Britain incentivized labor-saving inventions, such as the spinning jenny. So, it wasn't one single cause but a combination of geography, agriculture, trade, and institutions that set the stage.",
+  "questions": [
+   {
+    "question": "What is the main topic of the lecture?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "The impact of the Industrial Revolution on British society."
+     },
+     {
+      "label": "B",
+      "text": "The reasons why the Industrial Revolution started in Britain."
+     },
+     {
+      "label": "C",
+      "text": "The role of the spinning jenny in textile production."
+     },
+     {
+      "label": "D",
+      "text": "The influence of the British Empire on global trade."
+     }
+    ],
+    "correct_label": "B",
+    "explanation": "主旨题。讲座开篇即点明主题：探讨工业革命为何始于18世纪末的英国，随后列举了多个因素。B项准确概括。A项是影响，非起因；C项是细节例子；D项是其中一个因素，非主旨。"
+   },
+   {
+    "question": "According to the professor, what was one effect of agricultural improvements?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "They led to a decrease in population."
+     },
+     {
+      "label": "B",
+      "text": "They caused a shortage of labor for factories."
+     },
+     {
+      "label": "C",
+      "text": "They increased food production and freed up labor."
+     },
+     {
+      "label": "D",
+      "text": "They reduced the need for coal and iron."
+     }
+    ],
+    "correct_label": "C",
+    "explanation": "细节题。教授提到农业改良（如种子钻和轮作）提高了粮食产量，支撑了人口增长，并释放了劳动力到工厂。C项正确。A项与原文相反；B项与原文相反；D项无中生有。"
+   },
+   {
+    "question": "What can be inferred about the professor's view on the causes of the Industrial Revolution?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "She believes high wages were the sole cause."
+     },
+     {
+      "label": "B",
+      "text": "She thinks the British Empire was irrelevant."
+     },
+     {
+      "label": "C",
+      "text": "She considers it a complex interplay of multiple factors."
+     },
+     {
+      "label": "D",
+      "text": "She argues that political stability was the most important factor."
+     }
+    ],
+    "correct_label": "C",
+    "explanation": "推断题。教授在结尾总结：不是单一原因，而是地理、农业、贸易和制度等多种因素的结合。C项符合。A项“唯一原因”过于绝对；B项与原文相反；D项虽提到政治稳定，但未说是最重要。"
+   }
+  ]
+ },
+ {
+  "id": "toefl-4",
+  "exam": "TOEFL",
+  "type": "conversation",
+  "title": "Office Hours: Discussing a Research Paper",
+  "passage": "Professor: Hi, come in. You wanted to talk about your research paper?\nStudent: Yes, thanks for seeing me. I'm a bit confused about the assignment. The prompt says we need to analyze a primary source, but I'm not sure if I should pick a historical document or something like a diary.\nProfessor: Good question. A primary source can be many things—a letter, a photograph, even a piece of clothing from the time period. The key is that it was created during the event you're studying. So a diary from a soldier in World War I would work, but a modern textbook about the war would not.\nStudent: Okay, that makes sense. I was thinking of using a newspaper article from 1929 about the stock market crash.\nProfessor: That could work, but you need to be careful. A newspaper article is a primary source, but it's also a form of media, so it has its own bias. You'll need to consider the audience and the purpose of the article.\nStudent: So I should analyze not just what it says, but also why it was written that way?\nProfessor: Exactly. And remember, your paper should focus on how the source helps us understand the broader historical context, not just summarize it.\nStudent: Got it. One more thing—when is the draft due?\nProfessor: The draft is due next Friday, but you can email me an outline by Wednesday if you want feedback.\nStudent: Great, I'll do that. Thanks!",
+  "questions": [
+   {
+    "question": "What is the main purpose of the conversation?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "To complain about the research paper assignment."
+     },
+     {
+      "label": "B",
+      "text": "To clarify the requirements for a research paper."
+     },
+     {
+      "label": "C",
+      "text": "To ask for an extension on the paper deadline."
+     },
+     {
+      "label": "D",
+      "text": "To discuss the professor's research interests."
+     }
+    ],
+    "correct_label": "B",
+    "explanation": "考点：主旨。对话中，学生一开始就说对作业要求感到困惑，教授随后解释了什么是第一手资料以及如何分析。因此主要目的是澄清研究论文的要求。A项抱怨、C项延期、D项教授的研究兴趣均未提及。"
+   },
+   {
+    "question": "According to the professor, what makes a source 'primary'?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "It is written by a professional historian."
+     },
+     {
+      "label": "B",
+      "text": "It is created during the time period being studied."
+     },
+     {
+      "label": "C",
+      "text": "It is published in a newspaper."
+     },
+     {
+      "label": "D",
+      "text": "It is based on interviews with experts."
+     }
+    ],
+    "correct_label": "B",
+    "explanation": "考点：细节。教授明确说：'The key is that it was created during the event you're studying.' 因此B正确。A项是二手资料的特征；C项报纸文章可以是第一手资料，但并非所有第一手资料都是报纸；D项访谈专家通常是二手资料。"
+   },
+   {
+    "question": "What can be inferred about the student's initial idea to use a newspaper article?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "The professor thinks it is a perfect choice with no issues."
+     },
+     {
+      "label": "B",
+      "text": "The professor advises against using any newspaper articles."
+     },
+     {
+      "label": "C",
+      "text": "The professor suggests the student consider the article's bias."
+     },
+     {
+      "label": "D",
+      "text": "The student decides to change to a diary instead."
+     }
+    ],
+    "correct_label": "C",
+    "explanation": "考点：推断。教授说报纸文章可以是第一手资料，但'it has its own bias'，且需要'consider the audience and the purpose'，因此可推断教授建议学生考虑其偏见。A项与教授提醒谨慎不符；B项教授并未完全否定；D项学生并未决定换题。"
+   }
+  ]
+ },
+ {
+  "id": "toefl-5",
+  "exam": "TOEFL",
+  "type": "conversation",
+  "title": "Library Conversation: Finding Sources for a Paper",
+  "passage": "Narrator: Listen to a conversation between a student and a librarian.\n\nStudent: Hi, I'm working on a paper about the impact of social media on teenage mental health. I need to find some peer-reviewed articles, but I'm not sure where to start.\n\nLibrarian: Sure, I can help. Have you used our library databases before?\n\nStudent: A little, but I usually just search Google Scholar. My professor said that's not enough for this assignment.\n\nLibrarian: Right, for peer-reviewed sources, you should use the library's databases like PsycINFO or PubMed. They have filters for peer-reviewed articles. Do you have your topic narrowed down?\n\nStudent: Not really. I'm interested in how Instagram affects body image, but I'm open to other aspects.\n\nLibrarian: Okay. Let's start with a broad search on 'social media and mental health' and then narrow it down. You can also use keywords like 'adolescents' or 'teenagers'. Oh, and don't forget to check the publication date—your professor wants sources from the last five years.\n\nStudent: Got it. So I should avoid older articles?\n\nLibrarian: Exactly. Also, make sure to save the citations. You can use the library's citation tool to generate APA or MLA formats.\n\nStudent: That's helpful. Thanks!",
+  "questions": [
+   {
+    "question": "What is the student's main purpose in visiting the library?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "To find peer-reviewed articles for a paper"
+     },
+     {
+      "label": "B",
+      "text": "To borrow books on social media"
+     },
+     {
+      "label": "C",
+      "text": "To ask about the library's opening hours"
+     },
+     {
+      "label": "D",
+      "text": "To get help with citation formats"
+     }
+    ],
+    "correct_label": "A",
+    "explanation": "考点：主旨题。学生明确说需要为论文找同行评审的文章，所以A正确。B、C、D虽然对话中提到了引用格式，但并非主要目的。"
+   },
+   {
+    "question": "What does the librarian suggest the student should avoid?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "Using Google Scholar"
+     },
+     {
+      "label": "B",
+      "text": "Using library databases"
+     },
+     {
+      "label": "C",
+      "text": "Narrowing the topic too early"
+     },
+     {
+      "label": "D",
+      "text": "Using articles older than five years"
+     }
+    ],
+    "correct_label": "D",
+    "explanation": "考点：细节题。图书管理员提到教授要求最近五年的来源，因此应避免超过五年的文章。A是学生之前用的，但管理员并未明确说避免，而是建议用数据库；B和C与建议相反。"
+   },
+   {
+    "question": "What can be inferred about the student's previous research experience?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "The student has never used a library database."
+     },
+     {
+      "label": "B",
+      "text": "The student is familiar with Google Scholar but not with advanced database searches."
+     },
+     {
+      "label": "C",
+      "text": "The student has already written several papers on social media."
+     },
+     {
+      "label": "D",
+      "text": "The student prefers to use only peer-reviewed sources."
+     }
+    ],
+    "correct_label": "B",
+    "explanation": "考点：推断题。学生说“a little”用过数据库，但通常只用Google Scholar，且教授说不够，说明学生熟悉Google Scholar但不熟悉高级数据库搜索。A太绝对，C和D无依据。"
+   }
+  ]
+ },
+ {
+  "id": "toefl-6",
+  "exam": "TOEFL",
+  "type": "conversation",
+  "title": "Course Selection Inquiry at the Registrar's Office",
+  "passage": "A: Hi, I'm a sophomore and I'm trying to finalize my schedule for next semester. I'm a bit confused about the registration system. Could you help me?\n\nB: Of course. What seems to be the problem?\n\nA: Well, I want to take a psychology course and a history course, but the system says I need a permission number for the psychology one. Why is that?\n\nB: Ah, that's because Psychology 101 is a popular course and it's restricted to psychology majors first. But after the open enrollment period, if there are seats left, other students can join with a permission number from the department.\n\nA: I see. So I should wait until then? But I also need to take History 210, and it has a prerequisite: I need to have taken History 105 or get instructor approval. I took History 105 last semester, but the system isn't recognizing it.\n\nB: That might be a data entry issue. Let me check your record. Yes, I see you completed History 105 with a B. I'll update the system so you can enroll.\n\nA: Great, thanks. And one more thing: I heard that there's a new policy about dropping courses. Is it true that we can drop without penalty until the last week of classes?\n\nB: Actually, no. The deadline to drop without a 'W' on your transcript is the end of the fourth week. After that, you'll get a 'W', which doesn't affect your GPA but shows on your record. So you should decide early.\n\nA: Got it. Thanks for clarifying.\n\nB: You're welcome. Good luck with registration!",
+  "questions": [
+   {
+    "question": "What is the main purpose of the conversation?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "To complain about a professor's teaching style."
+     },
+     {
+      "label": "B",
+      "text": "To get help with course registration issues."
+     },
+     {
+      "label": "C",
+      "text": "To apply for a psychology major."
+     },
+     {
+      "label": "D",
+      "text": "To ask about tuition fees for next semester."
+     }
+    ],
+    "correct_label": "B",
+    "explanation": "考点：主旨题。对话开头学生说“I'm a sophomore and I'm trying to finalize my schedule... I'm a bit confused about the registration system”，随后询问了选课限制、先修课认可和退课政策，整段对话围绕选课注册问题展开。A、C、D 均未在对话中提及，为无关干扰项。"
+   },
+   {
+    "question": "Why does the student need a permission number for Psychology 101?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "Because the course is only for seniors."
+     },
+     {
+      "label": "B",
+      "text": "Because the student has not paid tuition."
+     },
+     {
+      "label": "C",
+      "text": "Because the course is restricted to psychology majors first."
+     },
+     {
+      "label": "D",
+      "text": "Because the student missed the registration deadline."
+     }
+    ],
+    "correct_label": "C",
+    "explanation": "考点：细节题。教务处工作人员明确解释：“Psychology 101 is a popular course and it's restricted to psychology majors first.” 之后其他学生才可能凭许可号选课。A 项“只给大四学生”未提及；B、D 与对话内容无关。"
+   },
+   {
+    "question": "What can be inferred about the student's History 105 grade?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "The student failed History 105."
+     },
+     {
+      "label": "B",
+      "text": "The student received a grade of B in History 105."
+     },
+     {
+      "label": "C",
+      "text": "The student is currently taking History 105."
+     },
+     {
+      "label": "D",
+      "text": "The student needs to retake History 105."
+     }
+    ],
+    "correct_label": "B",
+    "explanation": "考点：推断题。工作人员在检查记录后说：“I see you completed History 105 with a B.” 由此可推断学生得了 B。A 项“不及格”、C 项“正在修”和 D 项“需要重修”均与原文矛盾。"
+   }
+  ]
+ },
+ {
+  "id": "ielts-7",
+  "exam": "IELTS",
+  "type": "conversation",
+  "title": "Hotel Room Booking",
+  "passage": "A: Good morning, Seaside Hotel. How can I help you? B: Hi, I'd like to book a room for next weekend, please. A: Certainly. How many nights will you be staying? B: Just two nights, Friday and Saturday. A: And how many people is that for? B: Two adults and one child. A: We have a family room available with a double bed and a sofa bed. It's 120 pounds per night. B: That sounds good. Does that include breakfast? A: Yes, a full English breakfast is included. B: Great. And is there parking at the hotel? A: We have a car park, but it's 10 pounds per day. B: That's fine. I'll take the family room. A: Could I have your name and contact number, please? B: Yes, it's Sarah Johnson, and my number is 07700 900123. A: Thank you, Ms Johnson. We'll see you next Friday.",
+  "questions": [
+   {
+    "question": "What is the main purpose of the conversation?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "To complain about a hotel stay"
+     },
+     {
+      "label": "B",
+      "text": "To book a hotel room"
+     },
+     {
+      "label": "C",
+      "text": "To ask about hotel facilities"
+     },
+     {
+      "label": "D",
+      "text": "To cancel a reservation"
+     }
+    ],
+    "correct_label": "B",
+    "explanation": "考点：主旨题。对话一开始女士就说 'I'd like to book a room for next weekend'，明确表明目的是预订房间。A 抱怨、C 询问设施、D 取消预订均与对话内容不符。"
+   },
+   {
+    "question": "How much does the family room cost per night?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "£100"
+     },
+     {
+      "label": "B",
+      "text": "£110"
+     },
+     {
+      "label": "C",
+      "text": "£120"
+     },
+     {
+      "label": "D",
+      "text": "£130"
+     }
+    ],
+    "correct_label": "C",
+    "explanation": "考点：细节题。接待员明确说 'It's 120 pounds per night'，即每晚120英镑。A、B、D 均为干扰项，数字在原文中未出现。"
+   },
+   {
+    "question": "What can be inferred about the parking?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "It is free for hotel guests."
+     },
+     {
+      "label": "B",
+      "text": "It is not available at the hotel."
+     },
+     {
+      "label": "C",
+      "text": "It costs extra per day."
+     },
+     {
+      "label": "D",
+      "text": "It needs to be reserved in advance."
+     }
+    ],
+    "correct_label": "C",
+    "explanation": "考点：推断题。接待员说 'We have a car park, but it's 10 pounds per day'，说明停车是额外收费的，因此选C。A 与原文矛盾；B 与原文有停车场不符；D 原文未提及需要提前预订。"
+   }
+  ]
+ },
+ {
+  "id": "ielts-8",
+  "exam": "IELTS",
+  "type": "conversation",
+  "title": "Gym Membership Inquiry",
+  "passage": "Receptionist: Good morning, Riverside Gym. How can I help you?\nCaller: Hi, I'd like to ask about membership options. I just moved here.\nReceptionist: Sure. We have three plans. The basic one is $30 a month, but it's off-peak only—before 4 p.m. on weekdays.\nCaller: What about after work? I usually finish at 6.\nReceptionist: Then you'd want the full membership, $45 a month. That gives you access anytime, plus free group classes.\nCaller: Do I need to pay a joining fee?\nReceptionist: Normally it's $20, but if you sign up before the end of this month, we waive it.\nCaller: That's good. And is there a student discount?\nReceptionist: Yes, with a valid student card, you get 10% off any plan. But it doesn't apply to the joining fee.\nCaller: I see. Can I try the gym first?\nReceptionist: Of course. We offer a free one-day pass. Just bring your ID.\nCaller: Great. I'll come by tomorrow.",
+  "questions": [
+   {
+    "question": "What is the main purpose of the phone call?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "To book a personal training session"
+     },
+     {
+      "label": "B",
+      "text": "To ask about gym membership options"
+     },
+     {
+      "label": "C",
+      "text": "To complain about gym facilities"
+     },
+     {
+      "label": "D",
+      "text": "To cancel a gym membership"
+     }
+    ],
+    "correct_label": "B",
+    "explanation": "考点：主旨题。对话一开始，打电话的人就说“I'd like to ask about membership options”，表明目的是咨询会员选项。A 是预约私教，未提及；C 是投诉设施，未提及；D 是取消会员，未提及。"
+   },
+   {
+    "question": "How much would the full membership cost per month?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "$20"
+     },
+     {
+      "label": "B",
+      "text": "$30"
+     },
+     {
+      "label": "C",
+      "text": "$45"
+     },
+     {
+      "label": "D",
+      "text": "$50"
+     }
+    ],
+    "correct_label": "C",
+    "explanation": "考点：细节题。接待员说“the full membership, $45 a month”。$20 是正常入会费；$30 是基本会员费；$50 未提及。"
+   },
+   {
+    "question": "What can be inferred about the student discount?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "It covers the joining fee."
+     },
+     {
+      "label": "B",
+      "text": "It is only for full membership."
+     },
+     {
+      "label": "C",
+      "text": "It reduces the monthly fee by 10%."
+     },
+     {
+      "label": "D",
+      "text": "It requires a valid student card."
+     }
+    ],
+    "correct_label": "D",
+    "explanation": "考点：推断题。接待员说学生折扣需要“with a valid student card”，因此可推断需要有效学生证。折扣不包含入会费（A 错）；适用于“any plan”（B 错）；是任何套餐减 10%，不只是月费（C 表述不准确）。"
+   }
+  ]
+ },
+ {
+  "id": "ielts-9",
+  "exam": "IELTS",
+  "type": "monologue",
+  "title": "City Museum Tour",
+  "passage": "Hello, and welcome to the City Museum. I'm your guide for today's tour. Before we begin, let me give you a quick overview. The museum is divided into three main sections: Ancient History, Modern Art, and Natural Science. The tour will last about one hour, and we'll start with Ancient History on the ground floor. Please remember that photography is not allowed in the Modern Art section, as some of the paintings are on loan from private collectors. Also, food and drinks are not permitted anywhere in the museum, but you can leave them at the coat check near the entrance. If you have any questions during the tour, feel free to ask. At the end of the tour, we'll visit the gift shop, where you can purchase souvenirs. The museum closes at 5 p.m., so we have plenty of time. Now, let's move to our first stop.",
+  "questions": [
+   {
+    "question": "What is the main purpose of the talk?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "To introduce the museum's history"
+     },
+     {
+      "label": "B",
+      "text": "To give instructions for a tour"
+     },
+     {
+      "label": "C",
+      "text": "To advertise the gift shop"
+     },
+     {
+      "label": "D",
+      "text": "To explain photography rules"
+     }
+    ],
+    "correct_label": "B",
+    "explanation": "考点：主旨题。说话者一开始就说自己是导游，并概述了博物馆的展区、游览时长和注意事项，因此主要目的是给出游览指示。A项未提及博物馆历史；C项只是结尾提到，不是主旨；D项只是细节之一。"
+   },
+   {
+    "question": "Where is photography NOT allowed?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "In the Ancient History section"
+     },
+     {
+      "label": "B",
+      "text": "In the Modern Art section"
+     },
+     {
+      "label": "C",
+      "text": "In the Natural Science section"
+     },
+     {
+      "label": "D",
+      "text": "In the gift shop"
+     }
+    ],
+    "correct_label": "B",
+    "explanation": "考点：细节题。文中明确说'photography is not allowed in the Modern Art section'。A、C、D项均未提及禁止拍照。"
+   },
+   {
+    "question": "What can be inferred about the museum's policy on food and drinks?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "They are allowed in all areas"
+     },
+     {
+      "label": "B",
+      "text": "They are only allowed in the gift shop"
+     },
+     {
+      "label": "C",
+      "text": "They must be left at the coat check"
+     },
+     {
+      "label": "D",
+      "text": "They are permitted during the tour"
+     }
+    ],
+    "correct_label": "C",
+    "explanation": "考点：推断题。文中说'food and drinks are not permitted anywhere in the museum, but you can leave them at the coat check'，因此可推断食物和饮料必须存放在衣帽间。A、D项与原文矛盾；B项未提及。"
+   }
+  ]
+ },
+ {
+  "id": "ielts-10",
+  "exam": "IELTS",
+  "type": "discussion",
+  "title": "Planning a Group Project",
+  "passage": "Tutor: So, how's the group project on urban gardening coming along?\nStudent A: We've decided to focus on community gardens in the city centre. But we're a bit stuck on the methodology.\nStudent B: Yeah, we thought about doing a survey, but getting enough responses might be tough. Then we considered interviews with gardeners, but that could take ages to arrange.\nTutor: What about combining both? A short online survey to reach more people, and then a few in-depth interviews to get richer details.\nStudent A: That sounds good. We could also observe a couple of gardens to see how they're used.\nTutor: Exactly. Triangulation strengthens your findings. Now, about the timeline—you've got four weeks. When will you start data collection?\nStudent B: We planned to start next week, but we need to finalise the questions first. Maybe we should pilot them with a small group.\nTutor: Definitely. A pilot will help you spot any confusing questions. And don't forget to get ethical approval before you collect any data.\nStudent A: Right, we'll submit the form this Friday. Then we can start the following Monday.\nTutor: Good. Keep me updated, and remember to divide the tasks evenly.",
+  "questions": [
+   {
+    "question": "What is the main topic of the discussion?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "How to design a community garden"
+     },
+     {
+      "label": "B",
+      "text": "Planning the methodology for a group project"
+     },
+     {
+      "label": "C",
+      "text": "The benefits of urban gardening"
+     },
+     {
+      "label": "D",
+      "text": "How to conduct ethical research"
+     }
+    ],
+    "correct_label": "B",
+    "explanation": "主旨题。对话围绕小组项目‘城市园艺’的研究方法展开，导师建议结合问卷和访谈，并讨论时间安排和伦理审批，因此B正确。A是项目主题而非讨论重点；C未提及；D只是其中一个细节。"
+   },
+   {
+    "question": "What does the tutor suggest the students do?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "Only use interviews to get detailed information"
+     },
+     {
+      "label": "B",
+      "text": "Combine a survey with interviews and observation"
+     },
+     {
+      "label": "C",
+      "text": "Focus solely on observing gardens"
+     },
+     {
+      "label": "D",
+      "text": "Change the topic to something less time-consuming"
+     }
+    ],
+    "correct_label": "B",
+    "explanation": "细节题。导师明确建议‘combining both? A short online survey... and then a few in-depth interviews’，学生补充观察，导师赞同‘Triangulation’。因此B正确。A、C都只涉及一种方法；D未提及。"
+   },
+   {
+    "question": "What can be inferred about the students' plan for data collection?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "They will start collecting data immediately."
+     },
+     {
+      "label": "B",
+      "text": "They have already obtained ethical approval."
+     },
+     {
+      "label": "C",
+      "text": "They need to pilot their questions before collecting data."
+     },
+     {
+      "label": "D",
+      "text": "They will not need to submit any forms."
+     }
+    ],
+    "correct_label": "C",
+    "explanation": "推断题。学生提到‘need to finalise the questions first. Maybe we should pilot them’，导师赞同，并提醒需伦理审批，学生说周五提交表格，下周一才开始收集数据。因此可推断他们需要先试测问题。A与‘下周一’矛盾；B尚未获得；D与需提交表格矛盾。"
+   }
+  ]
+ },
+ {
+  "id": "ielts-11",
+  "exam": "IELTS",
+  "type": "lecture",
+  "title": "The Psychology of Memory",
+  "passage": "Good morning, everyone. Today we'll explore the psychology of memory. Memory is not a single faculty but a complex system with multiple components. Psychologists often distinguish between sensory memory, short-term memory, and long-term memory. Sensory memory holds incoming information for a very brief period—less than a second for visual stimuli. Short-term memory, on the other hand, can retain about seven items for roughly twenty to thirty seconds without rehearsal. However, with strategies like chunking, we can expand this capacity. Long-term memory is essentially unlimited in capacity and can store information for a lifetime. But how does information move from short-term to long-term memory? The key process is consolidation, which is strengthened by repetition and deep processing. Sleep also plays a crucial role in consolidation. Interestingly, memories are not fixed; they can be altered each time we recall them. This phenomenon is known as reconsolidation. So, our memories are more like reconstructions than accurate recordings. Next, we'll look at factors that affect memory accuracy.",
+  "questions": [
+   {
+    "question": "What is the main topic of the lecture?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "The definition of sensory memory."
+     },
+     {
+      "label": "B",
+      "text": "The components and processes of memory."
+     },
+     {
+      "label": "C",
+      "text": "The role of sleep in learning."
+     },
+     {
+      "label": "D",
+      "text": "How to improve short-term memory."
+     }
+    ],
+    "correct_label": "B",
+    "explanation": "主旨题。讲座开头提到“explore the psychology of memory”，随后介绍了记忆的多个组成部分（sensory, short-term, long-term）以及巩固和再巩固过程，因此B正确。A和D只是细节，C只是巩固部分的一个因素。"
+   },
+   {
+    "question": "According to the lecture, how long can short-term memory retain information without rehearsal?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "Less than a second."
+     },
+     {
+      "label": "B",
+      "text": "About 20 to 30 seconds."
+     },
+     {
+      "label": "C",
+      "text": "Several minutes."
+     },
+     {
+      "label": "D",
+      "text": "Indefinitely."
+     }
+    ],
+    "correct_label": "B",
+    "explanation": "细节题。讲座中明确提到“Short-term memory... can retain about seven items for roughly twenty to thirty seconds without rehearsal.” 因此B正确。A是感觉记忆的时长，D是长期记忆的特点。"
+   },
+   {
+    "question": "What can be inferred about the nature of memory from the lecture?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "Memories are permanent and unchangeable."
+     },
+     {
+      "label": "B",
+      "text": "Memories are exact copies of past events."
+     },
+     {
+      "label": "C",
+      "text": "Memories can change each time they are recalled."
+     },
+     {
+      "label": "D",
+      "text": "Memories are stored only in short-term memory."
+     }
+    ],
+    "correct_label": "C",
+    "explanation": "推断题。讲座最后提到“memories are not fixed; they can be altered each time we recall them. This phenomenon is known as reconsolidation. So, our memories are more like reconstructions than accurate recordings.” 因此C正确。A、B与讲座内容相反，D明显错误。"
+   }
+  ]
+ },
+ {
+  "id": "ielts-12",
+  "exam": "IELTS",
+  "type": "lecture",
+  "title": "Urban Planning and Green Spaces",
+  "passage": "Good morning, everyone. Today we'll look at how urban planners are rethinking green spaces in modern cities. For decades, parks were seen as decorative—nice to have, but not essential. That view is changing fast. Recent research from the University of Sheffield shows that access to green space can reduce stress levels by up to 30 percent. But not all green spaces are equal. A large, well-maintained park with diverse plant life supports far more biodiversity than a simple lawn. In fact, a study of 15 European cities found that gardens with native wildflowers attracted three times more bee species than those with exotic plants. So what does this mean for city planning? First, planners should prioritize quality over quantity. A small, wildlife-friendly garden can be more valuable than a vast, manicured lawn. Second, green spaces must be connected. Isolated parks don't allow animals to move safely between habitats. Wildlife corridors—strips of vegetation linking parks—are crucial. Finally, community involvement matters. When residents help design and care for local green spaces, they use them more and report greater satisfaction. In Singapore, for example, community gardens have become social hubs, bringing together people of all ages. To sum up, effective urban green spaces are biodiverse, connected, and community-driven. Thank you.",
+  "questions": [
+   {
+    "question": "What is the main idea of the lecture?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "Parks are mainly decorative and not essential for cities."
+     },
+     {
+      "label": "B",
+      "text": "Urban green spaces should be biodiverse, connected, and community-driven."
+     },
+     {
+      "label": "C",
+      "text": "Singapore has the best urban planning in the world."
+     },
+     {
+      "label": "D",
+      "text": "Native wildflowers are more beautiful than exotic plants."
+     }
+    ],
+    "correct_label": "B",
+    "explanation": "主旨题。讲座开头指出人们对绿地的看法在改变，随后从生物多样性、连通性和社区参与三方面展开，结尾总结‘effective urban green spaces are biodiverse, connected, and community-driven’。B是主旨。A与原文相反；C是例子，不是主旨；D是细节，不是主旨。"
+   },
+   {
+    "question": "According to the lecture, what did the study of 15 European cities find?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "Gardens with native wildflowers attracted three times more bee species."
+     },
+     {
+      "label": "B",
+      "text": "Access to green space reduces stress by 30 percent."
+     },
+     {
+      "label": "C",
+      "text": "Manicured lawns support more biodiversity than wild gardens."
+     },
+     {
+      "label": "D",
+      "text": "Isolated parks are better for animal movement."
+     }
+    ],
+    "correct_label": "A",
+    "explanation": "细节题。原文提到‘a study of 15 European cities found that gardens with native wildflowers attracted three times more bee species’，A正确。B是Sheffield大学的研究，不是15个城市的研究；C与原文相反；D与原文相反。"
+   },
+   {
+    "question": "What can be inferred about isolated parks from the lecture?",
+    "choices": [
+     {
+      "label": "A",
+      "text": "They are more valuable than connected parks."
+     },
+     {
+      "label": "B",
+      "text": "They are preferred by community gardeners."
+     },
+     {
+      "label": "C",
+      "text": "They fail to allow animals to move safely between habitats."
+     },
+     {
+      "label": "D",
+      "text": "They attract more bee species than wildlife corridors."
+     }
+    ],
+    "correct_label": "C",
+    "explanation": "推断题。原文说‘Isolated parks don't allow animals to move safely between habitats’，并强调需要wildlife corridors连接。因此可推断孤立公园不利于动物安全移动，C正确。A、B、D均与原文矛盾或无依据。"
+   }
+  ]
+ }
+]
