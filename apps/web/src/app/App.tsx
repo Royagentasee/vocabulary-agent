@@ -11,6 +11,7 @@ import { WritingPage } from '@/pages/WritingPage'
 import { ReadingPage } from '@/pages/ReadingPage'
 import { GrammarPage } from '@/pages/GrammarPage'
 import { ListeningPage } from '@/pages/ListeningPage'
+import { SpeakingPage } from '@/pages/SpeakingPage'
 import { UIKit } from '@/components/UIKit'
 import { BrowserGuard } from '@/components/BrowserGuard'
 import { trackEvent, trackVisit } from '@/services/stats'
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
   { to: '/wrongbook', label: '错题本' },
   { to: '/grammar', label: '语法' },
   { to: '/listening', label: '听力' },
+  { to: '/speaking', label: '口语' },
   { to: '/writing', label: '写作' },
   { to: '/reading', label: '阅读' },
   { to: '/stats', label: '统计' },
@@ -75,6 +77,7 @@ export default function App() {
           <Route path="/wrongbook" element={<WrongbookPage />} />
           <Route path="/grammar" element={<GrammarPage />} />
           <Route path="/listening" element={<ListeningPage />} />
+          <Route path="/speaking" element={<SpeakingPage />} />
           <Route path="/writing" element={<WritingPage />} />
           <Route path="/reading" element={<ReadingPage />} />
           <Route path="/stats" element={<StatsPage />} />
