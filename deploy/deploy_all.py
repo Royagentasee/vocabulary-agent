@@ -126,6 +126,39 @@ def main():
         rc, out, err = exec_cmd(client, f"echo '{PASSWORD}' | sudo -S {c} 2>&1", timeout=60)
         log(f'  {c}: rc={rc} {err.strip()[:120]}')
 
+    log('=== 更新 systemd 服务 ===')
+    rc, out, err = exec_cmd(client, f'grep DEEPSEEK {REMOTE_DIR}/.env 2>/dev/null | head -1')
+    deepseek_key = out.strip().split('=', 1)[1] if '=' in out else ''
+    log(f'  DeepSeek key 前缀: {deepseek_key[:10]}...')
+    systemd_conf = f"""[Unit]
+Description=Vocabulary Agent AI Gateway
+After=network.target
+
+[Service]
+WorkingDirectory={REMOTE_DIR}
+Environment=LLM_PROVIDER=deepseek
+Environment=DEEPSEEK_API_KEY={deepseek_key}
+Environment=DATABASE_URL=sqlite:///{REMOTE_DIR}/data/vocab_agent.db
+# 语音识别：本地 Whisper 模型目录（不依赖 Google，境内可用）
+Environment=WHISPER_MODEL_DIR={REMOTE_DIR}/models/faster-whisper-tiny
+Environment=HF_ENDPOINT=https://hf-mirror.com
+ExecStart=/usr/bin/python3 -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+"""
+    sftp = client.open_sftp()
+    with sftp.open('/tmp/vocab-agent.service', 'w') as f:
+        f.write(systemd_conf)
+    sftp.close()
+    for c in [
+        'cp /tmp/vocab-agent.service /etc/systemd/system/vocab-agent.service',
+        'systemctl daemon-reload',
+    ]:
+        rc, out, err = exec_cmd(client, f"echo '{PASSWORD}' | sudo -S {c} 2>&1", timeout=60)
+        log(f'  {c}: rc={rc} {err.strip()[:120]}')
+
     log('=== 重启服务 ===')
     rc, out, err = exec_cmd(client, f"echo '{PASSWORD}' | sudo -S systemctl restart vocab-agent", timeout=60)
     log(f'  restart rc={rc}')

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import {
   startDialogue,
   turnDialogue,
@@ -9,17 +9,18 @@ import {
   Scenario,
   Level,
 } from '@/services/dialogue'
+import { transcribeAudio } from '@/services/speaking'
 import { SpeakButton } from '@/components/SpeakButton'
+import { useVoiceRecorder } from '@/hooks/useVoiceRecorder'
 import { trackEvent } from '@/services/stats'
 
-const SpeechRecognitionCtor: any =
-  typeof window !== 'undefined'
-    ? (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    : undefined
-const voiceSupported = !!SpeechRecognitionCtor
+const hasRecorder =
+  typeof window !== 'undefined' &&
+  typeof MediaRecorder !== 'undefined' &&
+  !!navigator.mediaDevices?.getUserMedia
 // 浏览器安全规则：只有 HTTPS（或 localhost）才允许访问麦克风
 const secureContext = typeof window !== 'undefined' ? window.isSecureContext : true
-const micAvailable = voiceSupported && secureContext
+const micAvailable = hasRecorder && secureContext
 
 type Msg = { id: number; role: 'assistant' | 'user'; content: string; corrections?: string[] }
 
@@ -32,8 +33,8 @@ export function DialoguePage() {
   const [sending, setSending] = useState(false)
   const [result, setResult] = useState<DialogueScoreResult | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [recording, setRecording] = useState(false)
-  const recRef = useRef<any>(null)
+  const [transcribing, setTranscribing] = useState(false)
+  const rec = useVoiceRecorder()
 
   const started = sessionId !== '' && messages.length > 0
 
@@ -89,25 +90,33 @@ export function DialoguePage() {
     setInput('')
   }
 
-  // 语音输入
-  const startVoice = () => {
-    if (!micAvailable || recording) return
-    const rec = new SpeechRecognitionCtor()
-    rec.lang = 'en-US'
-    rec.interimResults = true
-    rec.continuous = false
-    let finalText = ''
-    rec.onresult = (ev: any) => {
-      for (let i = ev.resultIndex; i < ev.results.length; i++) {
-        if (ev.results[i].isFinal) finalText += ev.results[i][0].transcript
+  // 语音输入：点击开始录音，再点一下停止 → 服务端识别 → 填入输入框
+  const handleMic = async () => {
+    if (!micAvailable || transcribing) return
+
+    if (rec.recording) {
+      const blob = await rec.stop()
+      if (!blob || blob.size < 1000) {
+        setError('没有录到声音，请再试一次')
+        return
       }
-      setInput(finalText)
+      setTranscribing(true)
+      setError(null)
+      try {
+        const text = await transcribeAudio(blob)
+        if (!text) setError('没听清，请大声清晰地再说一遍')
+        else setInput((prev) => (prev ? prev + ' ' + text : text))
+      } catch (e: any) {
+        setError(e?.message ?? '语音识别失败')
+      } finally {
+        setTranscribing(false)
+      }
+      return
     }
-    rec.onend = () => setRecording(false)
-    rec.onerror = () => setRecording(false)
-    recRef.current = rec
-    rec.start()
-    setRecording(true)
+
+    setError(null)
+    const ok = await rec.start()
+    if (!ok) setError('无法访问麦克风，请确认已允许麦克风权限（且网站是 HTTPS）')
   }
 
   /* ============ 评分结果 ============ */
@@ -282,21 +291,27 @@ export function DialoguePage() {
 
       {/* 输入区 */}
       <div className="flex items-center gap-2">
-        {voiceSupported && (
+        {hasRecorder && (
           <button
-            onClick={startVoice}
-            disabled={!micAvailable}
+            onClick={handleMic}
+            disabled={!micAvailable || transcribing}
             className={`w-10 h-10 rounded-full flex items-center justify-center text-lg transition-colors ${
-              !micAvailable
+              !micAvailable || transcribing
                 ? 'bg-ink-100 text-ink-400 cursor-not-allowed'
-                : recording
+                : rec.recording
                 ? 'bg-red-500 text-white animate-pulse'
                 : 'bg-ink-50 text-ink-600 hover:bg-ink-900 hover:text-white'
             }`}
-            aria-label="语音输入"
-            title={micAvailable ? '语音输入' : '需要 HTTPS 才能使用麦克风'}
+            aria-label={rec.recording ? '停止录音' : '语音输入'}
+            title={
+              !micAvailable
+                ? '需要 HTTPS 才能使用麦克风'
+                : rec.recording
+                ? '点击停止并识别'
+                : '点击开始说话'
+            }
           >
-            🎤
+            {transcribing ? '⏳' : rec.recording ? '⏹' : '🎤'}
           </button>
         )}
         <input
@@ -304,7 +319,13 @@ export function DialoguePage() {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
           placeholder={
-            recording ? '正在聆听…' : micAvailable ? '输入英语，或点麦克风说话' : '输入英语（麦克风需 HTTPS）'
+            transcribing
+              ? '正在识别…'
+              : rec.recording
+              ? '正在录音…说完点一下停止'
+              : micAvailable
+              ? '输入英语，或点麦克风说话'
+              : '输入英语（麦克风需 HTTPS）'
           }
           className="flex-1 px-4 py-2.5 bg-white border border-ink-100 rounded-xl focus:outline-none focus:border-ink-900"
         />

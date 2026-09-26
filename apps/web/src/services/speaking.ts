@@ -46,3 +46,40 @@ export async function assessSpeaking(
   if (!resp.ok) throw new Error(`发音评估失败 ${resp.status}`)
   return resp.json()
 }
+
+/* ============ 服务端语音识别（Whisper，不依赖 Google）============ */
+
+export interface SttStatus {
+  available: boolean
+  engine: string
+  model: string
+}
+
+export async function fetchSttStatus(): Promise<SttStatus> {
+  const path = '/api/speaking/stt-status'
+  const directUrl = config.aiGateway ? `${config.aiGateway}${path}` : path
+  try {
+    const resp = await fetchWithFallback(path, directUrl, { method: 'GET' })
+    if (!resp.ok) return { available: false, engine: '', model: '' }
+    return resp.json()
+  } catch {
+    return { available: false, engine: '', model: '' }
+  }
+}
+
+/** 上传录音，返回识别出的英文文本 */
+export async function transcribeAudio(blob: Blob): Promise<string> {
+  const path = '/api/speaking/transcribe'
+  const directUrl = config.aiGateway ? `${config.aiGateway}${path}` : path
+
+  const fd = new FormData()
+  fd.append('file', blob, 'audio.webm')
+
+  const resp = await fetchWithFallback(path, directUrl, { method: 'POST', body: fd })
+  if (!resp.ok) {
+    const body = await resp.text().catch(() => '')
+    throw new Error(`语音识别失败 ${resp.status}: ${body.slice(0, 100)}`)
+  }
+  const data = await resp.json()
+  return data?.text ?? ''
+}

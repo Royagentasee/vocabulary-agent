@@ -1,23 +1,23 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   fetchSpeakingSentences,
   assessSpeaking,
+  transcribeAudio,
   SpeakingSentence,
   SpeakingAssessResult,
 } from '@/services/speaking'
 import { SpeakButton } from '@/components/SpeakButton'
+import { useVoiceRecorder } from '@/hooks/useVoiceRecorder'
 import { trackEvent } from '@/services/stats'
 
-const SpeechRecognitionCtor: any =
-  typeof window !== 'undefined'
-    ? (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    : undefined
+const hasRecorder =
+  typeof window !== 'undefined' &&
+  typeof MediaRecorder !== 'undefined' &&
+  !!navigator.mediaDevices?.getUserMedia
 
-const supported = !!SpeechRecognitionCtor
-// 浏览器安全规则：只有 HTTPS（或 localhost）才允许访问麦克风。
-// 当前站点若是 http:// 明文访问，麦克风会被浏览器直接拒绝（连权限弹窗都不会出现）。
+// 浏览器安全规则：只有 HTTPS（或 localhost）才允许访问麦克风
 const secureContext = typeof window !== 'undefined' ? window.isSecureContext : true
-const micAvailable = supported && secureContext
+const micAvailable = hasRecorder && secureContext
 
 /** 麦克风不可用时的准确原因说明 */
 function MicNotice() {
@@ -27,18 +27,15 @@ function MicNotice() {
         <div className="font-semibold">⚠️ 麦克风无法使用：当前网站是 HTTP 明文访问</div>
         <div>
           浏览器出于安全规定（secure context），<strong>只有 HTTPS 网站才允许调用麦克风</strong>，
-          这是浏览器的硬性限制，网页本身无法绕过。
-        </div>
-        <div className="text-xs text-amber-700">
-          解决：改用 <strong>https://</strong> 访问本站即可（需服务器配置证书）。
+          这是浏览器的硬性限制，网页本身无法绕过。改用 <strong>https://</strong> 访问即可。
         </div>
       </div>
     )
   }
-  if (!supported) {
+  if (!hasRecorder) {
     return (
       <div className="va-card text-sm text-amber-700 bg-amber-50">
-        ⚠️ 当前浏览器不支持语音识别。请用 <strong>Chrome / Edge / Safari</strong> 打开。
+        ⚠️ 当前浏览器不支持录音。请用 <strong>Chrome / Edge / Safari</strong> 打开。
       </div>
     )
   }
@@ -57,21 +54,14 @@ export function SpeakingPage() {
   }, [])
 
   if (selected) {
-    return (
-      <PracticeView
-        sentence={selected}
-        onBack={() => setSelected(null)}
-      />
-    )
+    return <PracticeView sentence={selected} onBack={() => setSelected(null)} />
   }
 
   return (
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-semibold">🎙️ 口语朗读</h1>
-        <p className="text-ink-500 mt-1 text-sm">
-          先听标准发音，再跟读，AI 帮你纠正发音
-        </p>
+        <p className="text-ink-500 mt-1 text-sm">先听标准发音，再跟读，AI 帮你纠正发音</p>
       </header>
 
       <MicNotice />
@@ -108,64 +98,49 @@ export function SpeakingPage() {
 /* ============ 跟读练习 ============ */
 
 function PracticeView({ sentence, onBack }: { sentence: SpeakingSentence; onBack: () => void }) {
-  const [recording, setRecording] = useState(false)
+  const rec = useVoiceRecorder()
   const [transcript, setTranscript] = useState('')
+  const [transcribing, setTranscribing] = useState(false)
   const [result, setResult] = useState<SpeakingAssessResult | null>(null)
   const [assessing, setAssessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const recRef = useRef<any>(null)
 
-  const stopRec = () => {
-    if (recRef.current) {
-      try {
-        recRef.current.stop()
-      } catch {
-        /* ignore */
+  const micBusy = transcribing || assessing
+
+  /* 点击麦克风：开始录音 / 停止并识别 */
+  const handleMic = async () => {
+    if (micBusy) return
+
+    // —— 停止录音 → 上传识别 ——
+    if (rec.recording) {
+      const blob = await rec.stop()
+      if (!blob || blob.size < 1000) {
+        setError('没有录到声音，请靠近麦克风再读一遍')
+        return
       }
-    }
-    setRecording(false)
-  }
-
-  const startRec = () => {
-    if (!micAvailable) return
-    if (recording) {
-      stopRec()
+      setTranscribing(true)
+      setError(null)
+      try {
+        const text = await transcribeAudio(blob)
+        if (!text) {
+          setError('没听清，请放慢速度、大声清晰地再读一遍')
+        } else {
+          setTranscript(text)
+        }
+      } catch (e: any) {
+        setError(e?.message ?? '语音识别失败')
+      } finally {
+        setTranscribing(false)
+      }
       return
     }
+
+    // —— 开始录音 ——
     setTranscript('')
     setResult(null)
     setError(null)
-
-    const rec = new SpeechRecognitionCtor()
-    rec.lang = 'en-US'
-    rec.interimResults = true
-    rec.continuous = false
-    rec.maxAlternatives = 1
-
-    let finalText = ''
-    rec.onresult = (ev: any) => {
-      for (let i = ev.resultIndex; i < ev.results.length; i++) {
-        if (ev.results[i].isFinal) finalText += ev.results[i][0].transcript
-      }
-      setTranscript(finalText)
-    }
-    rec.onend = () => setRecording(false)
-    rec.onerror = (e: any) => {
-      setRecording(false)
-      if (e?.error === 'not-allowed' || e?.error === 'service-not-allowed') {
-        setError(
-          secureContext
-            ? '麦克风权限被拒绝，请在浏览器设置里允许麦克风访问'
-            : '当前网站是 HTTP 明文访问，浏览器禁止调用麦克风。改用 HTTPS 访问即可。',
-        )
-      } else if (e?.error !== 'aborted') {
-        setError(`识别出错：${e?.error ?? '未知错误'}`)
-      }
-    }
-
-    recRef.current = rec
-    rec.start()
-    setRecording(true)
+    const ok = await rec.start()
+    if (!ok) setError('无法访问麦克风，请确认已允许麦克风权限（且网站是 HTTPS）')
   }
 
   const handleAssess = async () => {
@@ -185,11 +160,22 @@ function PracticeView({ sentence, onBack }: { sentence: SpeakingSentence; onBack
     }
   }
 
-  const scoreColor = (result?.accuracy ?? 0) >= 80 ? 'text-green-600' : (result?.accuracy ?? 0) >= 60 ? 'text-amber-600' : 'text-red-600'
+  const scoreColor =
+    (result?.accuracy ?? 0) >= 80
+      ? 'text-green-600'
+      : (result?.accuracy ?? 0) >= 60
+      ? 'text-amber-600'
+      : 'text-red-600'
 
   return (
     <div className="space-y-6">
-      <button onClick={() => { stopRec(); onBack() }} className="text-sm text-ink-500 hover:text-ink-900">
+      <button
+        onClick={async () => {
+          if (rec.recording) await rec.stop()
+          onBack()
+        }}
+        className="text-sm text-ink-500 hover:text-ink-900"
+      >
         ← 返回列表
       </button>
 
@@ -209,27 +195,29 @@ function PracticeView({ sentence, onBack }: { sentence: SpeakingSentence; onBack
         {/* 录音按钮 */}
         <div className="text-center pt-2">
           <button
-            onClick={startRec}
-            disabled={!micAvailable}
+            onClick={handleMic}
+            disabled={!micAvailable || micBusy}
             className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl transition-colors ${
-              !micAvailable
+              !micAvailable || micBusy
                 ? 'bg-ink-100 text-ink-400 cursor-not-allowed'
-                : recording
+                : rec.recording
                 ? 'bg-red-500 text-white animate-pulse'
                 : 'bg-ink-900 text-white hover:opacity-90'
             }`}
-            aria-label={recording ? '停止朗读' : '开始朗读'}
+            aria-label={rec.recording ? '停止朗读' : '开始朗读'}
           >
-            {recording ? '⏹' : '🎤'}
+            {transcribing ? '⏳' : rec.recording ? '⏹' : '🎤'}
           </button>
           <div className="text-sm text-ink-500 mt-2">
-            {recording
-              ? '正在聆听…请朗读上面的句子'
+            {transcribing
+              ? '正在识别…'
+              : rec.recording
+              ? '正在录音…读完点一下停止'
               : !secureContext
               ? '需要 HTTPS 才能使用麦克风'
-              : supported
-              ? '点击麦克风，开始朗读'
-              : '当前浏览器不支持语音识别'}
+              : hasRecorder
+              ? '点击麦克风开始朗读'
+              : '当前浏览器不支持录音'}
           </div>
         </div>
 
@@ -258,16 +246,16 @@ function PracticeView({ sentence, onBack }: { sentence: SpeakingSentence; onBack
               <div className="text-sm text-ink-500 mb-1">发音准确度</div>
               <div className="w-full h-2.5 bg-ink-100 rounded-full overflow-hidden">
                 <div
-                  className={`h-full transition-all ${result.accuracy >= 80 ? 'bg-green-500' : result.accuracy >= 60 ? 'bg-amber-500' : 'bg-red-500'}`}
+                  className={`h-full transition-all ${
+                    result.accuracy >= 80 ? 'bg-green-500' : result.accuracy >= 60 ? 'bg-amber-500' : 'bg-red-500'
+                  }`}
                   style={{ width: `${result.accuracy}%` }}
                 />
               </div>
             </div>
           </div>
 
-          {result.feedback && (
-            <p className="text-sm leading-relaxed text-ink-900">{result.feedback}</p>
-          )}
+          {result.feedback && <p className="text-sm leading-relaxed text-ink-900">{result.feedback}</p>}
 
           {result.mispronounced.length > 0 && (
             <div className="space-y-2">
@@ -281,14 +269,15 @@ function PracticeView({ sentence, onBack }: { sentence: SpeakingSentence; onBack
             </div>
           )}
 
-          <div className="flex gap-2">
-            <button onClick={() => { setResult(null); setTranscript(''); }} className="va-btn va-btn--secondary va-btn--sm">
-              再读一遍
-            </button>
-            <button onClick={startRec} className="va-btn va-btn--primary va-btn--sm">
-              {recording ? '停止' : '重新录音'}
-            </button>
-          </div>
+          <button
+            onClick={() => {
+              setResult(null)
+              setTranscript('')
+            }}
+            className="va-btn va-btn--secondary va-btn--sm"
+          >
+            再读一遍
+          </button>
 
           {result.is_mock && (
             <div className="text-xs text-ink-500">（当前为简单比对，AI 恢复后给出更精准的发音点评）</div>

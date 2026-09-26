@@ -32,3 +32,8 @@ class SpeakingAssessResponse(BaseModel):
 class SpeakingSentencesResponse(BaseModel):
     items: list[SpeakingSentence]
     total: int
+
+
+class TranscribeResponse(BaseModel):
+    text: str = ''
+    ok: bool = False
