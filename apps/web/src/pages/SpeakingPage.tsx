@@ -14,6 +14,36 @@ const SpeechRecognitionCtor: any =
     : undefined
 
 const supported = !!SpeechRecognitionCtor
+// 浏览器安全规则：只有 HTTPS（或 localhost）才允许访问麦克风。
+// 当前站点若是 http:// 明文访问，麦克风会被浏览器直接拒绝（连权限弹窗都不会出现）。
+const secureContext = typeof window !== 'undefined' ? window.isSecureContext : true
+const micAvailable = supported && secureContext
+
+/** 麦克风不可用时的准确原因说明 */
+function MicNotice() {
+  if (!secureContext) {
+    return (
+      <div className="va-card text-sm text-amber-800 bg-amber-50 space-y-1">
+        <div className="font-semibold">⚠️ 麦克风无法使用：当前网站是 HTTP 明文访问</div>
+        <div>
+          浏览器出于安全规定（secure context），<strong>只有 HTTPS 网站才允许调用麦克风</strong>，
+          这是浏览器的硬性限制，网页本身无法绕过。
+        </div>
+        <div className="text-xs text-amber-700">
+          解决：改用 <strong>https://</strong> 访问本站即可（需服务器配置证书）。
+        </div>
+      </div>
+    )
+  }
+  if (!supported) {
+    return (
+      <div className="va-card text-sm text-amber-700 bg-amber-50">
+        ⚠️ 当前浏览器不支持语音识别。请用 <strong>Chrome / Edge / Safari</strong> 打开。
+      </div>
+    )
+  }
+  return null
+}
 
 export function SpeakingPage() {
   const [sentences, setSentences] = useState<SpeakingSentence[]>([])
@@ -44,11 +74,7 @@ export function SpeakingPage() {
         </p>
       </header>
 
-      {!supported && (
-        <div className="va-card text-sm text-amber-700 bg-amber-50">
-          ⚠️ 当前浏览器不支持语音识别。请用 <strong>Chrome / Edge / Safari</strong> 打开本页面。
-        </div>
-      )}
+      <MicNotice />
 
       {error && <div className="text-sm text-red-600">{error}</div>}
 
@@ -101,7 +127,7 @@ function PracticeView({ sentence, onBack }: { sentence: SpeakingSentence; onBack
   }
 
   const startRec = () => {
-    if (!supported) return
+    if (!micAvailable) return
     if (recording) {
       stopRec()
       return
@@ -127,7 +153,11 @@ function PracticeView({ sentence, onBack }: { sentence: SpeakingSentence; onBack
     rec.onerror = (e: any) => {
       setRecording(false)
       if (e?.error === 'not-allowed' || e?.error === 'service-not-allowed') {
-        setError('麦克风权限被拒绝，请在浏览器设置里允许麦克风访问')
+        setError(
+          secureContext
+            ? '麦克风权限被拒绝，请在浏览器设置里允许麦克风访问'
+            : '当前网站是 HTTP 明文访问，浏览器禁止调用麦克风。改用 HTTPS 访问即可。',
+        )
       } else if (e?.error !== 'aborted') {
         setError(`识别出错：${e?.error ?? '未知错误'}`)
       }
@@ -163,6 +193,8 @@ function PracticeView({ sentence, onBack }: { sentence: SpeakingSentence; onBack
         ← 返回列表
       </button>
 
+      <MicNotice />
+
       <div className="va-card space-y-4">
         <div className="flex items-center justify-between">
           <span className="text-xs px-2 py-0.5 rounded bg-accent-soft text-accent-deep font-medium">
@@ -178,15 +210,26 @@ function PracticeView({ sentence, onBack }: { sentence: SpeakingSentence; onBack
         <div className="text-center pt-2">
           <button
             onClick={startRec}
+            disabled={!micAvailable}
             className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl transition-colors ${
-              recording ? 'bg-red-500 text-white animate-pulse' : 'bg-ink-900 text-white hover:opacity-90'
+              !micAvailable
+                ? 'bg-ink-100 text-ink-400 cursor-not-allowed'
+                : recording
+                ? 'bg-red-500 text-white animate-pulse'
+                : 'bg-ink-900 text-white hover:opacity-90'
             }`}
             aria-label={recording ? '停止朗读' : '开始朗读'}
           >
             {recording ? '⏹' : '🎤'}
           </button>
           <div className="text-sm text-ink-500 mt-2">
-            {recording ? '正在聆听…请朗读上面的句子' : supported ? '点击麦克风，开始朗读' : '当前浏览器不支持语音识别'}
+            {recording
+              ? '正在聆听…请朗读上面的句子'
+              : !secureContext
+              ? '需要 HTTPS 才能使用麦克风'
+              : supported
+              ? '点击麦克风，开始朗读'
+              : '当前浏览器不支持语音识别'}
           </div>
         </div>
 

@@ -17,6 +17,9 @@ const SpeechRecognitionCtor: any =
     ? (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     : undefined
 const voiceSupported = !!SpeechRecognitionCtor
+// 浏览器安全规则：只有 HTTPS（或 localhost）才允许访问麦克风
+const secureContext = typeof window !== 'undefined' ? window.isSecureContext : true
+const micAvailable = voiceSupported && secureContext
 
 type Msg = { id: number; role: 'assistant' | 'user'; content: string; corrections?: string[] }
 
@@ -88,7 +91,7 @@ export function DialoguePage() {
 
   // 语音输入
   const startVoice = () => {
-    if (!voiceSupported || recording) return
+    if (!micAvailable || recording) return
     const rec = new SpeechRecognitionCtor()
     rec.lang = 'en-US'
     rec.interimResults = true
@@ -282,11 +285,16 @@ export function DialoguePage() {
         {voiceSupported && (
           <button
             onClick={startVoice}
+            disabled={!micAvailable}
             className={`w-10 h-10 rounded-full flex items-center justify-center text-lg transition-colors ${
-              recording ? 'bg-red-500 text-white animate-pulse' : 'bg-ink-50 text-ink-600 hover:bg-ink-900 hover:text-white'
+              !micAvailable
+                ? 'bg-ink-100 text-ink-400 cursor-not-allowed'
+                : recording
+                ? 'bg-red-500 text-white animate-pulse'
+                : 'bg-ink-50 text-ink-600 hover:bg-ink-900 hover:text-white'
             }`}
             aria-label="语音输入"
-            title="语音输入"
+            title={micAvailable ? '语音输入' : '需要 HTTPS 才能使用麦克风'}
           >
             🎤
           </button>
@@ -295,7 +303,9 @@ export function DialoguePage() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          placeholder={recording ? '正在聆听…' : '输入英语，或点麦克风说话'}
+          placeholder={
+            recording ? '正在聆听…' : micAvailable ? '输入英语，或点麦克风说话' : '输入英语（麦克风需 HTTPS）'
+          }
           className="flex-1 px-4 py-2.5 bg-white border border-ink-100 rounded-xl focus:outline-none focus:border-ink-900"
         />
         <button
