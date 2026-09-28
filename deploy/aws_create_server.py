@@ -27,8 +27,10 @@ from botocore.exceptions import ClientError
 
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
-REGION = os.environ.get('AWS_REGION', 'ap-east-1')          # 香港
-INSTANCE_TYPE = os.environ.get('AWS_INSTANCE_TYPE', 't3.medium')
+REGION = os.environ.get('AWS_REGION', 'ap-northeast-1')          # 东京（香港 ap-east-1 需手动开通）
+# 注意：2025 年后新注册的 AWS 账号默认是「免费计划(FREE)」，只能用 t3.small 及以下机型；
+# t3.medium 会报 "not eligible for Free Tier"。如需更大规格，先在控制台升级为付费计划。
+INSTANCE_TYPE = os.environ.get('AWS_INSTANCE_TYPE', 't3.small')
 KEY_NAME = os.environ.get('AWS_KEY_NAME', 'vocab-agent-key')
 SG_NAME = os.environ.get('AWS_SG_NAME', 'vocab-agent-sg')
 KEY_DIR = Path(os.environ.get('AWS_KEY_DIR', r'E:\aws'))
