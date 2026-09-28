@@ -187,10 +187,14 @@ def main() -> int:
                   sudo=True, password=NEW_PASSWORD, timeout=1800)
     log(f'  {out[-400:]}')
 
-    # 本地 SDK 源码
-    sdk = f'{REMOTE_DIR}/packages/sdk-llm-py'
-    rc, out = run(c, f'[ -d {sdk} ] && pip3 install --break-system-packages --ignore-installed -e {sdk} 2>&1 | tail -2')
-    log(f'  sdk-llm-py: rc={rc}')
+    # 本地 SDK 源码（必须用 root 安装：systemd 服务以 root 身份运行）
+    for pkg in ('sdk-llm-py', 'sdk-fsrs-py'):
+        sdk = f'{REMOTE_DIR}/packages/{pkg}'
+        rc, out = run(
+            c,
+            f'[ -d {sdk} ] && pip3 install --break-system-packages --ignore-installed -e {sdk} 2>&1 | tail -2',
+            sudo=True, password=NEW_PASSWORD, timeout=600)
+        log(f'  {pkg}: {out[-130:]}')
 
     # ---------- 5. Whisper 模型 ----------
     log('\n=== 下载 Whisper 模型（国内镜像）===')
@@ -281,6 +285,9 @@ WantedBy=multi-user.target
         f.write(nginx)
     sftp.close()
     run(c, 'rm -f /etc/nginx/sites-enabled/default', sudo=True, password=NEW_PASSWORD)
+    # nginx(www-data) 需要能穿过 /home/<user> 才能读到 dist，否则 403
+    rc, out = run(c, f'chmod o+x /home/{NEW_USER} && namei -l {REMOTE_DIR}/dist/index.html | head -6')
+    log(f'  目录权限: {out[-260:]}')
     run(c, 'cp /tmp/vocab-agent.nginx /etc/nginx/sites-available/vocab-agent', sudo=True, password=NEW_PASSWORD)
     run(c, f'ln -sf /etc/nginx/sites-available/vocab-agent /etc/nginx/sites-enabled/vocab-agent',
         sudo=True, password=NEW_PASSWORD)
