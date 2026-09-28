@@ -7,12 +7,13 @@ import time
 
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
-HOST = 'agents.earthledger.com'
-USER = 'ubuntu'
+HOST = os.environ.get('VOCAB_SSH_HOST', 'roy.earthledger.com')   # AWS 东京
+USER = os.environ.get('VOCAB_SSH_USER', 'ubuntu')
 PASSWORD = os.environ.get('VOCAB_SSH_PASSWORD', '')
+SSH_KEY = os.environ.get('VOCAB_SSH_KEY', r'E:\aws\vocab-agent-key.pem')
 REMOTE_DIR = '/home/ubuntu/vocab-agent'
-LOCAL_GW = r'C:\AppSoft\vocabularyagent\services\ai-gateway'
-LOCAL_DIST = r'C:\AppSoft\vocabularyagent\apps\web\dist'
+LOCAL_GW = r'E:\vocabularyagent\services\ai-gateway'
+LOCAL_DIST = r'E:\vocabularyagent\apps\web\dist'
 
 SKIP_DIRS = {'__pycache__', '.pytest_cache', '.mypy_cache', '.ruff_cache'}
 
@@ -27,6 +28,13 @@ def exec_cmd(client, cmd, timeout=60):
 
 def log(msg):
     print(msg, flush=True)
+
+
+def sudo_cmd(cmd):
+    """有密码时用 sudo -S 喂密码；密钥登录（AWS）用免密 sudo -n"""
+    if PASSWORD:
+        return f"echo '{PASSWORD}' | sudo -S {cmd} 2>&1"
+    return f'sudo -n {cmd} 2>&1'
 
 
 def ensure_remote_dir(sftp, path):
@@ -62,8 +70,11 @@ def upload_tree(sftp, local_root, remote_root, label):
 def main():
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(HOST, username=USER, password=PASSWORD, timeout=20)
-    log('[OK] connected\n')
+    if SSH_KEY and os.path.exists(SSH_KEY):
+        client.connect(HOST, username=USER, key_filename=SSH_KEY, timeout=25)
+    else:
+        client.connect(HOST, username=USER, password=PASSWORD, timeout=20)
+    log(f'[OK] connected to {HOST}\n')
 
     sftp = client.open_sftp()
     log('=== 同步后端 app/ ===')
@@ -77,17 +88,30 @@ def main():
 
     exec_cmd(client, f'chmod -R a+rX {REMOTE_DIR}/dist')
 
-    # nginx：index.html 禁缓存（否则手机一直拿到旧页面，新功能看不到）
-    log('=== 更新 nginx 配置（index.html 禁缓存）===')
+    # nginx：HTTP 跳 HTTPS + index.html 禁缓存 + 放开上传体积
+    log('=== 更新 nginx 配置 ===')
+    DOMAIN = os.environ.get('VOCAB_DOMAIN', 'roy.earthledger.com')
+    CERT = f'/etc/letsencrypt/live/{DOMAIN}'
     nginx_conf = f"""server {{
-    # 80：常规入口（受备案策略影响）
     listen 80 default_server;
-    # 8088：绕过备案拦截的备用入口
-    listen 8088;
-    server_name _;
+    listen [::]:80 default_server;
+    server_name {DOMAIN};
+    return 301 https://$host$request_uri;
+}}
+
+server {{
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+    server_name {DOMAIN};
+
+    ssl_certificate     {CERT}/fullchain.pem;
+    ssl_certificate_key {CERT}/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
     root {REMOTE_DIR}/dist;
     index index.html;
+    client_max_body_size 20m;
 
     # index.html 不缓存，保证前端发版后手机能立刻拿到新的 hash 资源
     location = /index.html {{
@@ -105,7 +129,8 @@ def main():
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_read_timeout 120s;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 300s;
     }}
 
     location ~* \\.(js|css|png|jpg|jpeg|gif|svg|ico|woff2?)$ {{
@@ -123,7 +148,7 @@ def main():
         'nginx -t',
         'systemctl reload nginx',
     ]:
-        rc, out, err = exec_cmd(client, f"echo '{PASSWORD}' | sudo -S {c} 2>&1", timeout=60)
+        rc, out, err = exec_cmd(client, sudo_cmd(c), timeout=60)
         log(f'  {c}: rc={rc} {err.strip()[:120]}')
 
     log('=== 更新 systemd 服务 ===')
@@ -156,11 +181,11 @@ WantedBy=multi-user.target
         'cp /tmp/vocab-agent.service /etc/systemd/system/vocab-agent.service',
         'systemctl daemon-reload',
     ]:
-        rc, out, err = exec_cmd(client, f"echo '{PASSWORD}' | sudo -S {c} 2>&1", timeout=60)
+        rc, out, err = exec_cmd(client, sudo_cmd(c), timeout=60)
         log(f'  {c}: rc={rc} {err.strip()[:120]}')
 
     log('=== 重启服务 ===')
-    rc, out, err = exec_cmd(client, f"echo '{PASSWORD}' | sudo -S systemctl restart vocab-agent", timeout=60)
+    rc, out, err = exec_cmd(client, sudo_cmd('systemctl restart vocab-agent'), timeout=60)
     log(f'  restart rc={rc}')
     time.sleep(5)
 
@@ -170,15 +195,16 @@ WantedBy=multi-user.target
         ('随机词条(含词根)', 'curl -s "http://127.0.0.1:8000/api/words/random?limit=2"'),
         ('阅读真题库', 'curl -s "http://127.0.0.1:8000/api/reading/bank/stats"'),
         ('写作真题库', 'curl -s "http://127.0.0.1:8000/api/writing/prompts/stats"'),
-        ('首页(80)', 'curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:80/'),
-        ('首页(8088)', 'curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8088/'),
-        ('API 经 8088 反代', 'curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8088/api/reading/bank/stats'),
+        ('听力题库', 'curl -s http://127.0.0.1:8000/api/listening/stats'),
+        ('语音识别', 'curl -s http://127.0.0.1:8000/api/speaking/stt-status'),
+        ('HTTP 跳转', 'curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1/'),
+        ('HTTPS 首页', 'curl -sk -o /dev/null -w "%{http_code}" https://127.0.0.1/'),
     ]
     for name, c in checks:
         rc, out, err = exec_cmd(client, c, timeout=30)
         log(f'  {name}: {out.strip()[:600]}')
 
-    rc, out, err = exec_cmd(client, f"echo '{PASSWORD}' | sudo -S journalctl -u vocab-agent -n 10 --no-pager | tail -10", timeout=30)
+    rc, out, err = exec_cmd(client, sudo_cmd('journalctl -u vocab-agent -n 10 --no-pager') + ' | tail -10', timeout=30)
     log('\n=== 服务日志 ===')
     log(out.strip()[-700:])
 
