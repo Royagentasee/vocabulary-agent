@@ -106,6 +106,46 @@ export async function fetchLibraryStats(): Promise<LibraryStats> {
   return get<LibraryStats>(`${BASE}/stats`)
 }
 
+/* ---------------- 点词查义（本地词典优先，未收录走 AI） ---------------- */
+
+export interface LookupSense {
+  pos: string
+  definitionCn: string
+  definitionEn: string
+}
+
+export interface LookupExample {
+  sentence: string
+  translation: string
+}
+
+export interface WordLookup {
+  word: string
+  found: boolean
+  source: 'dict' | 'ai' | 'none'
+  headword: string
+  ipa: string
+  pos: string[]
+  translation: string
+  senses: LookupSense[]
+  examples: LookupExample[]
+  rootAffix: {
+    prefix: string
+    prefixMeaning: string
+    root: string
+    rootMeaning: string
+    suffix: string
+    suffixMeaning: string
+  } | null
+  memoryTip: string
+}
+
+export async function lookupWord(word: string, context = ''): Promise<WordLookup> {
+  const qs = new URLSearchParams({ word })
+  if (context) qs.set('context', context.slice(0, 500))
+  return get<WordLookup>(`${BASE}/lookup?${qs}`)
+}
+
 /* ---------------- 阅读进度（本地存储） ---------------- */
 
 const PROGRESS_KEY = 'va-reading-progress'

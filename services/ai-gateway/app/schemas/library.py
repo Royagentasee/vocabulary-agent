@@ -71,3 +71,42 @@ class LibraryStats(BaseModel):
     totalWords: int
     chapters: int
     source: str = 'Project Gutenberg（公共版权）+ AI 原创分级故事'
+
+
+# ---------------- 阅读器点词查义 ----------------
+
+
+class LookupSense(BaseModel):
+    pos: str = ''
+    definitionCn: str = ''
+    definitionEn: str = ''
+
+
+class LookupExample(BaseModel):
+    sentence: str = ''
+    translation: str = ''
+
+
+class RootAffixInfo(BaseModel):
+    prefix: str = ''
+    prefixMeaning: str = ''
+    root: str = ''
+    rootMeaning: str = ''
+    suffix: str = ''
+    suffixMeaning: str = ''
+
+
+class WordLookupResponse(BaseModel):
+    """点词查义结果：本地词典优先，未收录则由 AI 解释。"""
+
+    word: str
+    found: bool = False
+    source: Literal['dict', 'ai', 'none'] = 'none'
+    headword: str = ''
+    ipa: str = ''
+    pos: list[str] = []
+    translation: str = ''
+    senses: list[LookupSense] = []
+    examples: list[LookupExample] = []
+    rootAffix: Optional[RootAffixInfo] = None
+    memoryTip: str = ''

@@ -3,21 +3,32 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import {
   fetchBook,
   fetchChapter,
+  lookupWord,
   saveProgress,
   BookDetail,
   ChapterContent,
+  WordLookup,
 } from '@/services/library'
-import { getWordDetail } from '@/services/search'
 import { speakText } from '@/components/SpeakButton'
 import { trackEvent } from '@/services/stats'
 
 const WORDS_PER_PAGE = 900
 
+/** 取出包含该词的整句，作为 AI 判断词义的上下文 */
+function sentenceOf(para: string, token: string): string {
+  const idx = para.indexOf(token)
+  if (idx < 0) return para.slice(0, 300)
+  const before = para.lastIndexOf('.', idx)
+  let after = para.indexOf('.', idx + token.length)
+  if (after < 0) after = para.length
+  return para.slice(Math.max(0, before + 1), Math.min(after + 1, para.length)).trim().slice(0, 500)
+}
+
 interface PopupState {
   word: string
   loading: boolean
-  data: any | null
-  notFound: boolean
+  data: WordLookup | null
+  context: string
 }
 
 export function BookReaderPage() {
@@ -88,20 +99,24 @@ export function BookReaderPage() {
 
   const currentParas = pages[page] || []
 
-  /* 点词查义 */
-  const lookup = useCallback(async (raw: string) => {
+  /* 点词查义：本地词典优先，未收录自动走 AI */
+  const lookup = useCallback(async (raw: string, context = '') => {
     const word = raw.replace(/^[^A-Za-z'-]+|[^A-Za-z'-]+$/g, '')
     if (!word || word.length < 2) return
 
     const key = word.toLowerCase()
     if (cacheRef.current[key]) {
-      setPopup({ word, loading: false, data: cacheRef.current[key], notFound: false })
+      setPopup({ word, loading: false, data: cacheRef.current[key], context })
       return
     }
-    setPopup({ word, loading: true, data: null, notFound: false })
-    const data = await getWordDetail(key)
-    if (data) cacheRef.current[key] = data
-    setPopup({ word, loading: false, data, notFound: !data })
+    setPopup({ word, loading: true, data: null, context })
+    try {
+      const data = await lookupWord(key, context)
+      if (data.found) cacheRef.current[key] = data
+      setPopup({ word, loading: false, data, context })
+    } catch {
+      setPopup({ word, loading: false, data: null, context })
+    }
   }, [])
 
   /* 整段朗读 */
@@ -168,7 +183,7 @@ export function BookReaderPage() {
                         key={ti}
                         onClick={(e) => {
                           e.stopPropagation()
-                          lookup(tok)
+                          lookup(tok, sentenceOf(para, tok))
                         }}
                         className="cursor-pointer hover:bg-accent-soft hover:text-accent-deep rounded px-[1px] transition-colors"
                       >
@@ -383,19 +398,24 @@ export function BookReaderPage() {
           <div className="max-w-2xl mx-auto va-card shadow-lg border-ink-900/10 space-y-2">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-lg font-semibold">{popup.word}</span>
+                <div className="flex items-baseline gap-2 flex-wrap">
+                  <span className="text-lg font-semibold">{popup.data?.headword || popup.word}</span>
                   {popup.data?.ipa && (
                     <span className="text-xs text-ink-500 font-mono">/{popup.data.ipa}/</span>
                   )}
+                  {popup.data?.source === 'ai' && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent-soft text-accent-deep">
+                      AI 释义
+                    </span>
+                  )}
                 </div>
-                {popup.data?.pos?.length > 0 && (
+                {popup.data?.pos && popup.data.pos.length > 0 && (
                   <div className="text-xs text-ink-400">{popup.data.pos.join(' · ')}</div>
                 )}
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <button
-                  onClick={() => speak(popup.word)}
+                  onClick={() => speak(popup.data?.headword || popup.word)}
                   className="w-8 h-8 rounded-full bg-ink-50 hover:bg-ink-900 hover:text-white flex items-center justify-center"
                 >
                   🔊
@@ -409,35 +429,72 @@ export function BookReaderPage() {
               </div>
             </div>
 
-            {popup.loading && <div className="text-sm text-ink-500">查询中…</div>}
+            {popup.loading && (
+              <div className="text-sm text-ink-500 py-1">
+                查询中…<span className="text-xs text-ink-400 ml-1">（词典未收录时 AI 释义约需 3-8 秒）</span>
+              </div>
+            )}
 
-            {!popup.loading && popup.data && (
-              <div className="space-y-1">
-                <div className="text-sm text-ink-900">{popup.data.translation || '（无释义）'}</div>
-                {popup.data.rootAffix && (
-                  <div className="text-xs text-ink-500">
-                    词根词缀：
-                    {popup.data.rootAffix.prefix && ` ${popup.data.rootAffix.prefix}-(${popup.data.rootAffix.prefixMeaning})`}
-                    {popup.data.rootAffix.root && ` ${popup.data.rootAffix.root}(${popup.data.rootAffix.rootMeaning})`}
-                    {popup.data.rootAffix.suffix && ` ${popup.data.rootAffix.suffix}(${popup.data.rootAffix.suffixMeaning})`}
+            {!popup.loading && popup.data?.found && (
+              <div className="space-y-2">
+                {/* 释义：多词性分条 */}
+                {popup.data.senses.length > 0 ? (
+                  <div className="space-y-1">
+                    {popup.data.senses.slice(0, 4).map((s, i) => (
+                      <div key={i} className="text-sm">
+                        {s.pos && (
+                          <span className="text-accent-deep font-medium mr-1">{s.pos}</span>
+                        )}
+                        <span className="text-ink-900">{s.definitionCn}</span>
+                        {s.definitionEn && (
+                          <span className="text-ink-400 text-xs ml-2">{s.definitionEn}</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-sm text-ink-900">{popup.data.translation || '（无释义）'}</div>
+                )}
+
+                {popup.data.rootAffix &&
+                  (popup.data.rootAffix.prefix ||
+                    popup.data.rootAffix.root ||
+                    popup.data.rootAffix.suffix) && (
+                    <div className="text-xs text-ink-500">
+                      词根词缀：
+                      {popup.data.rootAffix.prefix &&
+                        ` ${popup.data.rootAffix.prefix}-(${popup.data.rootAffix.prefixMeaning})`}
+                      {popup.data.rootAffix.root &&
+                        ` ${popup.data.rootAffix.root}(${popup.data.rootAffix.rootMeaning})`}
+                      {popup.data.rootAffix.suffix &&
+                        ` ${popup.data.rootAffix.suffix}(${popup.data.rootAffix.suffixMeaning})`}
+                    </div>
+                  )}
+
+                {popup.data.memoryTip && (
+                  <div className="text-xs text-accent-deep bg-accent-soft rounded-lg px-2 py-1.5">
+                    💡 {popup.data.memoryTip}
                   </div>
                 )}
-                {(popup.data.examples || []).slice(0, 2).map((ex: any, i: number) => (
+
+                {popup.data.examples.slice(0, 2).map((ex, i) => (
                   <div key={i} className="text-xs text-ink-600 border-l-2 border-ink-100 pl-2">
-                    {typeof ex === 'string' ? ex : ex.en || ex.text}
-                    {typeof ex === 'object' && ex.zh && (
-                      <div className="text-ink-400">{ex.zh}</div>
-                    )}
+                    {ex.sentence}
+                    {ex.translation && <div className="text-ink-400">{ex.translation}</div>}
                   </div>
                 ))}
               </div>
             )}
 
-            {!popup.loading && popup.notFound && (
+            {!popup.loading && popup.data && !popup.data.found && (
               <div className="text-sm text-ink-500">
-                词库里没有 <span className="font-mono">{popup.word}</span>
-                （可能是专有名词或变形词）。可以试试查原形，或长按选中复制。
+                没查到 <span className="font-mono">{popup.word}</span>
+                （可能是人名、地名或拼写变体）。试试点它的原形，或长按选中复制。
               </div>
+            )}
+
+            {!popup.loading && !popup.data && (
+              <div className="text-sm text-red-600">查询失败，请检查网络后重试</div>
             )}
           </div>
         </div>
