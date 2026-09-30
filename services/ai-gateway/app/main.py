@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routers import (
     explain, analyze, dialogue, voice, words, quiz,
     writing, writing_bank, reading, reading_bank, stats, grammar, listening, speaking,
+    library,
 )
 from app.middleware.rate_limit import RateLimitMiddleware
 
@@ -47,6 +48,7 @@ app.include_router(stats.router)
 app.include_router(grammar.router)
 app.include_router(listening.router)
 app.include_router(speaking.router)
+app.include_router(library.router)
 
 # metrics 路由（可选依赖）
 try:

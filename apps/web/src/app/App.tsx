@@ -13,6 +13,8 @@ import { GrammarPage } from '@/pages/GrammarPage'
 import { ListeningPage } from '@/pages/ListeningPage'
 import { SpeakingPage } from '@/pages/SpeakingPage'
 import { DialoguePage } from '@/pages/DialoguePage'
+import { LibraryPage } from '@/pages/LibraryPage'
+import { BookReaderPage } from '@/pages/BookReaderPage'
 import { UIKit } from '@/components/UIKit'
 import { BrowserGuard } from '@/components/BrowserGuard'
 import { trackEvent, trackVisit } from '@/services/stats'
@@ -29,6 +31,7 @@ const NAV_ITEMS = [
   { to: '/dialogue', label: '对话' },
   { to: '/writing', label: '写作' },
   { to: '/reading', label: '阅读' },
+  { to: '/library', label: '书库' },
   { to: '/stats', label: '统计' },
   { to: '/ui', label: 'UI Kit' },
 ]
@@ -83,6 +86,8 @@ export default function App() {
           <Route path="/dialogue" element={<DialoguePage />} />
           <Route path="/writing" element={<WritingPage />} />
           <Route path="/reading" element={<ReadingPage />} />
+          <Route path="/library" element={<LibraryPage />} />
+          <Route path="/library/:bookId" element={<BookReaderPage />} />
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/admin" element={<AdminUsagePage />} />
           <Route path="/ui" element={<UIKit />} />

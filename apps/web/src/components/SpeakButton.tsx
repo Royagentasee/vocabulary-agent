@@ -12,6 +12,28 @@ interface Props {
 const speechSupported = typeof window !== 'undefined' && 'speechSynthesis' in window
 
 /**
+ * 直接用浏览器 TTS 朗读一段文本（供阅读器等场景调用）
+ * 返回是否成功发起朗读。
+ */
+export function speakText(text: string, rate = 0.95): boolean {
+  if (!speechSupported || !text?.trim()) return false
+  window.speechSynthesis.cancel()
+  const u = new SpeechSynthesisUtterance(text)
+  u.lang = 'en-US'
+  u.rate = rate
+  const voices = window.speechSynthesis.getVoices()
+  const en = voices.find((v) => /en[-_]US/i.test(v.lang)) || voices.find((v) => /^en/i.test(v.lang))
+  if (en) u.voice = en
+  window.speechSynthesis.speak(u)
+  return true
+}
+
+/** 停止当前朗读 */
+export function stopSpeaking(): void {
+  if (speechSupported) window.speechSynthesis.cancel()
+}
+
+/**
  * 小喇叭发音按钮
  * 优先播放词典音频（audioUrl），没有则用浏览器内置 TTS 朗读。
  * 注意：iOS Safari 需要用户手势触发，点击即满足条件。
