@@ -15,6 +15,7 @@ import { SpeakingPage } from '@/pages/SpeakingPage'
 import { DialoguePage } from '@/pages/DialoguePage'
 import { LibraryPage } from '@/pages/LibraryPage'
 import { BookReaderPage } from '@/pages/BookReaderPage'
+import { SupportPage } from '@/pages/SupportPage'
 import { UIKit } from '@/components/UIKit'
 import { BrowserGuard } from '@/components/BrowserGuard'
 import { trackEvent, trackVisit } from '@/services/stats'
@@ -117,13 +118,20 @@ export default function App() {
           <Route path="/library" element={<LibraryPage />} />
           <Route path="/library/:bookId" element={<BookReaderPage />} />
           <Route path="/stats" element={<StatsPage />} />
+          <Route path="/support" element={<SupportPage />} />
           <Route path="/admin" element={<AdminUsagePage />} />
           <Route path="/ui" element={<UIKit />} />
         </Routes>
       </main>
 
-      <footer className="border-t border-ink-100 py-4 text-center text-xs text-ink-500">
-        Vocabulary Agent · MVP v0.1
+      <footer className="border-t border-ink-100 py-5 mt-4 text-center text-xs text-ink-500 space-y-2">
+        <NavLink
+          to="/support"
+          className="inline-flex items-center gap-1 px-4 py-2 rounded-full border border-ink-100 bg-white text-ink-700 text-sm hover:border-ink-900 active:bg-ink-50"
+        >
+          ☕ 请作者喝杯咖啡
+        </NavLink>
+        <div>Vocabulary Agent · MVP v0.1</div>
       </footer>
     </div>
   )

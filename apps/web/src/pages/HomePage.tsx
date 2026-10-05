@@ -80,6 +80,25 @@ export function HomePage() {
           <p className="text-xs sm:text-sm text-ink-500">答错的单词都在这里，点进去巩固复习</p>
         </Link>
       )}
+
+      {/* 书库入口 */}
+      <Link
+        to="/library"
+        className="va-card hover:border-ink-900 transition-colors flex flex-col gap-1 sm:gap-2 active:bg-ink-50"
+      >
+        <h2 className="text-base sm:text-lg font-semibold">📚 书库 · 原版阅读</h2>
+        <p className="text-xs sm:text-sm text-ink-500">
+          25 本世界名著 + 78 篇 A-Z 分级故事，点词即查、整段朗读
+        </p>
+      </Link>
+
+      {/* 支持作者 */}
+      <Link
+        to="/support"
+        className="block text-center text-xs text-ink-400 hover:text-ink-700 py-2"
+      >
+        ☕ 请作者喝杯咖啡
+      </Link>
     </div>
   )
 }
