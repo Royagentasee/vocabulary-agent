@@ -90,7 +90,7 @@ export function SupportPage() {
                 <img
                   src={m.src}
                   alt={`${m.name}收款码`}
-                  className="w-48 h-48 sm:w-52 sm:h-52 object-contain rounded-xl border border-ink-100 bg-white"
+                  className="w-60 sm:w-72 h-auto rounded-xl shadow-sm"
                   onError={() => setOk((s) => ({ ...s, [m.id]: false }))}
                 />
               </div>
