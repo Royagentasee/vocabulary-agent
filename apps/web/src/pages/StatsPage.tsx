@@ -59,9 +59,9 @@ export function StatsPage() {
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="va-card text-center">
-      <div className="text-3xl font-semibold">{value}</div>
-      <div className="text-sm text-ink-500 mt-1">{label}</div>
+    <div className="va-card text-center px-2 sm:px-6 py-3 sm:py-6">
+      <div className="text-2xl sm:text-3xl font-semibold leading-tight">{value}</div>
+      <div className="text-[11px] sm:text-sm text-ink-500 mt-0.5 sm:mt-1">{label}</div>
     </div>
   )
 }

@@ -3,9 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <!-- 固定为电脑版宽度 1024px：手机上整体等比缩小显示，布局与电脑完全一致 -->
-    <meta name="viewport" content="width=1024" />
+    <!-- 响应式视口：手机上按真实宽度渲染，Tailwind 的 sm:/md: 断点才会生效 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no" />
     <meta name="theme-color" content="#111111" />
+    <!-- iOS PWA：全屏体验 -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Vocabulary Agent" />
     <title>Vocabulary Agent</title>
   </head>
   <body class="bg-ink-50 text-ink-900 font-sans antialiased">

@@ -27,6 +27,21 @@
   .va-btn--disabled { @apply opacity-50 cursor-not-allowed; }
 
   .va-card {
-    @apply bg-white rounded-2xl border border-ink-100 p-6;
+    /* 手机端收紧内边距，桌面恢复 24px，避免窄屏时卡片内容被挤爆 */
+    @apply bg-white rounded-2xl border border-ink-100 p-4 sm:p-6;
+  }
+}
+
+@layer base {
+  /* 移动端细节：禁止 iOS 横屏时自动放大字号 */
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-ink-50 text-ink-900 antialiased;
+  }
+  button, a {
+    -webkit-tap-highlight-color: transparent;
   }
 }

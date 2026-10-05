@@ -189,7 +189,7 @@ export function LearningCard({ word, onRate, progress, cardState }: LearningCard
         {showExplanation && aiExplanation && !aiExplanation.explanation.includes('调用失败') && (
           <div className="mt-6">
             <div className="text-sm text-ink-500 mb-2">现在你记住了吗？</div>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <RateBtn label="忘记" color="red" onClick={() => handleManualRate(Rating.Again)} />
               <RateBtn label="困难" color="amber" onClick={() => handleManualRate(Rating.Hard)} />
               <RateBtn label="良好" color="blue" onClick={() => handleManualRate(Rating.Good)} />
