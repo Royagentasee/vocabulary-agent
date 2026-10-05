@@ -9,20 +9,22 @@ interface PayMethod {
 }
 
 // 收款码图片放在 apps/web/public/pay/ 下（构建后即站点根目录 /pay/）
+// ⚠️ 必须原样使用微信导出的文件，不要转格式/压缩/截图：
+//    微信在收款码里嵌了数字水印，任何二次处理都会让微信报「不支持截图使用」
 // 注意：目录名不能叫 support，否则和 /support 路由同名冲突，nginx 会返回 403
 const METHODS: PayMethod[] = [
   {
     id: 'wechat',
     name: '微信',
     hint: '用微信打开本页，长按识别；或保存原图再用扫一扫',
-    src: '/pay/wechat.png',
+    src: '/pay/wechat.jpg',
     emoji: '💚',
   },
   {
     id: 'alipay',
     name: '支付宝',
     hint: '长按识别；或保存原图再用扫一扫',
-    src: '/pay/alipay.png',
+    src: '/pay/alipay.jpg',
     emoji: '💙',
   },
 ]
@@ -96,7 +98,7 @@ export function SupportPage() {
               {/* 保存原图（微信拒绝截图扫码，必须用保存的原图） */}
               <a
                 href={m.src}
-                download={`${m.id}-qrcode.png`}
+                download={`${m.id}-qrcode.jpg`}
                 className="inline-block text-xs text-accent-deep hover:underline"
               >
                 ⬇ 保存原图到相册
@@ -108,27 +110,37 @@ export function SupportPage() {
         </section>
       )}
 
-      <section className="va-card space-y-2 text-sm">
-        <div className="font-medium">怎么扫码（重要）</div>
+      <section className="va-card space-y-3 text-sm">
+        <div className="font-medium">怎么扫码（请务必看这里）</div>
 
         <div className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2 leading-relaxed">
-          ⚠️ <strong>不要截图后再扫</strong> —— 微信的防诈骗机制会拒绝「截图」，
-          提示「收款码不支持截图使用」。请用下面的正确方法。
+          ⚠️ <strong>不要截图后再扫！</strong> 微信在收款码里嵌了防伪水印，
+          截图 / 转格式都会破坏它，微信会报「收款码不支持截图使用」。
         </div>
 
-        <ol className="list-decimal list-inside space-y-1.5 text-ink-600 text-xs sm:text-sm leading-relaxed">
-          <li>
-            <strong className="text-ink-900">手机（推荐）</strong>：用<strong>微信</strong>打开本页 →
-            <strong>长按二维码</strong> → 选「识别图中二维码」即可付款
-          </li>
-          <li>
-            <strong className="text-ink-900">保存原图再扫</strong>：长按二维码 → 选「保存图片」→
-            打开微信「扫一扫」→ 右上角<strong>相册</strong> → 选刚保存的图片
-          </li>
-          <li>
-            <strong className="text-ink-900">电脑上</strong>：手机微信「扫一扫」直接对着屏幕扫
-          </li>
-        </ol>
+        <div className="space-y-2">
+          <div className="text-xs font-semibold text-green-700">✅ 方法一（最稳，推荐）</div>
+          <ol className="list-decimal list-inside space-y-1 text-ink-600 text-xs sm:text-sm leading-relaxed">
+            <li>把本页链接发到微信里（例如发给「文件传输助手」）</li>
+            <li><strong>在微信里打开</strong>这个链接（不要在 Safari/浏览器里打开）</li>
+            <li><strong>长按二维码</strong> → 选「识别图中二维码」→ 直接付款</li>
+          </ol>
+        </div>
+
+        <div className="space-y-2">
+          <div className="text-xs font-semibold text-green-700">✅ 方法二：电脑上扫</div>
+          <div className="text-ink-600 text-xs sm:text-sm">
+            电脑浏览器打开本页 → 手机微信「扫一扫」对着屏幕扫
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="text-xs font-semibold text-green-700">✅ 方法三：保存原图再扫</div>
+          <div className="text-ink-600 text-xs sm:text-sm">
+            长按二维码 → 选「<strong>保存图片</strong>」（不要用系统截图）→
+            微信「扫一扫」→ 右上角<strong>相册</strong> → 选刚保存的图片
+          </div>
+        </div>
       </section>
 
       <section className="va-card text-sm space-y-2">
