@@ -14,14 +14,14 @@ const METHODS: PayMethod[] = [
   {
     id: 'wechat',
     name: '微信',
-    hint: '长按识别 / 截图后在微信扫一扫',
+    hint: '用微信打开本页，长按识别；或保存原图再用扫一扫',
     src: '/pay/wechat.png',
     emoji: '💚',
   },
   {
     id: 'alipay',
     name: '支付宝',
-    hint: '长按识别 / 截图后在支付宝扫一扫',
+    hint: '长按识别；或保存原图再用扫一扫',
     src: '/pay/alipay.png',
     emoji: '💙',
   },
@@ -92,6 +92,16 @@ export function SupportPage() {
                   onError={() => setOk((s) => ({ ...s, [m.id]: false }))}
                 />
               </div>
+
+              {/* 保存原图（微信拒绝截图扫码，必须用保存的原图） */}
+              <a
+                href={m.src}
+                download={`${m.id}-qrcode.png`}
+                className="inline-block text-xs text-accent-deep hover:underline"
+              >
+                ⬇ 保存原图到相册
+              </a>
+
               <div className="text-xs text-ink-500">{m.hint}</div>
             </div>
           ))}
@@ -99,16 +109,24 @@ export function SupportPage() {
       )}
 
       <section className="va-card space-y-2 text-sm">
-        <div className="font-medium">扫码方法</div>
-        <ol className="list-decimal list-inside space-y-1 text-ink-600 text-xs sm:text-sm leading-relaxed">
+        <div className="font-medium">怎么扫码（重要）</div>
+
+        <div className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2 leading-relaxed">
+          ⚠️ <strong>不要截图后再扫</strong> —— 微信的防诈骗机制会拒绝「截图」，
+          提示「收款码不支持截图使用」。请用下面的正确方法。
+        </div>
+
+        <ol className="list-decimal list-inside space-y-1.5 text-ink-600 text-xs sm:text-sm leading-relaxed">
           <li>
-            <strong>手机</strong>：长按上面的二维码 → 选择「识别图中二维码」
+            <strong className="text-ink-900">手机（推荐）</strong>：用<strong>微信</strong>打开本页 →
+            <strong>长按二维码</strong> → 选「识别图中二维码」即可付款
           </li>
           <li>
-            <strong>电脑</strong>：用手机微信/支付宝的「扫一扫」对着屏幕扫
+            <strong className="text-ink-900">保存原图再扫</strong>：长按二维码 → 选「保存图片」→
+            打开微信「扫一扫」→ 右上角<strong>相册</strong> → 选刚保存的图片
           </li>
           <li>
-            或者<strong>截图保存</strong>，再从相册里选「扫一扫 → 相册」
+            <strong className="text-ink-900">电脑上</strong>：手机微信「扫一扫」直接对着屏幕扫
           </li>
         </ol>
       </section>

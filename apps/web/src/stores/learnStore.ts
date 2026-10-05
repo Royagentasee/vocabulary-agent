@@ -64,6 +64,9 @@ interface LearnState {
   removeWrongWord: (wordId: string) => void
   clearWrongWords: () => void
 
+  /** 合并云端数据（换设备恢复 / 启动时同步） */
+  applyRemote: (remote: any) => void
+
   reset: () => void
 }
 
@@ -224,6 +227,51 @@ export const useLearnStore = create<LearnState>()(
 
       clearWrongWords: () => {
         set({ wrongWords: [] })
+      },
+
+      /** 合并云端数据：与本地取并集，避免任何一边被覆盖丢失 */
+      applyRemote: (remote: any) => {
+        if (!remote || typeof remote !== 'object') return
+        const local = get()
+
+        // 已学词：按 word.id 并集，同一词取 FSRS 复习时间更晚的那条
+        const lm = new Map<string, LearnedWord>()
+        for (const it of local.learnedWords || []) {
+          if (it?.word?.id != null) lm.set(String(it.word.id), it)
+        }
+        for (const it of remote.learnedWords || []) {
+          const id = it?.word?.id != null ? String(it.word.id) : ''
+          if (!id) continue
+          const prev = lm.get(id)
+          const t = (x: LearnedWord) =>
+            x?.card?.lastReview ? Date.parse(String(x.card.lastReview)) : 0
+          if (!prev || t(it) >= t(prev)) lm.set(id, it)
+        }
+
+        // 错词本：错误次数取较大值
+        const wm = new Map<string, WrongWord>()
+        for (const it of local.wrongWords || []) {
+          if (it?.word?.id != null) wm.set(String(it.word.id), it)
+        }
+        for (const it of remote.wrongWords || []) {
+          const id = it?.word?.id != null ? String(it.word.id) : ''
+          if (!id) continue
+          const prev = wm.get(id)
+          wm.set(
+            id,
+            prev
+              ? { ...prev, wrongCount: Math.max(prev.wrongCount || 0, it.wrongCount || 0) }
+              : it,
+          )
+        }
+
+        set({
+          learnedWords: [...lm.values()],
+          wrongWords: [...wm.values()],
+          todayLearned: Math.max(local.todayLearned || 0, remote.todayLearned || 0),
+          todayReviewed: Math.max(local.todayReviewed || 0, remote.todayReviewed || 0),
+          dailyGoal: remote.dailyGoal ?? local.dailyGoal,
+        })
       },
 
       reset: () =>
