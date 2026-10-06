@@ -1,11 +1,15 @@
 import { Link } from 'react-router-dom'
 import { useLearnStore } from '@/stores/learnStore'
+import { usePointsStore } from '@/stores/pointsStore'
 import { DailyPlan } from '@/features/plan/DailyPlan'
 
 const GOAL_OPTIONS = [5, 10, 15, 20, 30, 50]
 
 export function HomePage() {
   const { todayLearned, todayReviewed, wrongWords, learnedWords, dailyGoal, setDailyGoal } = useLearnStore()
+  const balance = usePointsStore((s) => s.balance)
+  const member = usePointsStore((s) => s.isMember())
+  const daysLeft = usePointsStore((s) => s.memberDaysLeft())
 
   return (
     <div className="space-y-5 sm:space-y-8">
@@ -20,6 +24,27 @@ export function HomePage() {
 
       {/* 打卡 · 考试倒计时 · 今日任务 */}
       <DailyPlan />
+
+      {/* 积分 / 会员 */}
+      <Link
+        to="/points"
+        className="va-card flex items-center justify-between gap-3 hover:border-ink-900 transition-colors active:bg-ink-50"
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="text-2xl">{member ? '🏅' : '⭐'}</span>
+          <div className="min-w-0">
+            <div className="text-sm font-medium">
+              {member ? `会员中 · 还剩 ${daysLeft} 天` : `当前积分 ${balance.toLocaleString()}`}
+            </div>
+            <div className="text-xs text-ink-500 truncate">
+              {member
+                ? `积分 ${balance.toLocaleString()} · 积分获取 ×1.5`
+                : '打卡、学习都能赚积分，可兑换会员'}
+            </div>
+          </div>
+        </div>
+        <span className="text-ink-300 shrink-0">›</span>
+      </Link>
 
       <section className="grid grid-cols-3 gap-2 sm:gap-4">
         <StatCard label="今日新词" value={todayLearned} />

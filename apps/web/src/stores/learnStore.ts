@@ -43,6 +43,8 @@ interface LearnState {
   // 统计
   todayLearned: number
   todayReviewed: number
+  /** 上次活跃日期（YYYY-MM-DD），用于跨天自动重置今日计数 */
+  lastActiveDate: string
   wrongWords: WrongWord[]
 
   // 设置
@@ -72,6 +74,14 @@ interface LearnState {
 
 function makeCard(): FSRSCardState {
   return scheduler.newCard()
+}
+
+/** 本地时区的 YYYY-MM-DD */
+function dayKey(d: Date = new Date()): string {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
 }
 
 /** 判断 FSRS 卡片是否到期（该复习了） */
@@ -108,6 +118,7 @@ export const useLearnStore = create<LearnState>()(
       reviewIndex: 0,
       todayLearned: 0,
       todayReviewed: 0,
+      lastActiveDate: dayKey(),
       wrongWords: [],
       dailyGoal: 20,
 
@@ -126,6 +137,12 @@ export const useLearnStore = create<LearnState>()(
       },
 
       learnRate: (rating) => {
+        // 跨天则先把今日计数清零
+        const today = dayKey()
+        if (get().lastActiveDate !== today) {
+          set({ todayLearned: 0, todayReviewed: 0, lastActiveDate: today })
+        }
+
         const { learnQueue, learnIndex, learnedWords, wrongWords } = get()
         const word = learnQueue[learnIndex]
         if (!word) return
@@ -172,6 +189,11 @@ export const useLearnStore = create<LearnState>()(
       },
 
       reviewRate: (rating) => {
+        const today = dayKey()
+        if (get().lastActiveDate !== today) {
+          set({ todayLearned: 0, todayReviewed: 0, lastActiveDate: today })
+        }
+
         const { reviewQueue, reviewIndex, learnedWords, wrongWords } = get()
         const current = reviewQueue[reviewIndex]
         if (!current) return

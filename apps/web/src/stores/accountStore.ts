@@ -19,6 +19,7 @@ import {
 } from '@/services/account'
 import { useLearnStore } from '@/stores/learnStore'
 import { usePlanStore } from '@/stores/planStore'
+import { usePointsStore } from '@/stores/pointsStore'
 
 export type SyncStatus = 'idle' | 'pending' | 'syncing' | 'synced' | 'error'
 
@@ -26,6 +27,7 @@ export type SyncStatus = 'idle' | 'pending' | 'syncing' | 'synced' | 'error'
 export function pickSyncData() {
   const s = useLearnStore.getState()
   const p = usePlanStore.getState()
+  const pt = usePointsStore.getState()
   return {
     learnedWords: s.learnedWords || [],
     wrongWords: s.wrongWords || [],
@@ -38,15 +40,27 @@ export function pickSyncData() {
     taskDone: p.taskDone || {},
     taskTargets: p.taskTargets || {},
     exam: { type: p.examType || '', date: p.examDate || '', target: p.targetScore || '' },
+    // 积分与会员
+    points: {
+      balance: pt.balance || 0,
+      totalEarned: pt.totalEarned || 0,
+      totalSpent: pt.totalSpent || 0,
+      dailyEarned: pt.dailyEarned || {},
+      unlockedModules: pt.unlockedModules || [],
+      memberUntil: pt.memberUntil || '',
+      lastStreakBonusAt: pt.lastStreakBonusAt || 0,
+      awardedTasks: pt.awardedTasks || [],
+    },
   }
 }
 
-/** 把云端数据合并进本地两个 store */
+/** 把云端数据合并进本地几个 store */
 export function applyRemoteToStores(remote: any) {
   if (!remote || typeof remote !== 'object') return
   const merged = mergeLearnState(pickSyncData(), remote)
   useLearnStore.getState().applyRemote(merged)
   usePlanStore.getState().applyRemote(remote)
+  usePointsStore.getState().applyRemote(remote)
 }
 
 interface AccountState {
@@ -104,6 +118,7 @@ export const useAccountStore = create<AccountState>((set, get) => ({
         }
         useLearnStore.subscribe(schedule)
         usePlanStore.subscribe(schedule)
+        usePointsStore.subscribe(schedule)
       }
     } catch (e: any) {
       set({ status: 'error', error: e?.message || '同步失败' })

@@ -18,9 +18,12 @@ import { BookReaderPage } from '@/pages/BookReaderPage'
 import { SupportPage } from '@/pages/SupportPage'
 import { AccountPage } from '@/pages/AccountPage'
 import { PlanPage } from '@/pages/PlanPage'
+import { PointsPage } from '@/pages/PointsPage'
 import { useAccountStore } from '@/stores/accountStore'
 import { useLearnStore } from '@/stores/learnStore'
 import { usePlanStore } from '@/stores/planStore'
+import { usePointsStore } from '@/stores/pointsStore'
+import { startPointsEngine } from '@/services/pointsEngine'
 import { UIKit } from '@/components/UIKit'
 import { BrowserGuard } from '@/components/BrowserGuard'
 import { trackEvent, trackVisit } from '@/services/stats'
@@ -28,6 +31,7 @@ import { trackEvent, trackVisit } from '@/services/stats'
 const NAV_ITEMS = [
   { to: '/', label: 'Home' },
   { to: '/plan', label: '计划' },
+  { to: '/points', label: '积分' },
   { to: '/wordbooks', label: '词书' },
   { to: '/learn', label: '学习' },
   { to: '/review', label: '复习' },
@@ -50,6 +54,13 @@ export default function App() {
   const initAccount = useAccountStore((s) => s.init)
   const syncStatus = useAccountStore((s) => s.status)
   const user = useAccountStore((s) => s.user)
+  const points = usePointsStore((s) => s.balance)
+  const isMember = usePointsStore((s) => s.isMember())
+
+  // 启动积分引擎（把学习/打卡行为换算成积分）
+  useEffect(() => {
+    startPointsEngine()
+  }, [])
 
   // 统计：每次页面加载记一次访问，路由切换记一次 pageview
   useEffect(() => {
@@ -102,16 +113,34 @@ export default function App() {
               ))}
             </nav>
 
-            {/* 手机端：汉堡按钮 */}
-            <button
-              type="button"
-              onClick={() => setMenuOpen((v) => !v)}
-              className="md:hidden w-10 h-10 -mr-1 flex items-center justify-center rounded-lg text-xl text-ink-700 active:bg-ink-50"
-              aria-label={menuOpen ? '关闭菜单' : '打开菜单'}
-              aria-expanded={menuOpen}
-            >
-              {menuOpen ? '✕' : '☰'}
-            </button>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {/* 积分 / 会员 */}
+              <NavLink
+                to="/points"
+                className={({ isActive }) =>
+                  `flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    isActive
+                      ? 'bg-ink-900 text-white'
+                      : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                  }`
+                }
+                title={isMember ? '会员中 · 查看积分' : '查看积分'}
+              >
+                <span>{isMember ? '🏅' : '⭐'}</span>
+                <span className="tabular-nums">{points >= 10000 ? `${Math.floor(points / 1000)}k` : points}</span>
+              </NavLink>
+
+              {/* 手机端：汉堡按钮 */}
+              <button
+                type="button"
+                onClick={() => setMenuOpen((v) => !v)}
+                className="md:hidden w-10 h-10 -mr-1 flex items-center justify-center rounded-lg text-xl text-ink-700 active:bg-ink-50"
+                aria-label={menuOpen ? '关闭菜单' : '打开菜单'}
+                aria-expanded={menuOpen}
+              >
+                {menuOpen ? '✕' : '☰'}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -146,6 +175,7 @@ export default function App() {
           <Route path="/library/:bookId" element={<BookReaderPage />} />
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/plan" element={<PlanPage />} />
+          <Route path="/points" element={<PointsPage />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/support" element={<SupportPage />} />
           <Route path="/admin" element={<AdminUsagePage />} />
