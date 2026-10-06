@@ -23,7 +23,9 @@ import { useAccountStore } from '@/stores/accountStore'
 import { useLearnStore } from '@/stores/learnStore'
 import { usePlanStore } from '@/stores/planStore'
 import { usePointsStore } from '@/stores/pointsStore'
+import { useQuotaStore } from '@/stores/quotaStore'
 import { startPointsEngine } from '@/services/pointsEngine'
+import { QuotaGate } from '@/components/Quota'
 import { UIKit } from '@/components/UIKit'
 import { BrowserGuard } from '@/components/BrowserGuard'
 import { trackEvent, trackVisit } from '@/services/stats'
@@ -62,6 +64,11 @@ export default function App() {
     startPointsEngine()
   }, [])
 
+  // 账号就绪后拉取 AI 额度
+  useEffect(() => {
+    if (user) void useQuotaStore.getState().refresh()
+  }, [user])
+
   // 统计：每次页面加载记一次访问，路由切换记一次 pageview
   useEffect(() => {
     trackVisit()
@@ -92,6 +99,7 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col">
       <BrowserGuard />
+      <QuotaGate />
       <header className="border-b border-ink-100 bg-white sticky top-0 z-30">
         <div className="max-w-5xl mx-auto px-3 sm:px-6">
           <div className="h-14 flex items-center justify-between gap-3">

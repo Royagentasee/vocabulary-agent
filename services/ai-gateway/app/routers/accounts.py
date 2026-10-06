@@ -18,7 +18,7 @@ from app.schemas.account import (
     WechatLoginRequest,
     WechatStatusResponse,
 )
-from app.services import accounts
+from app.services import accounts, quota
 
 router = APIRouter(prefix="/api/user", tags=["user"])
 
@@ -81,6 +81,14 @@ async def new_sync_code(user_id: str) -> SyncCodeResponse:
 @router.get("/stats/overview")
 async def user_stats() -> dict:
     return accounts.stats()
+
+
+@router.get("/{user_id}/quota")
+async def get_quota(user_id: str) -> dict:
+    """AI 功能今日剩余额度（免费用户有上限，会员不限）。"""
+    if not accounts.get_user(user_id):
+        raise HTTPException(status_code=404, detail='用户不存在')
+    return quota.snapshot(user_id)
 
 
 # ---------------- 微信登录（预留） ----------------

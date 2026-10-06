@@ -22,14 +22,15 @@ from app.schemas.account import UserProfile
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS app_users (
-    id          TEXT PRIMARY KEY,
-    sync_code   TEXT UNIQUE NOT NULL,
-    provider    TEXT NOT NULL DEFAULT 'anon',
-    openid      TEXT DEFAULT '',
-    nickname    TEXT DEFAULT '',
-    avatar      TEXT DEFAULT '',
-    created_at  TEXT NOT NULL,
-    last_seen   TEXT NOT NULL
+    id           TEXT PRIMARY KEY,
+    sync_code    TEXT UNIQUE NOT NULL,
+    provider     TEXT NOT NULL DEFAULT 'anon',
+    openid       TEXT DEFAULT '',
+    nickname     TEXT DEFAULT '',
+    avatar       TEXT DEFAULT '',
+    member_until TEXT DEFAULT '',
+    created_at   TEXT NOT NULL,
+    last_seen    TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS user_state (
     user_id      TEXT PRIMARY KEY,
@@ -40,6 +41,11 @@ CREATE TABLE IF NOT EXISTS user_state (
 CREATE INDEX IF NOT EXISTS idx_app_users_code   ON app_users (sync_code);
 CREATE INDEX IF NOT EXISTS idx_app_users_openid ON app_users (openid);
 """
+
+# 老库缺列时补上（SQLite 的 ADD COLUMN 不支持 IF NOT EXISTS，失败就忽略）
+_MIGRATIONS = [
+    "ALTER TABLE app_users ADD COLUMN member_until TEXT DEFAULT ''",
+]
 
 # 同步码字符集：去掉容易看错的 O/0/I/1/L
 _ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
@@ -65,6 +71,11 @@ def _ensure_schema(db) -> None:
         return
     with db.conn() as conn:
         conn.executescript(_SCHEMA)
+        for sql in _MIGRATIONS:
+            try:
+                conn.execute(sql)
+            except Exception:
+                pass          # 列已存在
         conn.commit()
     _ready = True
 
@@ -247,8 +258,25 @@ def put_state(user_id: str, data: dict, base_version: int = 0) -> tuple[int, str
                 'INSERT INTO user_state (user_id, data, data_version, updated_at) VALUES (?,?,?,?)',
                 (user_id, payload, new_ver, now),
             )
+        # 顺手把会员到期日同步到用户表，供 AI 额度校验快速读取
+        try:
+            until = str(((data or {}).get('points') or {}).get('memberUntil') or '')
+            conn.execute('UPDATE app_users SET member_until = ? WHERE id = ?', (until, user_id))
+        except Exception:
+            pass
         conn.commit()
     return new_ver, now, conflict
+
+
+def member_until(user_id: str) -> str:
+    """会员到期日（YYYY-MM-DD），空字符串表示非会员"""
+    db = _backend()
+    if not db or not user_id:
+        return ''
+    _ensure_schema(db)
+    with db.conn() as conn:
+        row = conn.execute('SELECT member_until FROM app_users WHERE id = ?', (user_id,)).fetchone()
+        return (row['member_until'] or '') if row else ''
 
 
 def stats() -> dict:

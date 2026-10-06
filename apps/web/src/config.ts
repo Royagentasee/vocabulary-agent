@@ -43,21 +43,67 @@ export const config = {
 }
 
 /**
+ * 读取本地账号 id（用于后端做 AI 额度计数与会员判定）
+ * 直接读 localStorage，避免与 stores 形成循环依赖
+ */
+export function getUserId(): string {
+  try {
+    const raw = localStorage.getItem('va-user')
+    if (raw) {
+      const u = JSON.parse(raw)
+      if (u?.id) return String(u.id)
+    }
+  } catch {
+    /* ignore */
+  }
+  return ''
+}
+
+function withAuthHeaders(options: RequestInit): RequestInit {
+  const uid = getUserId()
+  if (!uid) return options
+  const headers = new Headers(options.headers || {})
+  if (!headers.has('X-User-Id')) headers.set('X-User-Id', uid)
+  return { ...options, headers }
+}
+
+/** 额度用尽时广播事件，由 quotaStore 弹出升级引导 */
+function notifyQuotaExceeded(resp: Response): void {
+  if (resp.status !== 429) return
+  resp
+    .clone()
+    .json()
+    .then((d: any) => {
+      const detail = d?.detail
+      if (detail?.code === 'QUOTA_EXCEEDED') {
+        window.dispatchEvent(new CustomEvent('va:quota-exceeded', { detail }))
+      }
+    })
+    .catch(() => {})
+}
+
+/**
  * 带 fallback 的 fetch
  *
  * 1. 先用 proxy 路径
  * 2. 失败则用直连路径
  * 3. 都失败则抛错
+ *
+ * 注意：4xx（如 429 额度用尽）属于「服务端已正常应答」，必须原样返回，
+ * 不能再 fallback 重试 —— 否则会重复扣额度。
  */
 export async function fetchWithFallback(
   proxyPath: string,
   directPath: string,
   options: RequestInit = {},
 ): Promise<Response> {
+  const opts = withAuthHeaders(options)
+
   // 1. 试 proxy
   try {
-    const resp = await fetch(proxyPath, options)
-    if (resp.ok) return resp
+    const resp = await fetch(proxyPath, opts)
+    notifyQuotaExceeded(resp)
+    if (resp.ok || (resp.status >= 400 && resp.status < 500)) return resp
     console.warn(`[API] Proxy ${proxyPath} failed: ${resp.status}`)
   } catch (e: any) {
     console.warn(`[API] Proxy ${proxyPath} network error: ${e?.message}`)
@@ -66,8 +112,9 @@ export async function fetchWithFallback(
   // 2. Fallback 直连
   if (config.aiGateway) {
     try {
-      const resp = await fetch(directPath, options)
-      if (resp.ok) {
+      const resp = await fetch(directPath, opts)
+      notifyQuotaExceeded(resp)
+      if (resp.ok || (resp.status >= 400 && resp.status < 500)) {
         console.log(`[API] Fallback ${directPath} OK`)
         return resp
       }

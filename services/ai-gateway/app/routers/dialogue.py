@@ -1,5 +1,5 @@
 """口语陪练路由"""
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.schemas.dialogue import (
     DialogueScoreRequest,
@@ -9,6 +9,7 @@ from app.schemas.dialogue import (
     DialogueTurnRequest,
     DialogueTurnResponse,
 )
+from app.core.deps import require_quota
 from app.services.dialogue import score_dialogue, start_dialogue, turn_dialogue
 
 router = APIRouter(prefix="/api/ai/dialogue", tags=["dialogue"])
@@ -19,7 +20,7 @@ async def post_start(req: DialogueStartRequest) -> DialogueStartResponse:
     return await start_dialogue(req)
 
 
-@router.post("/turn", response_model=DialogueTurnResponse)
+@router.post("/turn", response_model=DialogueTurnResponse, dependencies=[Depends(require_quota('dialogue'))])
 async def post_turn(req: DialogueTurnRequest) -> DialogueTurnResponse:
     try:
         return await turn_dialogue(req)

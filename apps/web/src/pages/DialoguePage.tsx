@@ -13,6 +13,7 @@ import { transcribeAudio } from '@/services/speaking'
 import { SpeakButton } from '@/components/SpeakButton'
 import { useVoiceRecorder } from '@/hooks/useVoiceRecorder'
 import { trackEvent } from '@/services/stats'
+import { QuotaBadge } from '@/components/Quota'
 
 const hasRecorder =
   typeof window !== 'undefined' &&
@@ -239,6 +240,7 @@ export function DialoguePage() {
             {SCENARIOS.find((s) => s.id === scenario)?.label}对话
           </h1>
           <div className="text-xs text-ink-500">{level}</div>
+          <QuotaBadge feature="dialogue" />
         </div>
         <button onClick={handleScore} className="va-btn va-btn--secondary va-btn--sm">
           结束并评分

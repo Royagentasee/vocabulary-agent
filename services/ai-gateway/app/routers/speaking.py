@@ -1,7 +1,7 @@
 """口语朗读路由"""
 import asyncio
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 
 from app.schemas.speaking import (
     SpeakingAssessRequest,
@@ -9,6 +9,7 @@ from app.schemas.speaking import (
     SpeakingSentencesResponse,
     TranscribeResponse,
 )
+from app.core.deps import require_quota
 from app.services import stt
 from app.services.speaking import SENTENCES, assess_speaking
 
@@ -53,7 +54,7 @@ async def post_transcribe(file: UploadFile = File(...)) -> TranscribeResponse:
     return TranscribeResponse(text=text, ok=bool(text))
 
 
-@router.post("/assess", response_model=SpeakingAssessResponse)
+@router.post("/assess", response_model=SpeakingAssessResponse, dependencies=[Depends(require_quota('speaking'))])
 async def post_assess(req: SpeakingAssessRequest) -> SpeakingAssessResponse:
     """评估用户朗读的发音。"""
     return await assess_speaking(req)

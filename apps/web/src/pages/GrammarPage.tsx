@@ -8,6 +8,7 @@ import {
 } from '@/services/grammar'
 import { SpeakButton } from '@/components/SpeakButton'
 import { trackEvent } from '@/services/stats'
+import { QuotaBadge } from '@/components/Quota'
 
 const DIFF_LABEL: Record<string, string> = {
   easy: '入门',
@@ -72,6 +73,7 @@ export function GrammarPage() {
         <header>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-semibold">{selected.title}</h1>
+        <QuotaBadge feature="grammar" className="ml-2 align-middle" />
             {selected.titleEn && (
               <span className="text-ink-500 font-mono text-lg">{selected.titleEn}</span>
             )}

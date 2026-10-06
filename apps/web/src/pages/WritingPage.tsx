@@ -7,6 +7,7 @@ import {
   WritingPrompt,
 } from '@/services/writing'
 import { trackEvent } from '@/services/stats'
+import { QuotaBadge } from '@/components/Quota'
 
 type Mode = 'bank' | 'free'
 
@@ -17,6 +18,7 @@ export function WritingPage() {
     <div className="space-y-6 max-w-3xl">
       <header>
         <h1 className="text-2xl font-semibold">✍️ 写作助手</h1>
+        <QuotaBadge feature="writing" className="ml-2 align-middle" />
         <p className="text-ink-500 mt-1 text-sm">
           官方真题范文，或用你学过的单词自由写作
         </p>

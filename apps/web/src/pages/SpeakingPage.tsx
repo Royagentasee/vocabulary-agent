@@ -9,6 +9,7 @@ import {
 import { SpeakButton } from '@/components/SpeakButton'
 import { useVoiceRecorder } from '@/hooks/useVoiceRecorder'
 import { trackEvent } from '@/services/stats'
+import { QuotaBadge } from '@/components/Quota'
 
 const hasRecorder =
   typeof window !== 'undefined' &&
@@ -61,6 +62,7 @@ export function SpeakingPage() {
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-semibold">🎙️ 口语朗读</h1>
+        <QuotaBadge feature="speaking" className="ml-2 align-middle" />
         <p className="text-ink-500 mt-1 text-sm">先听标准发音，再跟读，AI 帮你纠正发音</p>
       </header>
 
