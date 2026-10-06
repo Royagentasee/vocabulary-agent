@@ -120,6 +120,19 @@ server {{
         expires 0;
     }}
 
+    # Service Worker 绝不能缓存，否则发版后用户永远拿到旧的 SW
+    location = /sw.js {{
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+        add_header Pragma "no-cache";
+        expires 0;
+    }}
+
+    # PWA 清单：给正确 MIME 类型，否则浏览器不认
+    location = /manifest.webmanifest {{
+        default_type application/manifest+json;
+        add_header Cache-Control "public, max-age=3600";
+    }}
+
     location / {{
         try_files $uri $uri/ /index.html;
     }}

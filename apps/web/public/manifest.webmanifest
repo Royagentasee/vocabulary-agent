@@ -1,0 +1,39 @@
+{
+  "name": "Vocabulary Agent",
+  "short_name": "Vocab Agent",
+  "description": "AI 英语学习助手：单词记忆、听力、口语纠音、对话陪练、写作批改、真题阅读、原版书库",
+  "start_url": "/?from=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#111111",
+  "lang": "zh-CN",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    { "name": "学习新词", "url": "/learn" },
+    { "name": "复习", "url": "/review" },
+    { "name": "书库", "url": "/library" },
+    { "name": "学习计划", "url": "/plan" }
+  ]
+}

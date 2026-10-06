@@ -17,13 +17,17 @@ import { LibraryPage } from '@/pages/LibraryPage'
 import { BookReaderPage } from '@/pages/BookReaderPage'
 import { SupportPage } from '@/pages/SupportPage'
 import { AccountPage } from '@/pages/AccountPage'
+import { PlanPage } from '@/pages/PlanPage'
 import { useAccountStore } from '@/stores/accountStore'
+import { useLearnStore } from '@/stores/learnStore'
+import { usePlanStore } from '@/stores/planStore'
 import { UIKit } from '@/components/UIKit'
 import { BrowserGuard } from '@/components/BrowserGuard'
 import { trackEvent, trackVisit } from '@/services/stats'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Home' },
+  { to: '/plan', label: '计划' },
   { to: '/wordbooks', label: '词书' },
   { to: '/learn', label: '学习' },
   { to: '/review', label: '复习' },
@@ -56,6 +60,18 @@ export default function App() {
   useEffect(() => {
     void initAccount()
   }, [initAccount])
+
+  // 学习/复习过就自动打卡（不用手动点）
+  useEffect(() => {
+    const checkin = usePlanStore.getState().checkin
+    const unsub = useLearnStore.subscribe((s) => {
+      if ((s.todayLearned || 0) > 0 || (s.todayReviewed || 0) > 0) checkin()
+    })
+    // 已有进度时补一次
+    const s = useLearnStore.getState()
+    if ((s.todayLearned || 0) > 0 || (s.todayReviewed || 0) > 0) checkin()
+    return unsub
+  }, [])
 
   useEffect(() => {
     if (location.pathname !== '/') trackEvent('pageview', location.pathname)
@@ -129,6 +145,7 @@ export default function App() {
           <Route path="/library" element={<LibraryPage />} />
           <Route path="/library/:bookId" element={<BookReaderPage />} />
           <Route path="/stats" element={<StatsPage />} />
+          <Route path="/plan" element={<PlanPage />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/support" element={<SupportPage />} />
           <Route path="/admin" element={<AdminUsagePage />} />

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useLearnStore } from '@/stores/learnStore'
+import { DailyPlan } from '@/features/plan/DailyPlan'
 
 const GOAL_OPTIONS = [5, 10, 15, 20, 30, 50]
 
@@ -16,6 +17,9 @@ export function HomePage() {
           AI 陪伴，考点驱动，让每一个单词都记得更牢。
         </p>
       </section>
+
+      {/* 打卡 · 考试倒计时 · 今日任务 */}
+      <DailyPlan />
 
       <section className="grid grid-cols-3 gap-2 sm:gap-4">
         <StatCard label="今日新词" value={todayLearned} />

@@ -18,11 +18,14 @@ import {
   UserProfile,
 } from '@/services/account'
 import { useLearnStore } from '@/stores/learnStore'
+import { usePlanStore } from '@/stores/planStore'
 
 export type SyncStatus = 'idle' | 'pending' | 'syncing' | 'synced' | 'error'
 
-/** 只同步这些字段（队列类字段是临时的，不存云端） */
-function pickSyncData(s: any) {
+/** 需要同步的字段（队列类字段是临时的，不存云端） */
+export function pickSyncData() {
+  const s = useLearnStore.getState()
+  const p = usePlanStore.getState()
   return {
     learnedWords: s.learnedWords || [],
     wrongWords: s.wrongWords || [],
@@ -30,7 +33,20 @@ function pickSyncData(s: any) {
     todayReviewed: s.todayReviewed || 0,
     dailyGoal: s.dailyGoal ?? 20,
     currentWordbookId: s.currentWordbookId ?? null,
+    // 打卡与学习计划
+    checkinDates: p.checkinDates || [],
+    taskDone: p.taskDone || {},
+    taskTargets: p.taskTargets || {},
+    exam: { type: p.examType || '', date: p.examDate || '', target: p.targetScore || '' },
   }
+}
+
+/** 把云端数据合并进本地两个 store */
+export function applyRemoteToStores(remote: any) {
+  if (!remote || typeof remote !== 'object') return
+  const merged = mergeLearnState(pickSyncData(), remote)
+  useLearnStore.getState().applyRemote(merged)
+  usePlanStore.getState().applyRemote(remote)
 }
 
 interface AccountState {
@@ -68,26 +84,26 @@ export const useAccountStore = create<AccountState>((set, get) => ({
       // 1) 拉云端数据并与本地合并
       const { data, version } = await pullState(u.id)
       if (data && Object.keys(data).length) {
-        const merged = mergeLearnState(pickSyncData(useLearnStore.getState()), data)
-        useLearnStore.getState().applyRemote(merged)
+        applyRemoteToStores(data)
       }
 
       // 2) 把合并结果推回云端
-      const r = await pushState(u.id, pickSyncData(useLearnStore.getState()), version)
+      const r = await pushState(u.id, pickSyncData(), version)
       set({ version: r.version, status: 'synced', lastSyncAt: Date.now() })
 
-      // 3) 订阅本地变化，防抖上传
+      // 3) 订阅本地变化，防抖上传（学习数据 + 打卡计划）
       if (!unsubscribed) {
         unsubscribed = true
-        useLearnStore.subscribe(() => {
-          const st = get()
-          if (!st.user) return
+        const schedule = () => {
+          if (!get().user) return
           set({ status: 'pending' })
           window.clearTimeout(debounceTimer)
           debounceTimer = window.setTimeout(() => {
             void get().pushNow()
           }, 2500)
-        })
+        }
+        useLearnStore.subscribe(schedule)
+        usePlanStore.subscribe(schedule)
       }
     } catch (e: any) {
       set({ status: 'error', error: e?.message || '同步失败' })
@@ -99,7 +115,7 @@ export const useAccountStore = create<AccountState>((set, get) => ({
     if (!user) return
     set({ status: 'syncing' })
     try {
-      const r = await pushState(user.id, pickSyncData(useLearnStore.getState()), version)
+      const r = await pushState(user.id, pickSyncData(), version)
       set({ version: r.version, status: 'synced', lastSyncAt: Date.now(), error: '' })
     } catch (e: any) {
       set({ status: 'error', error: e?.message || '同步失败' })
@@ -113,12 +129,10 @@ export const useAccountStore = create<AccountState>((set, get) => ({
       setLocalUser(user)
       set({ user, version })
 
-      const local = pickSyncData(useLearnStore.getState())
-      const merged = mergeLearnState(local, data || {})
-      useLearnStore.getState().applyRemote(merged)
+      applyRemoteToStores(data || {})
 
       // 合并后推回，保证两端一致
-      const r = await pushState(user.id, pickSyncData(useLearnStore.getState()), version)
+      const r = await pushState(user.id, pickSyncData(), version)
       set({ version: r.version, status: 'synced', lastSyncAt: Date.now() })
     } catch (e: any) {
       set({ status: 'error', error: e?.message || '恢复失败' })
