@@ -6,32 +6,38 @@ import {
   ReadingQuestion,
   BankItem,
 } from '@/services/reading'
+import { LevelReading } from '@/features/reading/LevelReading'
 import { trackEvent } from '@/services/stats'
 
-type Mode = 'bank' | 'ai'
+type Mode = 'levels' | 'bank' | 'ai'
 
 export function ReadingPage() {
-  const [mode, setMode] = useState<Mode>('bank')
+  const [mode, setMode] = useState<Mode>('levels')
 
   return (
     <div className="space-y-6 max-w-3xl">
       <header>
         <h1 className="text-2xl font-semibold">📖 阅读理解</h1>
         <p className="text-ink-500 mt-1 text-sm">
-          官方真题实战，或粘贴自己的文章让 AI 出题
+          初中 / 高中 / 大学分级训练，或做 SAT 官方真题
         </p>
       </header>
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
+        <TabBtn active={mode === 'levels'} onClick={() => setMode('levels')}>
+          📗 分级阅读
+        </TabBtn>
         <TabBtn active={mode === 'bank'} onClick={() => setMode('bank')}>
-          🏛️ 官方真题库
+          🏛️ SAT 真题库
         </TabBtn>
         <TabBtn active={mode === 'ai'} onClick={() => setMode('ai')}>
           🤖 AI 出题
         </TabBtn>
       </div>
 
-      {mode === 'bank' ? <BankPractice /> : <AiPractice />}
+      {mode === 'levels' && <LevelReading />}
+      {mode === 'bank' && <BankPractice />}
+      {mode === 'ai' && <AiPractice />}
     </div>
   )
 }

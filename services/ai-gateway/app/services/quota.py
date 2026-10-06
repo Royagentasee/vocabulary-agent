@@ -10,12 +10,31 @@
 """
 from __future__ import annotations
 
+import os
+import secrets
 from datetime import datetime
 from typing import Optional
 
 from loguru import logger
 
 from app.services import accounts
+
+
+def _admin_token() -> str:
+    """作者密钥（服务端环境变量，不写进代码库）"""
+    return os.getenv('ADMIN_TOKEN', '').strip()
+
+
+def is_admin(token: str) -> bool:
+    """校验请求头里带的作者密钥"""
+    t = (token or '').strip()
+    exp = _admin_token()
+    if not exp or not t:
+        return False
+    try:
+        return secrets.compare_digest(t, exp)
+    except Exception:
+        return False
 
 # 免费用户每日上限（会员不限）
 # 单词解释定得宽松（100/天），正常背单词+读原著基本碰不到；
@@ -97,14 +116,18 @@ def get_used(user_id: str, feature: str) -> int:
         return int(row['used']) if row else 0
 
 
-def check_and_consume(user_id: str, feature: str) -> tuple[bool, int, int]:
+def check_and_consume(user_id: str, feature: str, admin_token: str = '') -> tuple[bool, int, int]:
     """校验并扣减一次额度。
 
     返回 (是否放行, 已用次数, 上限)。
-    上限 -1 表示不限（会员 / 未配置额度的功能 / 未登录）。
+    上限 -1 表示不限（作者 / 会员 / 未配置额度的功能 / 未登录）。
     """
     limit = FREE_QUOTAS.get(feature)
     if limit is None or not user_id:
+        return True, 0, -1
+
+    # 作者（用服务端密钥校验，前端无法伪造）
+    if is_admin(admin_token):
         return True, 0, -1
 
     if is_member(user_id):
@@ -140,10 +163,11 @@ def check_and_consume(user_id: str, feature: str) -> tuple[bool, int, int]:
         return True, used + 1, limit
 
 
-def snapshot(user_id: str) -> dict:
+def snapshot(user_id: str, admin_token: str = '') -> dict:
     """返回该用户所有功能的额度情况，供前端展示"""
+    admin = is_admin(admin_token)
     member = is_member(user_id)
-    limit_reached_today = False
+    unlimited = admin or member
     items = []
     for feat, limit in FREE_QUOTAS.items():
         used = get_used(user_id, feat) if user_id else 0
@@ -151,12 +175,13 @@ def snapshot(user_id: str) -> dict:
             'feature': feat,
             'label': FEATURE_LABEL.get(feat, feat),
             'used': used,
-            'limit': -1 if member else limit,
-            'unlimited': member,
-            'remaining': -1 if member else max(0, limit - used),
+            'limit': -1 if unlimited else limit,
+            'unlimited': unlimited,
+            'remaining': -1 if unlimited else max(0, limit - used),
         })
     return {
-        'isMember': member,
+        'isMember': unlimited,
+        'isAdmin': admin,
         'memberUntil': accounts.member_until(user_id) if user_id else '',
         'items': items,
     }

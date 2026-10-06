@@ -106,25 +106,52 @@ export async function fetchOverview(days = 14): Promise<Overview> {
 /* ============ 作者（管理）模式 ============ */
 
 const ADMIN_KEY = 'va-admin'
+const ADMIN_TOKEN_KEY = 'va-admin-token'
 
-/** 是否为作者模式 */
+/** 是否为作者模式（本地开关，仅用于显示管理入口） */
 export function isAdmin(): boolean {
   try {
-    return localStorage.getItem(ADMIN_KEY) === '1'
+    return localStorage.getItem(ADMIN_KEY) === '1' || !!localStorage.getItem(ADMIN_TOKEN_KEY)
   } catch {
     return false
   }
 }
 
 /**
- * 切换作者模式。
- * 用法：在任意页面地址后加 `?admin=1` 开启，`?admin=0` 关闭。
- * 例：http://106.53.41.134/stats?admin=1
+ * 作者密钥：由服务端 ADMIN_TOKEN 环境变量设定。
+ * 带上它请求会完全跳过 AI 额度限制。
+ * 用法：`?admin=<密钥>` 开启一次即可长期保存；`?admin=0` 清除。
  */
-export function setAdmin(on: boolean): void {
+export function getAdminToken(): string {
   try {
-    if (on) localStorage.setItem(ADMIN_KEY, '1')
-    else localStorage.removeItem(ADMIN_KEY)
+    return localStorage.getItem(ADMIN_TOKEN_KEY) || ''
+  } catch {
+    return ''
+  }
+}
+
+export function setAdminToken(token: string): void {
+  try {
+    if (token) localStorage.setItem(ADMIN_TOKEN_KEY, token)
+    else localStorage.removeItem(ADMIN_TOKEN_KEY)
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * 切换作者模式。
+ * 用法：`?admin=1` 仅开启管理页；`?admin=<密钥>` 额外解锁无限 AI；`?admin=0` 关闭。
+ */
+export function setAdmin(on: boolean, token = ''): void {
+  try {
+    if (on) {
+      localStorage.setItem(ADMIN_KEY, '1')
+      if (token) setAdminToken(token)
+    } else {
+      localStorage.removeItem(ADMIN_KEY)
+      setAdminToken('')
+    }
   } catch {
     /* ignore */
   }

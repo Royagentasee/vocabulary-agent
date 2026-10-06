@@ -2,7 +2,7 @@
 import os
 
 import httpx
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Header, HTTPException
 from loguru import logger
 
 from app.schemas.account import (
@@ -84,11 +84,14 @@ async def user_stats() -> dict:
 
 
 @router.get("/{user_id}/quota")
-async def get_quota(user_id: str) -> dict:
-    """AI 功能今日剩余额度（免费用户有上限，会员不限）。"""
+async def get_quota(
+    user_id: str,
+    x_admin_token: str = Header('', alias='X-Admin-Token'),
+) -> dict:
+    """AI 功能今日剩余额度（免费用户有上限，会员与作者不限）。"""
     if not accounts.get_user(user_id):
         raise HTTPException(status_code=404, detail='用户不存在')
-    return quota.snapshot(user_id)
+    return quota.snapshot(user_id, x_admin_token)
 
 
 # ---------------- 微信登录（预留） ----------------

@@ -168,6 +168,19 @@ server {{
     rc, out, err = exec_cmd(client, f'grep DEEPSEEK {REMOTE_DIR}/.env 2>/dev/null | head -1')
     deepseek_key = out.strip().split('=', 1)[1] if '=' in out else ''
     log(f'  DeepSeek key 前缀: {deepseek_key[:10]}...')
+
+    # 作者密钥：优先用环境变量 VOCAB_ADMIN_TOKEN；
+    # 没提供则沿用服务器上已有的，避免把已配置的密钥冲掉
+    admin_token = os.environ.get('VOCAB_ADMIN_TOKEN', '').strip()
+    if not admin_token:
+        rc, cur, err = exec_cmd(
+            client,
+            sudo_cmd(f"grep -oP '(?<=Environment=ADMIN_TOKEN=).*' "
+                     f"/etc/systemd/system/vocab-agent.service || true"),
+            timeout=30)
+        admin_token = (cur or '').strip()
+    log(f'  作者密钥: {"已配置 " + admin_token[:8] + "..." if admin_token else "未配置"}')
+
     systemd_conf = f"""[Unit]
 Description=Vocabulary Agent AI Gateway
 After=network.target
@@ -180,6 +193,8 @@ Environment=DATABASE_URL=sqlite:///{REMOTE_DIR}/data/vocab_agent.db
 # 语音识别：本地 Whisper 模型目录（不依赖 Google，境内可用）
 Environment=WHISPER_MODEL_DIR={REMOTE_DIR}/models/faster-whisper-tiny
 Environment=HF_ENDPOINT=https://hf-mirror.com
+# 作者密钥：请求头 X-Admin-Token 命中则跳过 AI 额度限制
+Environment=ADMIN_TOKEN={admin_token}
 ExecStart=/usr/bin/python3 -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 Restart=always
 

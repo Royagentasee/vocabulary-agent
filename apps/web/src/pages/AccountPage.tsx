@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { useAccountStore } from '@/stores/accountStore'
 import { useLearnStore } from '@/stores/learnStore'
 import { wechatStatus } from '@/services/account'
-import { trackEvent } from '@/services/stats'
+import { getAdminToken, setAdmin, trackEvent } from '@/services/stats'
+import { useQuotaStore } from '@/stores/quotaStore'
 
 function timeAgo(ts: number): string {
   if (!ts) return '尚未同步'
@@ -181,6 +182,34 @@ export function AccountPage() {
         <div className="text-sm text-ink-700 bg-white border border-ink-100 rounded-xl px-3 py-2.5">
           {msg}
         </div>
+      )}
+
+      {/* 作者模式 */}
+      {getAdminToken() && (
+        <section className="va-card space-y-2 border-amber-200 bg-amber-50/40">
+          <div className="text-sm font-semibold flex items-center gap-1.5">
+            👑 作者模式
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-200 text-amber-800">
+              已启用
+            </span>
+          </div>
+          <div className="text-xs text-amber-800">
+            你这个账号的 AI 功能<strong>不限次数</strong>（写作、口语、对话、语法、单词解释全部无限），
+            也不受每日额度影响。
+          </div>
+          <button
+            onClick={() => {
+              if (confirm('退出作者模式？退出后 AI 功能将恢复每日额度限制。')) {
+                setAdmin(false)
+                void useQuotaStore.getState().refresh()
+                setMsg('已退出作者模式')
+              }
+            }}
+            className="text-xs text-amber-700 hover:underline"
+          >
+            退出作者模式
+          </button>
+        </section>
       )}
 
       {/* 微信登录 */}

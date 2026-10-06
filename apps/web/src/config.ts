@@ -60,10 +60,18 @@ export function getUserId(): string {
 }
 
 function withAuthHeaders(options: RequestInit): RequestInit {
-  const uid = getUserId()
-  if (!uid) return options
   const headers = new Headers(options.headers || {})
-  if (!headers.has('X-User-Id')) headers.set('X-User-Id', uid)
+  const uid = getUserId()
+  if (uid && !headers.has('X-User-Id')) headers.set('X-User-Id', uid)
+
+  // 作者密钥：命中则服务端跳过 AI 额度限制
+  try {
+    const token = localStorage.getItem('va-admin-token')
+    if (token && !headers.has('X-Admin-Token')) headers.set('X-Admin-Token', token)
+  } catch {
+    /* ignore */
+  }
+
   return { ...options, headers }
 }
 

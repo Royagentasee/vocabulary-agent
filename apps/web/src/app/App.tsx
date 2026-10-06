@@ -28,7 +28,7 @@ import { startPointsEngine } from '@/services/pointsEngine'
 import { QuotaGate } from '@/components/Quota'
 import { UIKit } from '@/components/UIKit'
 import { BrowserGuard } from '@/components/BrowserGuard'
-import { trackEvent, trackVisit } from '@/services/stats'
+import { trackEvent, trackVisit, setAdmin } from '@/services/stats'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Home' },
@@ -50,6 +50,20 @@ const NAV_ITEMS = [
   { to: '/ui', label: 'UI Kit' },
 ]
 
+/** 路由 → 模块 id，用于「首次体验」积分奖励 */
+const ROUTE_MODULE: Record<string, string> = {
+  '/learn': 'learn',
+  '/review': 'review',
+  '/listening': 'listening',
+  '/speaking': 'speaking',
+  '/dialogue': 'dialogue',
+  '/writing': 'writing',
+  '/reading': 'reading',
+  '/library': 'library',
+  '/grammar': 'grammar',
+  '/plan': 'plan',
+}
+
 export default function App() {
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -68,6 +82,12 @@ export default function App() {
   useEffect(() => {
     if (user) void useQuotaStore.getState().refresh()
   }, [user])
+
+  // 进入某个模块即视为「首次体验」，发放探索奖励（每个模块只发一次）
+  useEffect(() => {
+    const mod = ROUTE_MODULE[location.pathname]
+    if (mod) usePointsStore.getState().unlockModule(mod)
+  }, [location.pathname])
 
   // 统计：每次页面加载记一次访问，路由切换记一次 pageview
   useEffect(() => {
@@ -95,6 +115,25 @@ export default function App() {
     if (location.pathname !== '/') trackEvent('pageview', location.pathname)
     setMenuOpen(false)   // 切页自动收起手机菜单
   }, [location.pathname])
+
+  // 作者密钥：任意页面加 ?admin=<密钥> 即可开启无限 AI（存本机，地址栏立刻抹掉）
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const q = params.get('admin')
+    if (!q) return
+    if (q === '0') {
+      setAdmin(false)
+      return
+    }
+    if (q !== '1') {
+      setAdmin(true, q)
+      // 不留痕：把密钥从地址栏移除，避免被截图/分享带出去
+      params.delete('admin')
+      const qs = params.toString()
+      window.history.replaceState({}, '', location.pathname + (qs ? `?${qs}` : ''))
+      void useQuotaStore.getState().refresh()
+    }
+  }, [location.search, location.pathname])
 
   return (
     <div className="min-h-screen flex flex-col">

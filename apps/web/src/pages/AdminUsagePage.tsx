@@ -22,12 +22,13 @@ export function AdminUsagePage() {
 
   useEffect(() => {
     const q = searchParams.get('admin')
-    if (q === '1') {
-      setAdmin(true)
-      setAdminState(true)
-    } else if (q === '0') {
+    if (q === '0') {
       setAdmin(false)
       setAdminState(false)
+    } else if (q) {
+      // ?admin=1 只开管理页；?admin=<密钥> 额外解锁无限 AI
+      setAdmin(true, q === '1' ? '' : q)
+      setAdminState(true)
     }
   }, [searchParams])
 
