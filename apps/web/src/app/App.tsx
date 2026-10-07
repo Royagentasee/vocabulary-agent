@@ -19,6 +19,7 @@ import { SupportPage } from '@/pages/SupportPage'
 import { AccountPage } from '@/pages/AccountPage'
 import { PlanPage } from '@/pages/PlanPage'
 import { PointsPage } from '@/pages/PointsPage'
+import { PhotoPage } from '@/pages/PhotoPage'
 import { useAccountStore } from '@/stores/accountStore'
 import { useLearnStore } from '@/stores/learnStore'
 import { usePlanStore } from '@/stores/planStore'
@@ -45,6 +46,7 @@ const NAV_ITEMS = [
   { to: '/writing', label: '写作' },
   { to: '/reading', label: '阅读' },
   { to: '/library', label: '书库' },
+  { to: '/photo', label: '拍照' },
   { to: '/stats', label: '统计' },
   { to: '/account', label: '我的' },
   { to: '/ui', label: 'UI Kit' },
@@ -220,6 +222,7 @@ export default function App() {
           <Route path="/reading" element={<ReadingPage />} />
           <Route path="/library" element={<LibraryPage />} />
           <Route path="/library/:bookId" element={<BookReaderPage />} />
+          <Route path="/photo" element={<PhotoPage />} />
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/plan" element={<PlanPage />} />
           <Route path="/points" element={<PointsPage />} />

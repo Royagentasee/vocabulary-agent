@@ -45,6 +45,7 @@ FREE_QUOTAS: dict[str, int] = {
     'speaking': 5,      # AI 口语评测
     'dialogue': 10,     # AI 对话陪练（每轮算一次）
     'grammar': 10,      # AI 语法出题
+    'photo': 10,        # 拍照翻译（OCR 免费，只有翻译那步用 AI）
 }
 
 FEATURE_LABEL: dict[str, str] = {
@@ -53,6 +54,7 @@ FEATURE_LABEL: dict[str, str] = {
     'speaking': 'AI 口语评测',
     'dialogue': 'AI 对话陪练',
     'grammar': 'AI 语法出题',
+    'photo': '拍照翻译',
 }
 
 _SCHEMA = """
