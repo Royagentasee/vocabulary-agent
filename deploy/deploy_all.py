@@ -100,18 +100,24 @@ def main():
 }}
 
 server {{
-    listen 443 ssl default_server;
-    listen [::]:443 ssl default_server;
+    listen 443 ssl http2 default_server;
+    listen [::]:443 ssl http2 default_server;
     server_name {DOMAIN};
 
     ssl_certificate     {CERT}/fullchain.pem;
     ssl_certificate_key {CERT}/privkey.pem;
+    # 注意：这个文件里已经设了 ssl_session_cache / ssl_session_timeout /
+    # ssl_session_tickets / ssl_protocols，此处不要再写，否则 nginx -t 报 duplicate
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
     root {REMOTE_DIR}/dist;
     index index.html;
     client_max_body_size 20m;
+
+    # 保持长连接，减少国内访问的往返次数
+    keepalive_timeout 65;
+    keepalive_requests 300;
 
     # index.html 不缓存，保证前端发版后手机能立刻拿到新的 hash 资源
     location = /index.html {{

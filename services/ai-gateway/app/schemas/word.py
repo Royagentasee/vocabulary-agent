@@ -29,7 +29,7 @@ class Word(BaseModel):
     senses: list[WordSense] = []
     etymology: str = ''
     collocations: list[str] = []
-    examTags: list[dict] = []
+    examTags: list[dict | str] = []   # 容忍历史数据里的纯字符串标签
     examples: list[WordExample] = []
     frq: float | None = None
     translation: str = ''

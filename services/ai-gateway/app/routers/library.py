@@ -137,8 +137,9 @@ async def lookup_word(
             senses=senses, examples=examples, rootAffix=_ra_info(exp.root_affix),
             memoryTip=exp.memory_tip or '',
         )
-        if res.found and len(_lookup_cache) < _CACHE_MAX:
-            _lookup_cache[key] = res
+        # 注意：AI 结果不进服务端缓存。
+        # 词库会持续扩充，缓存住会让新收录的词一直走 AI；前端本身有会话级缓存，
+        # 重复查询的开销可以接受。
         return res
     except Exception as e:
         logger.warning(f'查词 AI 兜底失败 {raw}: {e}')
