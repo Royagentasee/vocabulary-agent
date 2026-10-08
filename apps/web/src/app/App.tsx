@@ -22,6 +22,7 @@ import { PointsPage } from '@/pages/PointsPage'
 import { PhotoPage } from '@/pages/PhotoPage'
 import { PathPage } from '@/pages/PathPage'
 import { CoachPage } from '@/pages/CoachPage'
+import { LeaderboardPage } from '@/pages/LeaderboardPage'
 import { useAccountStore } from '@/stores/accountStore'
 import { useLearnStore } from '@/stores/learnStore'
 import { usePlanStore } from '@/stores/planStore'
@@ -38,6 +39,7 @@ const NAV_ITEMS = [
   { to: '/', label: 'Home' },
   { to: '/path', label: '路径' },
   { to: '/coach', label: '教练' },
+  { to: '/badges', label: '成就' },
   { to: '/plan', label: '计划' },
   { to: '/points', label: '积分' },
   { to: '/wordbooks', label: '词书' },
@@ -250,6 +252,7 @@ export default function App() {
           <Route path="/plan" element={<PlanPage />} />
           <Route path="/path" element={<PathPage />} />
           <Route path="/coach" element={<CoachPage />} />
+          <Route path="/badges" element={<LeaderboardPage />} />
           <Route path="/points" element={<PointsPage />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/support" element={<SupportPage />} />

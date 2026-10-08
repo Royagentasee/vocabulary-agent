@@ -83,6 +83,8 @@ interface PointsState {
   lastAllTaskDate: string
   /** 已发过分的每日任务，格式 'YYYY-MM-DD:taskId'（防止重复给分） */
   awardedTasks: string[]
+  /** 各行为的累计次数（成就徽章用），如 {listening: 12, speaking: 5} */
+  lifetime: Record<string, number>
 
   earn: (base: number, reason: PointReason, opts?: {
     detail?: string
@@ -91,6 +93,8 @@ interface PointsState {
   }) => number
   /** 每日任务给分（同一任务同一天只给一次） */
   awardTask: (date: string, taskId: string, label: string) => number
+  /** 累计次数 +1（成就徽章数据源） */
+  bumpLifetime: (key: string, n?: number) => void
   redeem: (days: number, cost: number) => boolean
   unlockModule: (id: string) => number
   /** 打卡天数变化时调用；返回本次获得的积分 */
@@ -118,6 +122,7 @@ export const usePointsStore = create<PointsState>()(
       lastStreakBonusAt: 0,
       lastAllTaskDate: '',
       awardedTasks: [],
+      lifetime: {},
 
       isMember: () => {
         const until = get().memberUntil
@@ -179,6 +184,11 @@ export const usePointsStore = create<PointsState>()(
         const next = [...get().awardedTasks, key].slice(-400)
         set({ awardedTasks: next })
         return get().earn(POINT_RULES.task.points, 'task', { capKey: 'task', detail: label })
+      },
+
+      bumpLifetime: (key, n = 1) => {
+        const cur = get().lifetime || {}
+        set({ lifetime: { ...cur, [key]: (cur[key] || 0) + n } })
       },
 
       redeem: (days, cost) => {
@@ -261,13 +271,17 @@ export const usePointsStore = create<PointsState>()(
           unlockedModules: [...new Set([...(local.unlockedModules || []), ...(p.unlockedModules || [])])],
           lastStreakBonusAt: Math.max(local.lastStreakBonusAt || 0, p.lastStreakBonusAt || 0),
           awardedTasks: [...new Set([...(local.awardedTasks || []), ...(p.awardedTasks || [])])].slice(-400),
+          lifetime: Object.fromEntries(
+            [...new Set([...Object.keys(local.lifetime || {}), ...Object.keys(p.lifetime || {})])]
+              .map((k) => [k, Math.max((local.lifetime || {})[k] || 0, (p.lifetime || {})[k] || 0)]),
+          ),
         })
       },
 
       reset: () => set({
         balance: 0, totalEarned: 0, totalSpent: 0, history: [],
         dailyEarned: {}, unlockedModules: [], memberUntil: '',
-        lastStreakBonusAt: 0, lastAllTaskDate: '', awardedTasks: [],
+        lastStreakBonusAt: 0, lastAllTaskDate: '', awardedTasks: [], lifetime: {},
       }),
     }),
     { name: 'vocab-agent-points', version: 1 },

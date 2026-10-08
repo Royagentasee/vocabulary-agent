@@ -6,6 +6,7 @@
  */
 import { config } from '../config'
 import { usePathStore, type ActivityType } from '@/stores/pathStore'
+import { usePointsStore } from '@/stores/pointsStore'
 
 const DEVICE_KEY = 'va-device-id'
 
@@ -51,6 +52,7 @@ export function trackEvent(event: string, detail = ''): void {
   if (activity) {
     try {
       usePathStore.getState().reportActivity(activity)
+      usePointsStore.getState().bumpLifetime(activity)
     } catch {
       /* ignore */
     }
