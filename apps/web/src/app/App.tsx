@@ -21,6 +21,7 @@ import { PlanPage } from '@/pages/PlanPage'
 import { PointsPage } from '@/pages/PointsPage'
 import { PhotoPage } from '@/pages/PhotoPage'
 import { PathPage } from '@/pages/PathPage'
+import { CoachPage } from '@/pages/CoachPage'
 import { useAccountStore } from '@/stores/accountStore'
 import { useLearnStore } from '@/stores/learnStore'
 import { usePlanStore } from '@/stores/planStore'
@@ -36,6 +37,7 @@ import { trackEvent, trackVisit, setAdmin } from '@/services/stats'
 const NAV_ITEMS = [
   { to: '/', label: 'Home' },
   { to: '/path', label: '路径' },
+  { to: '/coach', label: '教练' },
   { to: '/plan', label: '计划' },
   { to: '/points', label: '积分' },
   { to: '/wordbooks', label: '词书' },
@@ -67,6 +69,7 @@ const ROUTE_MODULE: Record<string, string> = {
   '/library': 'library',
   '/grammar': 'grammar',
   '/plan': 'plan',
+  '/coach': 'coach',
 }
 
 export default function App() {
@@ -246,6 +249,7 @@ export default function App() {
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/plan" element={<PlanPage />} />
           <Route path="/path" element={<PathPage />} />
+          <Route path="/coach" element={<CoachPage />} />
           <Route path="/points" element={<PointsPage />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/support" element={<SupportPage />} />
