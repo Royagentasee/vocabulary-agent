@@ -267,6 +267,20 @@ export async function fetchMeaningQuiz(headword: string): Promise<MeaningQuiz | 
   return null
 }
 
+/** 批量取词义题（学习路径的单元测验用，一次拿 20 道） */
+export async function fetchMeaningQuizBatch(limit = 20): Promise<MeaningQuiz[]> {
+  try {
+    const resp = await fetch(`/api/words/meaning-quiz/batch?limit=${limit}`)
+    if (resp.ok) {
+      const d = await resp.json()
+      return d?.items ?? []
+    }
+  } catch (e) {
+    console.warn('[words] 批量取词义题失败:', e)
+  }
+  return []
+}
+
 export async function fetchWordbooks() {
   return Promise.resolve(MOCK_WORDBOOKS)
 }

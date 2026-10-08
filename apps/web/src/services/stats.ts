@@ -5,8 +5,23 @@
  * 不采集任何个人身份信息，也不做跨站追踪。
  */
 import { config } from '../config'
+import { usePathStore, type ActivityType } from '@/stores/pathStore'
 
 const DEVICE_KEY = 'va-device-id'
+
+/**
+ * 事件 → 学习路径进度 的映射
+ * 集中在这里转换，各页面只管照常埋点，不用关心路径逻辑。
+ */
+const PATH_ACTIVITY: Record<string, ActivityType> = {
+  listening_practice: 'listening',
+  speaking_practice: 'speaking',
+  dialogue_turn: 'dialogue',
+  reading_done: 'reading',
+  library_chapter: 'library',
+  photo_translate: 'photo',
+  writing_generate: 'writing',
+}
 
 /** 取（或生成）本机匿名设备 ID */
 export function getDeviceId(): string {
@@ -31,6 +46,16 @@ function endpoint(path: string): string {
 
 /** 上报一个事件（失败静默，绝不影响主流程） */
 export function trackEvent(event: string, detail = ''): void {
+  // 顺带记入学习路径进度（learn / review 走 App 里的订阅，不在这里）
+  const activity = PATH_ACTIVITY[event]
+  if (activity) {
+    try {
+      usePathStore.getState().reportActivity(activity)
+    } catch {
+      /* ignore */
+    }
+  }
+
   try {
     const body = JSON.stringify({ deviceId: getDeviceId(), event, detail })
     fetch(endpoint('/api/stats/track'), {

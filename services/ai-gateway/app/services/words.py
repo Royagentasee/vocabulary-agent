@@ -136,6 +136,24 @@ async def get_meaning_quiz(headword: str) -> Optional[MeaningQuizResponse]:
         return None
 
 
+async def get_meaning_quiz_batch(limit: int = 20) -> list[MeaningQuizResponse]:
+    """批量生成词义题（单元测验用，避免前端发 20 次请求）"""
+    db = await _get_words_backend()
+    if db is None:
+        return []
+    try:
+        words = await db.list_random_words(limit=limit)
+        out: list[MeaningQuizResponse] = []
+        for w in words:
+            q = await get_meaning_quiz(w['headword'])
+            if q:
+                out.append(q)
+        return out
+    except Exception as e:
+        logger.error(f'Meaning quiz batch failed: {e}')
+        return []
+
+
 # ============ 详情 ============
 
 async def get_word_detail(headword: str) -> Optional[WordDetailResponse]:

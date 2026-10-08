@@ -152,6 +152,14 @@ function PassageView({ id, onBack }: { id: string; onBack: () => void }) {
       .finally(() => setLoading(false))
   }, [id])
 
+  // 答完全部题目 → 记一次「读完一篇」（学习路径用）
+  useEffect(() => {
+    if (data && data.questions.length > 0 && Object.keys(answers).length === data.questions.length) {
+      trackEvent('reading_done', data.id)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answers, data])
+
   if (loading) return <div className="text-sm text-ink-500 py-10 text-center">加载中…</div>
   if (error || !data)
     return (

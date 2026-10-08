@@ -65,6 +65,7 @@ export function DialoguePage() {
         ...prev.map((m) => (m.id === tmpId ? { ...m, corrections: r.corrections } : m)),
         { id: tmpId + 1, role: 'assistant', content: r.assistant_text },
       ])
+      trackEvent('dialogue_turn', scenario)
     } catch (e: any) {
       setError(e?.message ?? '对话失败')
     } finally {

@@ -14,6 +14,7 @@ from app.services.words import (
     get_word_detail,
     get_word_embedding,
     get_meaning_quiz,
+    get_meaning_quiz_batch,
     list_random_words,
     search_words,
 )
@@ -40,6 +41,18 @@ async def get_random(
     """随机取 limit 个词（可排除已学过的词）。"""
     exclude_ids = [x.strip() for x in exclude.split(',') if x.strip()] if exclude else None
     return await list_random_words(limit=limit, exclude_ids=exclude_ids)
+
+
+@router.get("/meaning-quiz/batch")
+async def get_meaning_quiz_batch_route(
+    limit: int = Query(20, ge=1, le=50),
+) -> dict:
+    """批量生成词义题（学习路径的单元测验用）。
+
+    注意：必须声明在 /meaning-quiz 之前，否则 /batch 会被当成 headword。
+    """
+    items = await get_meaning_quiz_batch(limit=limit)
+    return {'items': [i.model_dump() for i in items], 'total': len(items)}
 
 
 @router.get("/meaning-quiz", response_model=MeaningQuizResponse)

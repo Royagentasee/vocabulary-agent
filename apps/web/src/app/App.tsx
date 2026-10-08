@@ -20,11 +20,13 @@ import { AccountPage } from '@/pages/AccountPage'
 import { PlanPage } from '@/pages/PlanPage'
 import { PointsPage } from '@/pages/PointsPage'
 import { PhotoPage } from '@/pages/PhotoPage'
+import { PathPage } from '@/pages/PathPage'
 import { useAccountStore } from '@/stores/accountStore'
 import { useLearnStore } from '@/stores/learnStore'
 import { usePlanStore } from '@/stores/planStore'
 import { usePointsStore } from '@/stores/pointsStore'
 import { useQuotaStore } from '@/stores/quotaStore'
+import { usePathStore } from '@/stores/pathStore'
 import { startPointsEngine } from '@/services/pointsEngine'
 import { QuotaGate } from '@/components/Quota'
 import { UIKit } from '@/components/UIKit'
@@ -33,6 +35,7 @@ import { trackEvent, trackVisit, setAdmin } from '@/services/stats'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Home' },
+  { to: '/path', label: '路径' },
   { to: '/plan', label: '计划' },
   { to: '/points', label: '积分' },
   { to: '/wordbooks', label: '词书' },
@@ -90,6 +93,23 @@ export default function App() {
     const mod = ROUTE_MODULE[location.pathname]
     if (mod) usePointsStore.getState().unlockModule(mod)
   }, [location.pathname])
+
+  // 学习路径：学新词/复习的行为自动记账（按增量）
+  useEffect(() => {
+    const report = usePathStore.getState().reportActivity
+    let lastLearned = useLearnStore.getState().todayLearned
+    let lastReviewed = useLearnStore.getState().todayReviewed
+
+    const unsub = useLearnStore.subscribe((s) => {
+      if (s.todayLearned < lastLearned) lastLearned = 0
+      if (s.todayReviewed < lastReviewed) lastReviewed = 0
+      const dL = s.todayLearned - lastLearned
+      const dR = s.todayReviewed - lastReviewed
+      if (dL > 0) { report('learn', dL); lastLearned = s.todayLearned }
+      if (dR > 0) { report('review', dR); lastReviewed = s.todayReviewed }
+    })
+    return unsub
+  }, [])
 
   // 统计：每次页面加载记一次访问，路由切换记一次 pageview
   useEffect(() => {
@@ -225,6 +245,7 @@ export default function App() {
           <Route path="/photo" element={<PhotoPage />} />
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/plan" element={<PlanPage />} />
+          <Route path="/path" element={<PathPage />} />
           <Route path="/points" element={<PointsPage />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/support" element={<SupportPage />} />
