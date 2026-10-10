@@ -119,28 +119,31 @@ server {{
     keepalive_timeout 65;
     keepalive_requests 300;
 
-    # index.html 不缓存，保证前端发版后手机能立刻拿到新的 hash 资源
-    location = /index.html {{
-        add_header Cache-Control "no-cache, no-store, must-revalidate";
-        add_header Pragma "no-cache";
-        expires 0;
+    # ⚠️ HTML 入口必须绝不缓存
+    #
+    # 用户访问的是 `/`（或任意 SPA 路由），这些都走 location / 并回退到
+    # index.html。如果这里不设 no-store，手机会缓存旧版入口，而它引用的
+    # /assets/index-<旧hash>.js 在发版时已被删除 → 入口 404 → 整页白屏。
+    # 曾经踩过这个坑（iPhone 白屏），务必保留。
+    #
+    # 注意：带 hash 的 js/css/图片由下面的正则 location 处理，走长期缓存，
+    # 不受这里影响。
+    location / {{
+        add_header Cache-Control "no-cache, no-store, must-revalidate" always;
+        add_header Pragma "no-cache" always;
+        try_files $uri $uri/ /index.html;
     }}
 
     # Service Worker 绝不能缓存，否则发版后用户永远拿到旧的 SW
     location = /sw.js {{
-        add_header Cache-Control "no-cache, no-store, must-revalidate";
-        add_header Pragma "no-cache";
-        expires 0;
+        add_header Cache-Control "no-cache, no-store, must-revalidate" always;
+        add_header Pragma "no-cache" always;
     }}
 
     # PWA 清单：给正确 MIME 类型，否则浏览器不认
     location = /manifest.webmanifest {{
         default_type application/manifest+json;
         add_header Cache-Control "public, max-age=3600";
-    }}
-
-    location / {{
-        try_files $uri $uri/ /index.html;
     }}
 
     location /api/ {{
