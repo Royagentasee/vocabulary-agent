@@ -5,6 +5,7 @@ import { wechatStatus } from '@/services/account'
 import { getAdminToken, setAdmin, trackEvent } from '@/services/stats'
 import { useQuotaStore } from '@/stores/quotaStore'
 import { InviteCard } from '@/features/referral/InviteCard'
+import { VoicePicker } from '@/features/settings/VoicePicker'
 
 function timeAgo(ts: number): string {
   if (!ts) return '尚未同步'
@@ -184,6 +185,9 @@ export function AccountPage() {
           {msg}
         </div>
       )}
+
+      {/* 发音音色 */}
+      <VoicePicker />
 
       {/* 邀请好友 */}
       <InviteCard />
