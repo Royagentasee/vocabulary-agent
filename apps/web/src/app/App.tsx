@@ -23,6 +23,8 @@ import { PhotoPage } from '@/pages/PhotoPage'
 import { PathPage } from '@/pages/PathPage'
 import { CoachPage } from '@/pages/CoachPage'
 import { LeaderboardPage } from '@/pages/LeaderboardPage'
+import { GuidePage } from '@/pages/GuidePage'
+import { AddToHomeBanner, WelcomeModal } from '@/features/onboarding/WelcomeModal'
 import { useAccountStore } from '@/stores/accountStore'
 import { useLearnStore } from '@/stores/learnStore'
 import { usePlanStore } from '@/stores/planStore'
@@ -84,6 +86,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: '我的',
     emoji: '👤',
     items: [
+      { to: '/guide', label: '新手指南', emoji: '📖' },
       { to: '/account', label: '账号与同步', emoji: '☁️' },
       { to: '/support', label: '支持作者', emoji: '☕' },
     ],
@@ -218,6 +221,8 @@ export default function App() {
     <div className="min-h-screen flex flex-col">
       <BrowserGuard />
       <QuotaGate />
+      <WelcomeModal />
+      <AddToHomeBanner />
 
       {/* 点空白处收起桌面下拉 */}
       {openGroup && (
@@ -332,6 +337,7 @@ export default function App() {
           <Route path="/badges" element={<LeaderboardPage />} />
           <Route path="/points" element={<PointsPage />} />
           <Route path="/account" element={<AccountPage />} />
+          <Route path="/guide" element={<GuidePage />} />
           <Route path="/support" element={<SupportPage />} />
           <Route path="/admin" element={<AdminUsagePage />} />
           <Route path="/ui" element={<UIKit />} />
