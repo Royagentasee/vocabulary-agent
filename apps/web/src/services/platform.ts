@@ -9,7 +9,8 @@
 export type Platform =
   | 'wechat'          // 微信内置浏览器（不支持加主屏，必须先跳浏览器）
   | 'xiaomi'          // 小米浏览器
-  | 'huawei'          // 华为浏览器
+  | 'huawei'          // 华为浏览器（含鸿蒙）
+  | 'honor'           // 荣耀浏览器
   | 'qq'              // QQ 浏览器
   | 'uc'              // UC 浏览器
   | 'android-chrome'  // 安卓 Chrome / Edge
@@ -30,8 +31,14 @@ export interface PlatformInfo {
   standalone: boolean
   /** 当前环境能否「添加到主屏幕」 */
   canAddToHome: boolean
-  /** 当前环境能否接收推送 */
+  /** 当前环境能否接收推送（技术层面） */
   canPush: boolean
+  /** 推送是否真的能送达（中国大陆的安卓基本不行，见 pushCaveat） */
+  pushReliable: boolean
+  /** 推送不可靠的原因（给用户看的解释） */
+  pushCaveat: string
+  /** 推荐的提醒方式 */
+  reminderMode: 'push' | 'calendar' | 'none'
   /** 加到主屏幕的步骤 */
   steps: string[]
   /** 补充说明 */
@@ -44,7 +51,9 @@ function detectPlatform(): Platform {
   const u = ua()
   if (/MicroMessenger/i.test(u)) return 'wechat'
   if (/MiuiBrowser|XiaoMi|HMSCore.*Browser/i.test(u)) return 'xiaomi'
-  if (/HuaweiBrowser|HBPC|HonorBrowser/i.test(u)) return 'huawei'
+  // 荣耀已独立于华为，UA 各不相同，分开识别
+  if (/HonorBrowser|HONOR|HuaweiBrowser.*Honor/i.test(u)) return 'honor'
+  if (/HuaweiBrowser|HBPC|HarmonyOS|ArkWeb/i.test(u)) return 'huawei'
   if (/MQQBrowser/i.test(u) && !/MicroMessenger/i.test(u)) return 'qq'
   if (/UCBrowser|UBrowser|UCWEB/i.test(u)) return 'uc'
 
@@ -93,6 +102,16 @@ const STEPS: Record<Platform, { name: string; steps: string[]; note: string; can
       '弹窗点「添加」',
     ],
     note: '华为/荣耀浏览器在右下角菜单。',
+  },
+  honor: {
+    name: '荣耀浏览器',
+    canAdd: true,
+    steps: [
+      '点右下角的「≡」菜单',
+      '选「添加到桌面」',
+      '弹窗点「添加」',
+    ],
+    note: '荣耀浏览器和华为一样，菜单在右下角。',
   },
   qq: {
     name: 'QQ 浏览器',
@@ -189,12 +208,45 @@ export function getPlatform(): PlatformInfo {
         window.matchMedia?.('(display-mode: fullscreen)').matches)) ||
     (navigator as any)?.standalone === true
 
-  // 推送：微信/内置浏览器不行；iOS 必须已加到主屏（16.4+）
+  // 推送可达性：中国大陆的安卓基本收不到，要如实告诉用户
   let canPush = false
   if (typeof window !== 'undefined' && 'PushManager' in window) {
     if (platform === 'wechat') canPush = false
-    else if (isIOS) canPush = standalone
-    else canPush = true
+    else if (isIOS) canPush = standalone      // iOS 必须已加到主屏（16.4+）
+    else if (isAndroid) canPush = true        // 技术上支持，但下面会说明风险
+    else canPush = true                       // 桌面端
+  }
+
+  // 「技术上支持」≠「真的能收到」。安卓的 Web Push 走 Google FCM，
+  // 该域名在中国大陆被墙；国产浏览器大多没开放 Web Push 接口。
+  const chinaAndroid =
+    isAndroid && !['android-chrome'].includes(platform) ||
+    platform === 'android-chrome' ||
+    platform === 'xiaomi' || platform === 'huawei' || platform === 'honor' ||
+    platform === 'qq' || platform === 'uc' || platform === 'android-other'
+
+  let pushCaveat = ''
+  let pushReliable = false
+
+  if (!canPush) {
+    pushReliable = false
+    if (platform === 'wechat') {
+      pushCaveat = '微信内置浏览器不支持通知，需要先在浏览器里打开。'
+    } else if (isIOS && !standalone) {
+      pushCaveat = 'iPhone 需要先「添加到主屏幕」，从主屏图标打开才能收推送。'
+    } else if (!('PushManager' in window)) {
+      pushCaveat = '当前浏览器不支持推送通知。'
+    }
+  } else if (isIOS) {
+    pushReliable = true               // iOS 走苹果 APNs，国内可达
+  } else if (!isAndroid) {
+    pushReliable = true               // 桌面端 Chrome/Firefox 正常
+  } else {
+    // 安卓：诚实说明
+    pushReliable = false
+    pushCaveat =
+      '安卓的网页推送依赖 Google 服务，在中国大陆通常收不到。' +
+      '建议用下面的「日历提醒」，一样能每天准点提醒你。'
   }
 
   return {
@@ -207,8 +259,11 @@ export function getPlatform(): PlatformInfo {
     standalone,
     canAddToHome: conf.canAdd && !standalone,
     canPush,
+    pushReliable,
+    pushCaveat,
+    reminderMode: pushReliable ? 'push' : (isMobile ? 'calendar' : 'none'),
     steps: conf.steps,
-    note: conf.note || (/Android/i.test(u) ? '' : ''),
+    note: conf.note || '',
   }
 }
 

@@ -144,22 +144,40 @@ export function GuidePage() {
       </section>
 
       {/* 5. 提醒 */}
-      {!standalone && isMobile && (
-        <section className="va-card space-y-2.5">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">🔔</span>
-            <span className="font-semibold text-sm">第四步：开启每日提醒（可选）</span>
+      <section className="va-card space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="text-lg">🔔</span>
+          <span className="font-semibold text-sm">第四步：开启每日提醒（可选）</span>
+        </div>
+        <div className="text-xs text-ink-500 leading-relaxed">
+          <strong>只有你今天还没学</strong>才会提醒，学过就不打扰。
+          到「我的」页面开启。
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="rounded-xl border border-green-200 bg-green-50/50 px-3 py-2.5 space-y-1.5">
+            <div className="text-xs font-semibold text-green-800">📅 日历提醒（推荐）</div>
+            <div className="text-[11px] text-ink-600 leading-relaxed">
+              用系统日历提醒，<strong>不需要网络</strong>，
+              小米 / 华为 / 荣耀 / OPPO / vivo / iPhone 全部可用。
+            </div>
           </div>
-          <div className="text-xs text-ink-500 leading-relaxed">
-            先完成第一步「添加到主屏幕」，然后到「我的」页面开启每日提醒。
-            <strong>只有你今天还没学</strong>才会提醒，学过就不打扰。
+          <div className="rounded-xl border border-ink-100 px-3 py-2.5 space-y-1.5">
+            <div className="text-xs font-semibold text-ink-700">🔔 应用内推送</div>
+            <div className="text-[11px] text-ink-600 leading-relaxed">
+              iPhone（已加到主屏）和电脑上可用。安卓因为依赖 Google 服务，
+              中国大陆通常收不到。
+            </div>
           </div>
-          <div className="text-[11px] text-amber-700 bg-amber-50 rounded-lg px-3 py-2 leading-relaxed">
-            注意：iPhone 必须<strong>先加到主屏幕</strong>才能收推送；
-            安卓在浏览器里就能收。
-          </div>
-        </section>
-      )}
+        </div>
+
+        <div className="text-[11px] text-ink-500 leading-relaxed bg-ink-50 rounded-lg px-3 py-2.5">
+          <strong>为什么安卓收不到推送？</strong>
+          安卓浏览器的网页推送要经过 Google 的服务器，这个服务在中国大陆无法访问；
+          小米、华为、荣耀、QQ、UC 等浏览器也大多没有开放这个接口。
+          所以安卓用户建议用<strong>日历提醒</strong> —— 效果一样，而且更省电。
+        </div>
+      </section>
 
       {/* 6. 常见问题 */}
       <section className="va-card space-y-3">
@@ -185,6 +203,12 @@ export function GuidePage() {
             [
               '换手机进度没了',
               '到「我的」→ 用同步码恢复。建议提前把同步码截图保存。',
+            ],
+            [
+              '为什么安卓收不到推送提醒',
+              '安卓的网页推送依赖 Google 服务，中国大陆无法访问；' +
+                '小米/华为/荣耀/QQ/UC 浏览器也大多没开放这个接口。' +
+                '建议改用「我的 → 每日提醒 → 日历提醒」，用系统日历提醒，效果一样。',
             ],
             [
               '能在微信里直接用吗',

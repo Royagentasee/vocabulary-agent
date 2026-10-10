@@ -4,7 +4,7 @@ from __future__ import annotations
 import asyncio
 import contextlib
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query, Response
 from loguru import logger
 from pydantic import BaseModel, Field
 
@@ -88,6 +88,32 @@ async def post_test(user_id: str) -> dict:
     if not n:
         raise HTTPException(status_code=400, detail='没有可用的订阅，请先开启提醒')
     return {'ok': True, 'sent': n}
+
+
+# ============ 日历提醒（安卓/华为/小米通用）============
+
+@router.get("/calendar.ics")
+async def get_calendar(
+    h: int = Query(20, ge=0, le=23, description='提醒小时'),
+    m: int = Query(0, ge=0, le=59, description='提醒分钟'),
+    uid: str = Query('default', max_length=64),
+) -> Response:
+    """每日学习提醒日历。
+
+    下载导入，或把本地址粘到「小米日历 / 华为日历 → 订阅日历」。
+    不依赖推送服务，中国大陆全平台可用。
+    """
+    from app.services import calendar as cal
+
+    body = cal.build_ics(hour=h, minute=m, uid=uid)
+    return Response(
+        content=body.encode('utf-8'),
+        media_type='text/calendar; charset=utf-8',
+        headers={
+            'Content-Disposition': 'attachment; filename="vocab-agent-reminder.ics"',
+            'Cache-Control': 'no-cache',
+        },
+    )
 
 
 # ============ 后台定时任务 ============
