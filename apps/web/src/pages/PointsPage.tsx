@@ -93,7 +93,7 @@ export function PointsPage() {
           <div className="text-sm font-semibold">今日积分进度</div>
           <div className="space-y-1.5">
             {todayRows.map((r) => {
-              const full = r.used >= r.dailyCap
+              const full = r.used >= (r.dailyCap ?? 0)
               return (
                 <div key={r.key} className="flex items-center gap-2 text-xs">
                   <span className="w-5">{r.emoji}</span>
@@ -101,11 +101,11 @@ export function PointsPage() {
                   <div className="flex-1 h-1.5 bg-ink-100 rounded-full overflow-hidden">
                     <div
                       className={`h-full ${full ? 'bg-ink-300' : 'bg-green-500'}`}
-                      style={{ width: `${Math.min(100, (r.used / r.dailyCap) * 100)}%` }}
+                      style={{ width: `${Math.min(100, (r.used / (r.dailyCap ?? 0)) * 100)}%` }}
                     />
                   </div>
                   <span className="w-14 text-right text-ink-500 tabular-nums">
-                    {r.used}/{r.dailyCap}
+                    {r.used}/{(r.dailyCap ?? 0)}
                   </span>
                 </div>
               )
@@ -186,11 +186,11 @@ export function PointsPage() {
             const r = POINT_RULES[k]
             const capText =
               k === 'learn'
-                ? `+${r.points}/词 · 每天上限 ${r.dailyCap}`
+                ? `+${r.points}/词 · 每天上限 ${(r.dailyCap ?? 0)}`
                 : k === 'review'
-                ? `+${r.points}/词 · 每天上限 ${r.dailyCap}`
+                ? `+${r.points}/词 · 每天上限 ${(r.dailyCap ?? 0)}`
                 : k === 'task'
-                ? `+${r.points}/项 · 每天上限 ${r.dailyCap}`
+                ? `+${r.points}/项 · 每天上限 ${(r.dailyCap ?? 0)}`
                 : k === 'checkin'
                 ? `+${r.points}/天`
                 : `+${r.points}`

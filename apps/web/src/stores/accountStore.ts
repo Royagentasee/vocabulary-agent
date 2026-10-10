@@ -106,7 +106,7 @@ export const useAccountStore = create<AccountState>((set, get) => ({
       try {
         const bonus = await claimPendingPoints(u.id)
         if (bonus > 0) {
-          usePointsStore.getState().earn(bonus, `邀请奖励 +${bonus}`)
+          usePointsStore.getState().earn(bonus, 'invite', { detail: '邀请好友奖励' })
         }
       } catch {
         /* ignore */

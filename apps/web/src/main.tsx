@@ -4,6 +4,13 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './app/App'
 import './styles/index.css'
 
+declare global {
+  interface Window {
+    /** index.html 的启动自愈脚本用它判断 React 是否已挂载 */
+    __VA_BOOTED__?: boolean
+  }
+}
+
 // React 挂载会清掉 #root 里的启动占位，index.html 的自愈脚本靠这个标志判断
 window.__VA_BOOTED__ = true
 

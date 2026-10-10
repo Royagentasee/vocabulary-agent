@@ -200,7 +200,11 @@ export function getPlatform(): PlatformInfo {
   const conf = STEPS[platform]
   const u = ua()
   const isIOS = platform.startsWith('ios')
-  const isAndroid = platform.startsWith('android') || ['xiaomi', 'huawei', 'qq', 'uc'].includes(platform)
+  // ⚠️ 国产浏览器都算安卓。曾经漏了 'honor'，导致荣耀用户
+  // 被当成桌面端 → isMobile=false → 日历提醒和推送都不显示。
+  const isAndroid =
+    platform.startsWith('android') ||
+    ['xiaomi', 'huawei', 'honor', 'qq', 'uc'].includes(platform)
 
   const standalone =
     (typeof window !== 'undefined' &&
@@ -219,12 +223,7 @@ export function getPlatform(): PlatformInfo {
 
   // 「技术上支持」≠「真的能收到」。安卓的 Web Push 走 Google FCM，
   // 该域名在中国大陆被墙；国产浏览器大多没开放 Web Push 接口。
-  const chinaAndroid =
-    isAndroid && !['android-chrome'].includes(platform) ||
-    platform === 'android-chrome' ||
-    platform === 'xiaomi' || platform === 'huawei' || platform === 'honor' ||
-    platform === 'qq' || platform === 'uc' || platform === 'android-other'
-
+  // 所以只要是安卓（含所有国产浏览器），下面一律推荐日历提醒。
   let pushCaveat = ''
   let pushReliable = false
 
@@ -249,10 +248,15 @@ export function getPlatform(): PlatformInfo {
       '建议用下面的「日历提醒」，一样能每天准点提醒你。'
   }
 
+  // ⚠️ 必须在 return 之前定义好，否则下面 reminderMode 会抛 ReferenceError。
+  // 曾经踩过这个坑：桌面端因为三元短路没求值所以没报错，
+  // 手机端一走 else 分支就抛错 → React 整棵树崩溃 → 整页白屏。
+  const isMobile = isIOS || isAndroid || platform === 'wechat'
+
   return {
     platform,
     name: conf.name,
-    isMobile: isIOS || isAndroid || platform === 'wechat',
+    isMobile,
     isWechat: platform === 'wechat',
     isIOS,
     isAndroid,

@@ -21,10 +21,11 @@ export interface Word {
   audioUrl: string
   senses: Sense[]             // 多义项
   etymology: string           // 词根词缀
-  rootAffix: RootAffix | null  // 词根词缀拆解
+  rootAffix?: RootAffix | null // 词根词缀拆解（老数据可能没有）
   collocations: string[]      // 搭配
   examTags: ExamTag[]         // 考点 / 考频
   examples: Example[]         // 真题例句
+  translation?: string        // 中文释义（后端 toWord 会带上）
 }
 
 export interface Sense {

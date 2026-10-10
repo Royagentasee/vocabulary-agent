@@ -14,7 +14,7 @@ export interface WordSearchResult {
 export async function searchWords(query: string, limit = 20): Promise<WordSearchResult[]> {
   try {
     const resp = await fetch(
-      `${config.searchPath}/search?q=${encodeURIComponent(query)}&limit=${limit}`,
+      `${config.searchUrl}/search?q=${encodeURIComponent(query)}&limit=${limit}`,
     )
     if (!resp.ok) return []
     const data = await resp.json()
@@ -33,7 +33,7 @@ export async function searchWords(query: string, limit = 20): Promise<WordSearch
 
 export async function getWordDetail(headword: string) {
   try {
-    const resp = await fetch(`${config.searchPath}/${encodeURIComponent(headword)}`)
+    const resp = await fetch(`${config.searchUrl}/${encodeURIComponent(headword)}`)
     if (!resp.ok) return null
     return await resp.json()
   } catch {

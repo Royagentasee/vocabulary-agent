@@ -23,6 +23,8 @@ export const POINT_RULES = {
   review: { points: 1, dailyCap: 20, label: '复习旧词', emoji: '🔄', per: '词' },
   task: { points: 3, dailyCap: 18, label: '完成每日任务', emoji: '✅', per: '项' },
   allTasks: { points: 10, dailyCap: 10, label: '完成全部任务', emoji: '🎯' },
+  // 邀请奖励由服务端发放，金额不固定、不限次数，所以不设 dailyCap
+  invite: { points: 0, label: '邀请好友', emoji: '🎁' },
   firstModule: { points: 10, dailyCap: 100, label: '首次体验新模块', emoji: '🎁' },
   streak7: { points: 20, dailyCap: 20, label: '连续打卡 7 天', emoji: '🔥' },
   streak30: { points: 100, dailyCap: 100, label: '连续打卡 30 天', emoji: '🏆' },
