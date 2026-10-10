@@ -185,24 +185,84 @@ export const MOCK_WORDBOOKS = [
   },
 ] as const
 
-export async function fetchWords(excludeIds?: string[], limit: number = 20): Promise<Word[]> {
-  // 从后端随机取 limit 个新词（排除已学过的）；失败时 fallback 到 mock
+export async function fetchWords(
+  excludeIds?: string[],
+  limit: number = 20,
+  examTag: string = '',
+): Promise<Word[]> {
+  // 从后端随机取 limit 个新词（可排除已学、可限定词书）；失败时 fallback 到 mock
   try {
     const excludeParam = excludeIds?.length
       ? `&exclude=${encodeURIComponent(excludeIds.join(','))}`
       : ''
-    const resp = await fetch(`/api/words/random?limit=${limit}${excludeParam}`)
+    const tagParam = examTag ? `&exam_tag=${encodeURIComponent(examTag)}` : ''
+    const resp = await fetch(`/api/words/random?limit=${limit}${excludeParam}${tagParam}`)
     if (resp.ok) {
       const data = await resp.json()
       const items = data?.items ?? []
       if (items.length > 0) {
         return items.map((w: any) => toWord(w))
       }
+      // 词书里的词都学完了 → 退回全库取词，别让用户卡住
+      if (examTag) {
+        const resp2 = await fetch(`/api/words/random?limit=${limit}${excludeParam}`)
+        if (resp2.ok) {
+          const d2 = await resp2.json()
+          const items2 = d2?.items ?? []
+          if (items2.length > 0) return items2.map((w: any) => toWord(w))
+        }
+      }
     }
   } catch (e) {
     console.warn('[words] 从后端取词失败，fallback 到 mock:', e)
   }
   return MOCK_WORDS
+}
+
+/* ============ 词书（真实数据）============ */
+
+export interface Wordbook {
+  id: string
+  name: string
+  examTag: string
+  description: string
+  coverColor: string
+  level: string
+  wordCount: number
+}
+
+/** 词书 id → 考试标签（学习时用它限定抽词范围） */
+export const BOOK_TAG: Record<string, string> = {
+  zk: '中考',
+  gk: '高考',
+  cet4: '四级',
+  cet6: '六级',
+  ky: '考研',
+  ielts: 'IELTS',
+  toefl: 'TOEFL',
+  gre: 'GRE',
+}
+
+export async function fetchWordbooks(): Promise<Wordbook[]> {
+  try {
+    const resp = await fetch('/api/words/wordbooks')
+    if (resp.ok) {
+      const d = await resp.json()
+      const items = (d?.items ?? []) as Wordbook[]
+      if (items.length > 0) return items
+    }
+  } catch (e) {
+    console.warn('[words] 词书加载失败:', e)
+  }
+  return []
+}
+
+export async function fetchWordbookDetail(
+  id: string,
+): Promise<Wordbook & { preview: any[] }> {
+  const resp = await fetch(`/api/words/wordbooks/${encodeURIComponent(id)}`)
+  if (!resp.ok) throw new Error(`词书不存在 ${resp.status}`)
+  return resp.json()
 }
 
 /** 单独取词根词缀拆解（老数据/缓存里没有 rootAffix 时兜底） */
@@ -279,8 +339,4 @@ export async function fetchMeaningQuizBatch(limit = 20): Promise<MeaningQuiz[]> 
     console.warn('[words] 批量取词义题失败:', e)
   }
   return []
-}
-
-export async function fetchWordbooks() {
-  return Promise.resolve(MOCK_WORDBOOKS)
 }

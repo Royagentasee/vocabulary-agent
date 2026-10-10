@@ -78,7 +78,8 @@ class DBBackend:
     async def get_word_embedding(self, word_id: str) -> Optional[list[float]]:
         raise NotImplementedError
 
-    async def list_random_words(self, limit: int, exclude_ids: list[str] | None = None) -> list[dict]:
+    async def list_random_words(self, limit: int, exclude_ids: list[str] | None = None,
+                                exam_tag: str = '') -> list[dict]:
         raise NotImplementedError
 
 
@@ -142,16 +143,25 @@ class SQLiteBackend(DBBackend):
     async def get_word_embedding(self, word_id: str) -> Optional[list[float]]:
         return None  # SQLite 不支持向量
 
-    async def list_random_words(self, limit: int, exclude_ids: list[str] | None = None) -> list[dict]:
-        """随机取 limit 个词（排除已学过的 exclude_ids）"""
+    async def list_random_words(self, limit: int, exclude_ids: list[str] | None = None,
+                                exam_tag: str = '') -> list[dict]:
+        """随机取 limit 个词（可排除已学过的 exclude_ids，可按考试标签筛选）"""
         with self.conn() as conn:
+            where: list[str] = []
+            params: list = []
             if exclude_ids:
                 placeholders = ','.join('?' * len(exclude_ids))
-                sql = f"SELECT * FROM words WHERE id NOT IN ({placeholders}) ORDER BY RANDOM() LIMIT ?"
-                cur = conn.execute(sql, (*exclude_ids, limit))
-            else:
-                sql = "SELECT * FROM words ORDER BY RANDOM() LIMIT ?"
-                cur = conn.execute(sql, (limit,))
+                where.append(f"id NOT IN ({placeholders})")
+                params.extend(exclude_ids)
+            if exam_tag:
+                # exam_tags 存的是 JSON，如 [{"exam": "四级"}]，先粗筛
+                where.append("exam_tags LIKE ?")
+                params.append(f'%"{exam_tag}"%')
+
+            clause = (' WHERE ' + ' AND '.join(where)) if where else ''
+            sql = f"SELECT * FROM words{clause} ORDER BY RANDOM() LIMIT ?"
+            params.append(limit)
+            cur = conn.execute(sql, tuple(params))
             return [self._row_to_word(r) for r in cur.fetchall()]
 
 
@@ -231,7 +241,8 @@ class PostgresBackend(DBBackend):
                     return list(row['embedding'])
         return None
 
-    async def list_random_words(self, limit: int, exclude_ids: list[str] | None = None) -> list[dict]:
+    async def list_random_words(self, limit: int, exclude_ids: list[str] | None = None,
+                                exam_tag: str = '') -> list[dict]:
         """随机取 limit 个词（排除 exclude_ids）"""
         try:
             import psycopg

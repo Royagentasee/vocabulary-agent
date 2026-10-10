@@ -70,14 +70,25 @@ async def search_words(req: WordSearchRequest) -> WordSearchResponse:
 
 # ============ 随机取词 ============
 
-async def list_random_words(limit: int, exclude_ids: list[str] | None = None) -> WordSearchResponse:
-    """随机取 limit 个词（排除已学过的 exclude_ids）"""
+async def list_random_words(limit: int, exclude_ids: list[str] | None = None,
+                            exam_tag: str = '') -> WordSearchResponse:
+    """随机取 limit 个词（可排除已学过的，可按考试标签限定词书）"""
     db = await _get_words_backend()
     if db is None:
         return WordSearchResponse(items=[], total=0)
 
     try:
-        items = await db.list_random_words(limit=limit, exclude_ids=exclude_ids)
+        items = await db.list_random_words(
+            limit=limit, exclude_ids=exclude_ids, exam_tag=exam_tag)
+        # 标签粗筛后再精确过滤一遍，保证确实属于该词书
+        if exam_tag:
+            def has_tag(it: dict) -> bool:
+                for t in (it.get('examTags') or []):
+                    name = t.get('exam') if isinstance(t, dict) else t
+                    if name == exam_tag:
+                        return True
+                return False
+            items = [i for i in items if has_tag(i)]
         return WordSearchResponse(items=[_attach_root(i) for i in items], total=len(items))
     except Exception as e:
         logger.error(f'List random words failed: {e}')

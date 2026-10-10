@@ -10,7 +10,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { createFSRS, Rating } from '@vocab-agent/sdk-fsrs'
 import type { FSRSCardState, Word } from '@vocab-agent/types'
-import { fetchWords } from '@/services/words'
+import { fetchWords, BOOK_TAG } from '@/services/words'
 
 const scheduler = createFSRS()
 
@@ -131,8 +131,9 @@ export const useLearnStore = create<LearnState>()(
       startLearn: async () => {
         const learned = get().learnedWords
         const learnedIds = learned.map((l) => l.word.id)
-        // 从后端随机取 dailyGoal 个新词（排除已学的）
-        const words = await fetchWords(learnedIds, get().dailyGoal)
+        // 选了词书就只从该词书抽词，否则全库随机（都排除已学的）
+        const tag = BOOK_TAG[get().currentWordbookId || ''] || ''
+        const words = await fetchWords(learnedIds, get().dailyGoal, tag)
         set({ learnQueue: words, learnIndex: 0 })
       },
 

@@ -37,10 +37,33 @@ async def get_search(
 async def get_random(
     limit: int = Query(20, ge=1, le=100),
     exclude: str | None = Query(None, description="逗号分隔的已学单词 id，用于排除"),
+    exam_tag: str = Query('', description="限定词书，如 四级 / IELTS / GRE"),
 ) -> WordSearchResponse:
-    """随机取 limit 个词（可排除已学过的词）。"""
+    """随机取 limit 个词（可排除已学过的词，可限定词书）。"""
     exclude_ids = [x.strip() for x in exclude.split(',') if x.strip()] if exclude else None
-    return await list_random_words(limit=limit, exclude_ids=exclude_ids)
+    return await list_random_words(limit=limit, exclude_ids=exclude_ids, exam_tag=exam_tag)
+
+
+@router.get("/wordbooks")
+async def get_wordbooks() -> dict:
+    """词书列表（按考试标签实时统计词数）。"""
+    from app.services import wordbooks
+    items = wordbooks.list_books()
+    return {'items': items, 'total': len(items)}
+
+
+@router.get("/wordbooks/{book_id}")
+async def get_wordbook(book_id: str) -> dict:
+    """词书详情 + 前几个词做预览。"""
+    from fastapi import HTTPException
+    from app.services import wordbooks
+
+    book = wordbooks.get_book(book_id)
+    if not book:
+        raise HTTPException(status_code=404, detail=f'词书不存在: {book_id}')
+
+    preview = await list_random_words(limit=6, exam_tag=book['examTag'])
+    return {**book, 'preview': [i.model_dump() for i in preview.items]}
 
 
 @router.get("/meaning-quiz/batch")
