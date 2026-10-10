@@ -6,6 +6,7 @@ import { getAdminToken, setAdmin, trackEvent } from '@/services/stats'
 import { useQuotaStore } from '@/stores/quotaStore'
 import { InviteCard } from '@/features/referral/InviteCard'
 import { VoicePicker } from '@/features/settings/VoicePicker'
+import { ReminderCard } from '@/features/settings/ReminderCard'
 
 function timeAgo(ts: number): string {
   if (!ts) return '尚未同步'
@@ -185,6 +186,9 @@ export function AccountPage() {
           {msg}
         </div>
       )}
+
+      {/* 每日提醒 */}
+      <ReminderCard />
 
       {/* 发音音色 */}
       <VoicePicker />

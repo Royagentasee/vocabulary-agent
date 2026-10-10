@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routers import (
     explain, analyze, dialogue, voice, words, quiz,
     writing, writing_bank, reading, reading_bank, stats, grammar, listening, speaking,
-    library, accounts, ocr, coach, leaderboard, tts,
+    library, accounts, ocr, coach, leaderboard, tts, push,
 )
 from app.middleware.rate_limit import RateLimitMiddleware
 
@@ -54,6 +54,25 @@ app.include_router(ocr.router)
 app.include_router(coach.router)
 app.include_router(leaderboard.router)
 app.include_router(tts.router)
+app.include_router(push.router)
+
+
+@app.on_event('startup')
+async def _startup() -> None:
+    """启动推送定时提醒（没配 VAPID 密钥会自动跳过）"""
+    try:
+        push.start_scheduler()
+    except Exception as e:      # 不能因为推送挂了就起不来
+        print(f'Warning: push scheduler not started: {e}')
+
+
+@app.on_event('shutdown')
+async def _shutdown() -> None:
+    try:
+        await push.stop_scheduler()
+    except Exception:
+        pass
+
 
 # metrics 路由（可选依赖）
 try:

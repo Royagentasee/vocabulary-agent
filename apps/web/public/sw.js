@@ -61,3 +61,44 @@ self.addEventListener('fetch', (event) => {
     )
   }
 })
+
+/* ============ 推送提醒 ============ */
+
+self.addEventListener('push', (event) => {
+  let data = {}
+  try {
+    data = event.data ? event.data.json() : {}
+  } catch {
+    data = { title: 'Vocabulary Agent', body: event.data ? event.data.text() : '' }
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'Vocabulary Agent', {
+      body: data.body || '',
+      icon: data.icon || '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+      tag: 'va-daily',
+      renotify: true,
+      data: { url: data.url || '/' },
+    }),
+  )
+})
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+  const url = (event.notification.data && event.notification.data.url) || '/'
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      // 已经有打开的窗口就直接聚焦并跳转，避免开一堆标签
+      for (const c of list) {
+        if ('focus' in c) {
+          c.navigate(url).catch(() => {})
+          return c.focus()
+        }
+      }
+      return self.clients.openWindow(url)
+    }),
+  )
+})
+

@@ -187,6 +187,55 @@ server {{
         admin_token = (cur or '').strip()
     log(f'  作者密钥: {"已配置 " + admin_token[:8] + "..." if admin_token else "未配置"}')
 
+    # VAPID 密钥（Web 推送）：优先环境变量，其次服务器已有，最后现场生成
+    vapid_priv = os.environ.get('VOCAB_VAPID_PRIVATE', '').strip()
+    vapid_pub = os.environ.get('VOCAB_VAPID_PUBLIC', '').strip()
+    if not (vapid_priv and vapid_pub):
+        rc, cur, err = exec_cmd(
+            client,
+            sudo_cmd("cat /etc/systemd/system/vocab-agent.service 2>/dev/null "
+                     "| grep -oP '(?<=Environment=VAPID_(PRIVATE|PUBLIC)_KEY=).*' || true"),
+            timeout=30)
+        lines = [x.strip() for x in (cur or '').splitlines() if x.strip()]
+        if len(lines) >= 2:
+            vapid_priv, vapid_pub = lines[0], lines[1]
+    if not (vapid_priv and vapid_pub):
+        # 生成脚本走文件，避免内联 Python 的引号和 bash -c 冲突
+        GEN = """import base64
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives import serialization
+
+k = ec.generate_private_key(ec.SECP256R1())
+pem = k.private_bytes(
+    serialization.Encoding.PEM,
+    serialization.PrivateFormat.PKCS8,
+    serialization.NoEncryption(),
+).decode()
+n = k.public_key().public_numbers()
+raw = b'\x04' + n.x.to_bytes(32, 'big') + n.y.to_bytes(32, 'big')
+pub = base64.urlsafe_b64encode(raw).decode().rstrip('=')
+print(pem.replace(chr(10), '@@'))
+print(pub)
+"""
+        sftp = client.open_sftp()
+        with sftp.open('/tmp/gen_vapid.py', 'w') as f:
+            f.write(GEN)
+        sftp.close()
+        rc, gen, err = exec_cmd(client, 'python3 /tmp/gen_vapid.py; rm -f /tmp/gen_vapid.py', timeout=60)
+        parts = [x.strip() for x in (gen or '').splitlines() if x.strip()]
+        if len(parts) >= 2:
+            vapid_priv = parts[0].replace('@@', '\n')
+            vapid_pub = parts[1]
+            log('  已生成新的 VAPID 密钥')
+        parts = [x.strip() for x in (gen or '').splitlines() if x.strip()]
+        if len(parts) >= 2:
+            vapid_priv = parts[0].replace('@@', '\n')
+            vapid_pub = parts[1]
+            log('  已生成新的 VAPID 密钥')
+    has_vapid = bool(vapid_priv and vapid_pub)
+    log(f'  推送密钥: {"已配置" if has_vapid else "未配置"}')
+
+    vapid_priv_escaped = vapid_priv.replace("\n", "\\n") if has_vapid else ''
     systemd_conf = f"""[Unit]
 Description=Vocabulary Agent AI Gateway
 After=network.target
@@ -201,6 +250,10 @@ Environment=WHISPER_MODEL_DIR={REMOTE_DIR}/models/faster-whisper-tiny
 Environment=HF_ENDPOINT=https://hf-mirror.com
 # 作者密钥：请求头 X-Admin-Token 命中则跳过 AI 额度限制
 Environment=ADMIN_TOKEN={admin_token}
+# 每日推送提醒（Web Push）
+Environment=VAPID_PRIVATE_KEY={vapid_priv_escaped}
+Environment=VAPID_PUBLIC_KEY={vapid_pub}
+Environment=VAPID_SUBJECT=mailto:admin@earthledger.com
 ExecStart=/usr/bin/python3 -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 Restart=always
 
