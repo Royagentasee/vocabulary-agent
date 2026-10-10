@@ -70,7 +70,10 @@ export async function ensureAccount(): Promise<UserProfile> {
       return local
     }
   }
-  const r = await call('/api/user/register', { method: 'POST', body: JSON.stringify({}) })
+  const r = await call('/api/user/register', {
+    method: 'POST',
+    body: JSON.stringify({ invite_code: takeInviteCode() }),
+  })
   const user: UserProfile = r.user
   setLocalUser(user)
   return user
@@ -172,4 +175,55 @@ export function mergeLearnState(local: any, remote: any): any {
   out.dailyGoal = local?.dailyGoal ?? remote?.dailyGoal ?? 20
 
   return out
+}
+
+/* ============ 邀请奖励 ============ */
+
+const INVITE_KEY = 'va-invite-code'
+
+/** 记住别人分享的邀请码（注册时消费一次） */
+export function saveInviteCode(code: string): void {
+  try {
+    const c = (code || '').trim().toUpperCase()
+    if (c) localStorage.setItem(INVITE_KEY, c)
+  } catch {
+    /* ignore */
+  }
+}
+
+/** 取出邀请码（取完即删，只用于注册那一次） */
+export function takeInviteCode(): string {
+  try {
+    const c = localStorage.getItem(INVITE_KEY) || ''
+    if (c) localStorage.removeItem(INVITE_KEY)
+    return c
+  } catch {
+    return ''
+  }
+}
+
+/** 领取服务端挂账的积分（邀请奖励），返回领到的数量 */
+export async function claimPendingPoints(userId: string): Promise<number> {
+  try {
+    const r = await call(`/api/user/${encodeURIComponent(userId)}/pending`)
+    return Number(r?.points) || 0
+  } catch {
+    return 0
+  }
+}
+
+export interface ReferralStats {
+  inviteCode: string
+  invitedCount: number
+  earned: number
+  inviterReward: number
+  inviteeReward: number
+}
+
+export async function fetchReferralStats(userId: string): Promise<ReferralStats> {
+  try {
+    return await call(`/api/user/${encodeURIComponent(userId)}/referral`)
+  } catch {
+    return { inviteCode: '', invitedCount: 0, earned: 0, inviterReward: 100, inviteeReward: 50 }
+  }
 }

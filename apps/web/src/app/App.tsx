@@ -34,6 +34,7 @@ import { QuotaGate } from '@/components/Quota'
 import { UIKit } from '@/components/UIKit'
 import { BrowserGuard } from '@/components/BrowserGuard'
 import { trackEvent, trackVisit, setAdmin } from '@/services/stats'
+import { saveInviteCode } from '@/services/account'
 
 interface NavGroup {
   label: string
@@ -182,6 +183,18 @@ export default function App() {
     setOpenGroup('')
     setSheetOpen(false)
   }, [location.pathname])
+
+  // 邀请链接：?invite=<邀请码> —— 先记下来，注册时消费一次
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const inv = params.get('invite')
+    if (!inv) return
+    saveInviteCode(inv)
+    trackEvent('invite_landing', inv.slice(0, 12))
+    params.delete('invite')
+    const qs = params.toString()
+    window.history.replaceState({}, '', location.pathname + (qs ? `?${qs}` : ''))
+  }, [location.search, location.pathname])
 
   // 作者密钥：任意页面加 ?admin=<密钥> 即可开启无限 AI
   useEffect(() => {

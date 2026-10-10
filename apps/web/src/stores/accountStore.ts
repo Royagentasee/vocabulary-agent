@@ -12,6 +12,7 @@ import {
   mergeLearnState,
   pullState,
   pushState,
+  claimPendingPoints,
   regenerateSyncCode,
   restoreByCode,
   setLocalUser,
@@ -99,6 +100,16 @@ export const useAccountStore = create<AccountState>((set, get) => ({
       const { data, version } = await pullState(u.id)
       if (data && Object.keys(data).length) {
         applyRemoteToStores(data)
+      }
+
+      // 2) 领取服务端挂账的积分（邀请奖励等）
+      try {
+        const bonus = await claimPendingPoints(u.id)
+        if (bonus > 0) {
+          usePointsStore.getState().earn(bonus, `邀请奖励 +${bonus}`)
+        }
+      } catch {
+        /* ignore */
       }
 
       // 2) 把合并结果推回云端

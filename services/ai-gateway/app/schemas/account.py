@@ -10,6 +10,7 @@ class RegisterRequest(BaseModel):
     """匿名注册（无需任何个人信息）"""
 
     device_id: str = Field('', max_length=64, description='可选，用于合并已有匿名数据')
+    invite_code: str = Field('', max_length=32, description='可选，邀请人的同步码')
 
 
 class UserProfile(BaseModel):
@@ -72,3 +73,19 @@ class WechatStatusResponse(BaseModel):
 
 class SyncCodeResponse(BaseModel):
     syncCode: str
+
+
+class PendingPointsResponse(BaseModel):
+    """待领取积分（邀请奖励等由服务端发放）"""
+
+    points: int = 0
+
+
+class ReferralStats(BaseModel):
+    """邀请概览"""
+
+    inviteCode: str = ''
+    invitedCount: int = 0
+    earned: int = 0
+    inviterReward: int = 100
+    inviteeReward: int = 50

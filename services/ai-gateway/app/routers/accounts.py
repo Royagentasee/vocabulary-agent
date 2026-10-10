@@ -6,6 +6,8 @@ from fastapi import APIRouter, Header, HTTPException
 from loguru import logger
 
 from app.schemas.account import (
+    PendingPointsResponse,
+    ReferralStats,
     RegisterRequest,
     RegisterResponse,
     RestoreRequest,
@@ -25,11 +27,26 @@ router = APIRouter(prefix="/api/user", tags=["user"])
 
 @router.post("/register", response_model=RegisterResponse)
 async def register(req: RegisterRequest) -> RegisterResponse:
-    """匿名注册：无需任何个人信息，直接给一个访客账号 + 同步码。"""
-    user = accounts.create_user(provider='anon')
+    """匿名注册：无需任何个人信息，直接给一个访客账号 + 同步码。
+
+    带 invite_code 时给邀请人和被邀请人各发一笔积分（挂账，客户端下次同步领取）。
+    """
+    user = accounts.create_user(provider='anon', invite_code=req.invite_code)
     if not user:
         raise HTTPException(status_code=503, detail='账号服务暂不可用')
     return RegisterResponse(user=user, isNew=True)
+
+
+@router.get("/{user_id}/pending", response_model=PendingPointsResponse)
+async def get_pending(user_id: str) -> PendingPointsResponse:
+    """领取服务端挂账的积分（邀请奖励等），领取后清零。"""
+    return PendingPointsResponse(points=accounts.take_pending_points(user_id))
+
+
+@router.get("/{user_id}/referral", response_model=ReferralStats)
+async def get_referral(user_id: str) -> ReferralStats:
+    """邀请概览：我的邀请码、已邀请人数、累计获得积分。"""
+    return ReferralStats(**accounts.referral_stats(user_id))
 
 
 @router.get("/{user_id}", response_model=UserProfile)

@@ -28,9 +28,19 @@ CREATE TABLE IF NOT EXISTS app_users (
     openid       TEXT DEFAULT '',
     nickname     TEXT DEFAULT '',
     avatar       TEXT DEFAULT '',
-    member_until TEXT DEFAULT '',
+    member_until   TEXT DEFAULT '',
+    pending_points INTEGER NOT NULL DEFAULT 0,
+    invited_by     TEXT DEFAULT '',
+    invited_count  INTEGER NOT NULL DEFAULT 0,
     created_at   TEXT NOT NULL,
     last_seen    TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS referrals (
+    inviter_id TEXT NOT NULL,
+    invitee_id TEXT NOT NULL,
+    code       TEXT DEFAULT '',
+    created_at TEXT NOT NULL,
+    PRIMARY KEY (inviter_id, invitee_id)
 );
 CREATE TABLE IF NOT EXISTS user_state (
     user_id      TEXT PRIMARY KEY,
@@ -45,6 +55,9 @@ CREATE INDEX IF NOT EXISTS idx_app_users_openid ON app_users (openid);
 # 老库缺列时补上（SQLite 的 ADD COLUMN 不支持 IF NOT EXISTS，失败就忽略）
 _MIGRATIONS = [
     "ALTER TABLE app_users ADD COLUMN member_until TEXT DEFAULT ''",
+    "ALTER TABLE app_users ADD COLUMN pending_points INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE app_users ADD COLUMN invited_by TEXT DEFAULT ''",
+    "ALTER TABLE app_users ADD COLUMN invited_count INTEGER NOT NULL DEFAULT 0",
 ]
 
 # 同步码字符集：去掉容易看错的 O/0/I/1/L
@@ -119,7 +132,7 @@ def _row_to_profile(row) -> UserProfile:
 
 
 def create_user(provider: str = 'anon', openid: str = '', nickname: str = '',
-                avatar: str = '') -> Optional[UserProfile]:
+                avatar: str = '', invite_code: str = '') -> Optional[UserProfile]:
     db = _backend()
     if not db:
         return None
@@ -143,6 +156,12 @@ def create_user(provider: str = 'anon', openid: str = '', nickname: str = '',
                     (uid, '{}', 0, now),
                 )
                 conn.commit()
+                if invite_code:
+                    # 邀请奖励：失败不影响注册主流程
+                    try:
+                        apply_referral(uid, invite_code)
+                    except Exception as e:
+                        logger.warning(f'邀请奖励失败 {invite_code}: {e}')
                 return UserProfile(id=uid, syncCode=code, provider=provider,
                                    nickname=nickname, avatar=avatar,
                                    createdAt=now, lastSeen=now)
@@ -266,6 +285,140 @@ def put_state(user_id: str, data: dict, base_version: int = 0) -> tuple[int, str
             pass
         conn.commit()
     return new_ver, now, conflict
+
+
+# ============ 邀请奖励 ============
+
+INVITER_REWARD = 100      # 邀请人得
+INVITEE_REWARD = 50       # 被邀请人得
+
+
+def add_pending_points(user_id: str, amount: int) -> bool:
+    """给用户挂上待领取积分（客户端下次同步时领取）"""
+    db = _backend()
+    if not db or amount <= 0:
+        return False
+    _ensure_schema(db)
+    try:
+        with db.conn() as conn:
+            conn.execute(
+                'UPDATE app_users SET pending_points = pending_points + ? WHERE id = ?',
+                (int(amount), user_id),
+            )
+            conn.commit()
+        return True
+    except Exception as e:
+        logger.warning(f'挂积分失败 {user_id}: {e}')
+        return False
+
+
+def take_pending_points(user_id: str) -> int:
+    """领取并清零待发积分，返回领取到的数量"""
+    db = _backend()
+    if not db:
+        return 0
+    _ensure_schema(db)
+    try:
+        with db.conn() as conn:
+            row = conn.execute(
+                'SELECT pending_points FROM app_users WHERE id = ?', (user_id,)
+            ).fetchone()
+            if not row or not row['pending_points']:
+                return 0
+            n = int(row['pending_points'])
+            conn.execute(
+                'UPDATE app_users SET pending_points = 0 WHERE id = ?', (user_id,)
+            )
+            conn.commit()
+            return n
+    except Exception as e:
+        logger.warning(f'领积分失败 {user_id}: {e}')
+        return 0
+
+
+def apply_referral(invitee_id: str, code: str) -> dict:
+    """被邀请人注册时调用：绑定邀请关系并给双方发积分"""
+    db = _backend()
+    if not db:
+        return {'ok': False, 'reason': 'db'}
+    _ensure_schema(db)
+
+    code = normalize_code(code)
+    if not code:
+        return {'ok': False, 'reason': 'empty'}
+
+    inviter = find_by_sync_code(code)
+    if not inviter:
+        return {'ok': False, 'reason': 'not_found'}
+    if inviter.id == invitee_id:
+        return {'ok': False, 'reason': 'self'}
+
+    now = _now()
+    try:
+        with db.conn() as conn:
+            # 幂等：同一对关系只发一次
+            exists = conn.execute(
+                'SELECT 1 FROM referrals WHERE invitee_id = ?', (invitee_id,)
+            ).fetchone()
+            if exists:
+                return {'ok': False, 'reason': 'already'}
+
+            conn.execute(
+                'INSERT OR IGNORE INTO referrals (inviter_id, invitee_id, code, created_at)'
+                ' VALUES (?,?,?,?)',
+                (inviter.id, invitee_id, code, now),
+            )
+            conn.execute(
+                'UPDATE app_users SET invited_by = ? WHERE id = ?', (inviter.id, invitee_id)
+            )
+            conn.execute(
+                'UPDATE app_users SET invited_count = invited_count + 1 WHERE id = ?',
+                (inviter.id,),
+            )
+            # 双方积分挂账
+            conn.execute(
+                'UPDATE app_users SET pending_points = pending_points + ? WHERE id = ?',
+                (INVITER_REWARD, inviter.id),
+            )
+            conn.execute(
+                'UPDATE app_users SET pending_points = pending_points + ? WHERE id = ?',
+                (INVITEE_REWARD, invitee_id),
+            )
+            conn.commit()
+        logger.info(f'邀请成功: {inviter.id} ← {invitee_id}（{code}）')
+        return {'ok': True, 'inviterReward': INVITER_REWARD, 'inviteeReward': INVITEE_REWARD}
+    except Exception as e:
+        logger.warning(f'邀请处理失败: {e}')
+        return {'ok': False, 'reason': 'error'}
+
+
+def referral_stats(user_id: str) -> dict:
+    """邀请概览：我的邀请码、已邀请人数、累计获得积分"""
+    db = _backend()
+    base = {
+        'inviteCode': '', 'invitedCount': 0, 'earned': 0,
+        'inviterReward': INVITER_REWARD, 'inviteeReward': INVITEE_REWARD,
+    }
+    if not db:
+        return base
+    _ensure_schema(db)
+    try:
+        with db.conn() as conn:
+            row = conn.execute(
+                'SELECT sync_code, invited_count FROM app_users WHERE id = ?', (user_id,)
+            ).fetchone()
+            if not row:
+                return base
+            return {
+                'inviteCode': row['sync_code'],
+                'invitedCount': int(row['invited_count'] or 0),
+                'earned': int(row['invited_count'] or 0) * INVITER_REWARD,
+                'inviterReward': INVITER_REWARD,
+                'inviteeReward': INVITEE_REWARD,
+            }
+    except Exception as e:
+        logger.warning(f'邀请概览失败: {e}')
+        return base
 
 
 def member_until(user_id: str) -> str:
