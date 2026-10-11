@@ -25,6 +25,10 @@ import { CoachPage } from '@/pages/CoachPage'
 import { LeaderboardPage } from '@/pages/LeaderboardPage'
 import { GuidePage } from '@/pages/GuidePage'
 import { AddToHomeBanner, WelcomeModal } from '@/features/onboarding/WelcomeModal'
+import { UpgradePage } from '@/pages/UpgradePage'
+import { ProGate, TrialBanner, TrialEndedBanner } from '@/features/paywall/Paywall'
+import { useEntitlementStore } from '@/stores/entitlementStore'
+import { isProRoute } from '@/services/entitlement'
 import { useAccountStore } from '@/stores/accountStore'
 import { useLearnStore } from '@/stores/learnStore'
 import { usePlanStore } from '@/stores/planStore'
@@ -78,7 +82,8 @@ const NAV_GROUPS: NavGroup[] = [
     emoji: '📈',
     items: [
       { to: '/badges', label: '成就与排行', emoji: '🏅' },
-      { to: '/points', label: '积分会员', emoji: '⭐' },
+      { to: '/upgrade', label: '开通会员', emoji: '👑' },
+      { to: '/points', label: '积分兑换', emoji: '⭐' },
       { to: '/stats', label: '学习报告', emoji: '📊' },
     ],
   },
@@ -125,6 +130,8 @@ export default function App() {
   const syncStatus = useAccountStore((s) => s.status)
   const user = useAccountStore((s) => s.user)
   const points = usePointsStore((s) => s.balance)
+  const canAccess = useEntitlementStore((s) => s.canAccess)
+  const entReady = useEntitlementStore((s) => !!s.ent)
   const isMember = usePointsStore((s) => s.isMember())
 
   // 启动积分引擎（把学习/打卡行为换算成积分）
@@ -132,9 +139,12 @@ export default function App() {
     startPointsEngine()
   }, [])
 
-  // 账号就绪后拉取 AI 额度
+  // 账号就绪后拉取 AI 额度 + 会员权限
   useEffect(() => {
-    if (user) void useQuotaStore.getState().refresh()
+    if (user) {
+      void useQuotaStore.getState().refresh()
+      void useEntitlementStore.getState().refresh(true)
+    }
   }, [user])
 
   // 进入某个模块即视为「首次体验」，发放探索奖励（每个模块只发一次）
@@ -223,6 +233,8 @@ export default function App() {
       <QuotaGate />
       <WelcomeModal />
       <AddToHomeBanner />
+      <TrialBanner />
+      <TrialEndedBanner />
 
       {/* 点空白处收起桌面下拉 */}
       {openGroup && (
@@ -267,23 +279,31 @@ export default function App() {
 
                     {open && (
                       <div className="absolute top-full left-0 mt-1.5 w-48 bg-white border border-ink-100 rounded-xl shadow-lg py-1.5 overflow-hidden">
-                        {g.items.map((it) => (
-                          <NavLink
-                            key={it.to}
-                            to={it.to}
-                            end
-                            className={({ isActive }) =>
-                              `flex items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
-                                isActive
-                                  ? 'bg-ink-900 text-white'
-                                  : 'text-ink-700 hover:bg-ink-50'
-                              }`
-                            }
-                          >
-                            <span>{it.emoji}</span>
-                            <span>{it.label}</span>
-                          </NavLink>
-                        ))}
+                        {g.items.map((it) => {
+                          const locked = entReady && !canAccess(it.to)
+                          return (
+                            <NavLink
+                              key={it.to}
+                              to={it.to}
+                              end
+                              className={({ isActive }) =>
+                                `flex items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
+                                  isActive
+                                    ? 'bg-ink-900 text-white'
+                                    : 'text-ink-700 hover:bg-ink-50'
+                                }`
+                              }
+                            >
+                              <span>{it.emoji}</span>
+                              <span className="flex-1">{it.label}</span>
+                              {locked && (
+                                <span className="text-[10px] opacity-70" title="会员功能">
+                                  🔒
+                                </span>
+                              )}
+                            </NavLink>
+                          )
+                        })}
                       </div>
                     )}
                   </div>
@@ -321,23 +341,24 @@ export default function App() {
           <Route path="/learn" element={<LearnPage />} />
           <Route path="/review" element={<ReviewPage />} />
           <Route path="/wrongbook" element={<WrongbookPage />} />
-          <Route path="/grammar" element={<GrammarPage />} />
-          <Route path="/listening" element={<ListeningPage />} />
-          <Route path="/speaking" element={<SpeakingPage />} />
-          <Route path="/dialogue" element={<DialoguePage />} />
-          <Route path="/writing" element={<WritingPage />} />
-          <Route path="/reading" element={<ReadingPage />} />
+          <Route path="/grammar" element={<ProGate route="/grammar"><GrammarPage /></ProGate>} />
+          <Route path="/listening" element={<ProGate route="/listening"><ListeningPage /></ProGate>} />
+          <Route path="/speaking" element={<ProGate route="/speaking"><SpeakingPage /></ProGate>} />
+          <Route path="/dialogue" element={<ProGate route="/dialogue"><DialoguePage /></ProGate>} />
+          <Route path="/writing" element={<ProGate route="/writing"><WritingPage /></ProGate>} />
+          <Route path="/reading" element={<ProGate route="/reading"><ReadingPage /></ProGate>} />
           <Route path="/library" element={<LibraryPage />} />
           <Route path="/library/:bookId" element={<BookReaderPage />} />
-          <Route path="/photo" element={<PhotoPage />} />
+          <Route path="/photo" element={<ProGate route="/photo"><PhotoPage /></ProGate>} />
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/plan" element={<PlanPage />} />
           <Route path="/path" element={<PathPage />} />
-          <Route path="/coach" element={<CoachPage />} />
+          <Route path="/coach" element={<ProGate route="/coach"><CoachPage /></ProGate>} />
           <Route path="/badges" element={<LeaderboardPage />} />
           <Route path="/points" element={<PointsPage />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/guide" element={<GuidePage />} />
+          <Route path="/upgrade" element={<UpgradePage />} />
           <Route path="/support" element={<SupportPage />} />
           <Route path="/admin" element={<AdminUsagePage />} />
           <Route path="/ui" element={<UIKit />} />
@@ -395,8 +416,11 @@ export default function App() {
                   active ? 'text-ink-900' : 'text-ink-400'
                 }`}
               >
-                <span className={`text-lg leading-none ${active ? '' : 'opacity-60'}`}>
+                <span className={`text-lg leading-none relative ${active ? '' : 'opacity-60'}`}>
                   {t.emoji}
+                  {entReady && !canAccess(t.to) && (
+                    <span className="absolute -top-0.5 -right-1.5 text-[8px]">🔒</span>
+                  )}
                 </span>
                 <span className={`text-[10px] ${active ? 'font-semibold' : ''}`}>{t.label}</span>
               </NavLink>
@@ -453,23 +477,27 @@ export default function App() {
                     {g.emoji} {g.label}
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    {g.items.map((it) => (
-                      <NavLink
-                        key={it.to}
-                        to={it.to}
-                        end
-                        className={({ isActive }) =>
-                          `flex items-center gap-2.5 px-3 py-3 rounded-xl text-sm transition-colors ${
-                            isActive
-                              ? 'bg-ink-900 text-white'
-                              : 'bg-ink-50 text-ink-800 active:bg-ink-100'
-                          }`
-                        }
-                      >
-                        <span className="text-base">{it.emoji}</span>
-                        <span className="truncate">{it.label}</span>
-                      </NavLink>
-                    ))}
+                    {g.items.map((it) => {
+                      const locked = entReady && !canAccess(it.to)
+                      return (
+                        <NavLink
+                          key={it.to}
+                          to={it.to}
+                          end
+                          className={({ isActive }) =>
+                            `flex items-center gap-2.5 px-3 py-3 rounded-xl text-sm transition-colors ${
+                              isActive
+                                ? 'bg-ink-900 text-white'
+                                : 'bg-ink-50 text-ink-800 active:bg-ink-100'
+                            }`
+                          }
+                        >
+                          <span className="text-base">{it.emoji}</span>
+                          <span className="truncate flex-1">{it.label}</span>
+                          {locked && <span className="text-[10px] opacity-70">🔒</span>}
+                        </NavLink>
+                      )
+                    })}
                   </div>
                 </div>
               ))}

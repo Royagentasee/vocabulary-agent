@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routers import (
     explain, analyze, dialogue, voice, words, quiz,
     writing, writing_bank, reading, reading_bank, stats, grammar, listening, speaking,
-    library, accounts, ocr, coach, leaderboard, tts, push,
+    library, accounts, ocr, coach, leaderboard, tts, push, entitlement,
 )
 from app.middleware.rate_limit import RateLimitMiddleware
 
@@ -55,6 +55,7 @@ app.include_router(coach.router)
 app.include_router(leaderboard.router)
 app.include_router(tts.router)
 app.include_router(push.router)
+app.include_router(entitlement.router)
 
 
 @app.on_event('startup')
