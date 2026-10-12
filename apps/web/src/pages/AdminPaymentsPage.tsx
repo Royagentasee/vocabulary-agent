@@ -26,6 +26,7 @@ export function AdminPaymentsPage() {
   const [err, setErr] = useState('')
   const [msg, setMsg] = useState('')
   const [codes, setCodes] = useState<string[]>([])
+  const [badKey, setBadKey] = useState(false)
   const [days, setDays] = useState(30)
 
   const load = async (which = tab) => {
@@ -35,8 +36,21 @@ export function AdminPaymentsPage() {
       const d = await fetchClaims(which)
       setItems(d.items)
       setStats(d.stats)
+      setBadKey(false)
     } catch (e: any) {
-      setErr(e?.message || '加载失败')
+      const m = String(e?.message || '')
+      // 密钥失效：清掉本地密钥并让用户重新输入，
+      // 否则会出现「后台界面显示了但一直是 403」的困惑状态
+      if (m.includes('作者权限') || m.includes('403')) {
+        setBadKey(true)
+        try {
+          localStorage.removeItem('va-admin-token')
+        } catch {
+          /* ignore */
+        }
+      } else {
+        setErr(m || '加载失败')
+      }
     } finally {
       setLoading(false)
     }
@@ -84,13 +98,15 @@ export function AdminPaymentsPage() {
     }
   }
 
-  // 没登录作者模式
-  if (!token) {
+  // 密钥无效 或 没登录作者模式 → 都显示输入界面
+  if (!token || badKey) {
     return (
       <div className="max-w-md mx-auto space-y-4 py-8">
         <h1 className="text-xl font-semibold">收款后台</h1>
         <div className="va-card space-y-3">
-          <div className="text-sm text-ink-600">需要作者密钥才能查看。</div>
+          <div className="text-sm text-ink-600">
+            {badKey ? '⚠️ 密钥无效或已过期，请重新输入。' : '需要作者密钥才能查看。'}
+          </div>
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -106,6 +122,7 @@ export function AdminPaymentsPage() {
                 /* ignore */
               }
               setToken(input.trim())
+              setBadKey(false)
             }}
             className="w-full py-2.5 rounded-xl bg-ink-900 text-white text-sm"
           >

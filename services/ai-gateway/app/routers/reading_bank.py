@@ -1,5 +1,7 @@
 """真题库路由：官方真题（College Board SAT）+ 分级阅读（初中/高中/大学）"""
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import Depends, APIRouter, HTTPException, Query
+
+from app.core.deps import require_quota
 
 from app.schemas.reading import BankResponse, BankStatsResponse
 from app.services import reading_levels
@@ -55,7 +57,8 @@ async def get_levels(
     return {'items': items, 'total': total, 'level': level}
 
 
-@router.get("/levels/{item_id}")
+@router.get("/levels/{item_id}",
+            dependencies=[Depends(require_quota('reading'))])
 async def get_level_item(item_id: str) -> dict:
     """单篇文章 + 题目 + 答案与解析。"""
     item = reading_levels.get_item(item_id)

@@ -1,9 +1,13 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Rating, useLearnStore } from '@/stores/learnStore'
+import { trackEvent } from '@/services/stats'
 import { LearningCard } from '@/features/learn/LearningCard'
 
 export function ReviewPage() {
+  useEffect(() => {
+    trackEvent('review_open')
+  }, [])
   const { reviewQueue, reviewIndex, nextReview, reviewRate, learnedWords, startReview } = useLearnStore()
 
   // 进入复习页时，若还没有复习队列，自动筛选到期词
@@ -62,6 +66,7 @@ export function ReviewPage() {
 
   const handleRate = (rating: Rating) => {
     reviewRate(rating)
+    trackEvent('review_answer', String(rating))
     nextReview()
   }
 

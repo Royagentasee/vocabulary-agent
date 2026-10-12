@@ -1,7 +1,12 @@
+import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useLearnStore } from '@/stores/learnStore'
+import { trackEvent } from '@/services/stats'
 
 export function WrongbookPage() {
+  useEffect(() => {
+    trackEvent('wrongbook_open')
+  }, [])
   const { wrongWords, removeWrongWord, clearWrongWords, startReviewWrongWords } = useLearnStore()
   const navigate = useNavigate()
 

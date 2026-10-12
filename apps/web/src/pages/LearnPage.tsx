@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Rating, useLearnStore } from '@/stores/learnStore'
+import { trackEvent } from '@/services/stats'
 import { LearningCard } from '@/features/learn/LearningCard'
 
 const GOAL_OPTIONS = [5, 10, 15, 20, 30, 50]
@@ -58,11 +59,13 @@ export function LearnPage() {
 
   const handleRate = (rating: Rating) => {
     learnRate(rating)
+    trackEvent('learn_rate', String(rating))
     nextLearn()
   }
 
   const handleGoalChange = (n: number) => {
     setDailyGoal(n)
+        trackEvent('learn_goal_change', String(n))
     // 重新取词（按新数量）
     startLearn()
   }

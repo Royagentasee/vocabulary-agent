@@ -27,7 +27,7 @@ import { GuidePage } from '@/pages/GuidePage'
 import { AddToHomeBanner, WelcomeModal } from '@/features/onboarding/WelcomeModal'
 import { UpgradePage } from '@/pages/UpgradePage'
 import { AdminPaymentsPage } from '@/pages/AdminPaymentsPage'
-import { ProGate, TrialBanner, TrialEndedBanner } from '@/features/paywall/Paywall'
+import { TrialBanner, TrialEndedBanner } from '@/features/paywall/Paywall'
 import { useEntitlementStore } from '@/stores/entitlementStore'
 import { isProRoute } from '@/services/entitlement'
 import { useAccountStore } from '@/stores/accountStore'
@@ -131,8 +131,10 @@ export default function App() {
   const syncStatus = useAccountStore((s) => s.status)
   const user = useAccountStore((s) => s.user)
   const points = usePointsStore((s) => s.balance)
-  const canAccess = useEntitlementStore((s) => s.canAccess)
-  const entReady = useEntitlementStore((s) => !!s.ent)
+  // 不再按功能锁模块（改成按用量），导航里也就不标锁了。
+  // 额度用完会在模块内提示，不在这里拦。
+  const canAccess = () => true
+  const entReady = false
   const isMember = usePointsStore((s) => s.isMember())
 
   // 启动积分引擎（把学习/打卡行为换算成积分）
@@ -196,6 +198,30 @@ export default function App() {
     if (location.pathname !== '/') trackEvent('pageview', location.pathname)
     setOpenGroup('')
     setSheetOpen(false)
+  }, [location.pathname])
+
+  // 首页漏斗：记录停留时长与是否产生交互
+  // （首页原来被 pageview 排除掉了，导致「只看一页就走」完全查不到原因）
+  useEffect(() => {
+    if (location.pathname !== '/') return
+    const startedAt = Date.now()
+    let interacted = false
+
+    const mark = () => {
+      interacted = true
+    }
+    window.addEventListener('pointerdown', mark, { once: true, passive: true })
+    window.addEventListener('scroll', mark, { once: true, passive: true })
+
+    trackEvent('home_view', navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop')
+
+    return () => {
+      window.removeEventListener('pointerdown', mark)
+      window.removeEventListener('scroll', mark)
+      const secs = Math.round((Date.now() - startedAt) / 1000)
+      // 用 sendBeacon 上报，离开页面也能发出去
+      trackEvent('home_leave', `${secs}s/${interacted ? 'interacted' : 'bounced'}`)
+    }
   }, [location.pathname])
 
   // 邀请链接：?invite=<邀请码> —— 先记下来，注册时消费一次
@@ -342,19 +368,19 @@ export default function App() {
           <Route path="/learn" element={<LearnPage />} />
           <Route path="/review" element={<ReviewPage />} />
           <Route path="/wrongbook" element={<WrongbookPage />} />
-          <Route path="/grammar" element={<ProGate route="/grammar"><GrammarPage /></ProGate>} />
-          <Route path="/listening" element={<ProGate route="/listening"><ListeningPage /></ProGate>} />
-          <Route path="/speaking" element={<ProGate route="/speaking"><SpeakingPage /></ProGate>} />
-          <Route path="/dialogue" element={<ProGate route="/dialogue"><DialoguePage /></ProGate>} />
-          <Route path="/writing" element={<ProGate route="/writing"><WritingPage /></ProGate>} />
-          <Route path="/reading" element={<ProGate route="/reading"><ReadingPage /></ProGate>} />
+          <Route path="/grammar" element={<GrammarPage />} />
+          <Route path="/listening" element={<ListeningPage />} />
+          <Route path="/speaking" element={<SpeakingPage />} />
+          <Route path="/dialogue" element={<DialoguePage />} />
+          <Route path="/writing" element={<WritingPage />} />
+          <Route path="/reading" element={<ReadingPage />} />
           <Route path="/library" element={<LibraryPage />} />
           <Route path="/library/:bookId" element={<BookReaderPage />} />
-          <Route path="/photo" element={<ProGate route="/photo"><PhotoPage /></ProGate>} />
+          <Route path="/photo" element={<PhotoPage />} />
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/plan" element={<PlanPage />} />
           <Route path="/path" element={<PathPage />} />
-          <Route path="/coach" element={<ProGate route="/coach"><CoachPage /></ProGate>} />
+          <Route path="/coach" element={<CoachPage />} />
           <Route path="/badges" element={<LeaderboardPage />} />
           <Route path="/points" element={<PointsPage />} />
           <Route path="/account" element={<AccountPage />} />

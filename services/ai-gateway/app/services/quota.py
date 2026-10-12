@@ -186,6 +186,7 @@ def snapshot(user_id: str, admin_token: str = '') -> dict:
     return {
         'isMember': unlimited,
         'isAdmin': admin,
+        'freeDailyWords': FREE_DAILY_WORDS,
         'memberUntil': accounts.member_until(user_id) if user_id else '',
         'items': items,
     }
