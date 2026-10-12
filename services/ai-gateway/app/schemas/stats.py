@@ -69,3 +69,4 @@ class OverviewResponse(BaseModel):
     platforms: list[PlatformCount] = []
     retention: RetentionStats = Field(default_factory=RetentionStats)
     recent: list[RecentActivity] = []
+    cities: list[dict] = []

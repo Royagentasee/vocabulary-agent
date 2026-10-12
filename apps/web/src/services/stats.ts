@@ -120,6 +120,7 @@ export interface Overview {
   daily: DailyPoint[]
   topEvents: { event: string; count: number }[]
   platforms: { name: string; count: number }[]
+  cities?: { city: string; region: string; count: number }[]
   retention: RetentionStats
   recent: RecentActivity[]
 }

@@ -174,7 +174,10 @@ function UsageStats() {
                           </span>
                         </div>
                         <div className="w-full h-1.5 bg-ink-100 rounded-full overflow-hidden">
-                          <div className="h-full bg-ink-900" style={{ width: `${pct}%` }} />
+                          {/* 城市分布 */}
+        <CityStats cities={data.cities} />
+
+        <div className="h-full bg-ink-900" style={{ width: `${pct}%` }} />
                         </div>
                       </li>
                     )
@@ -275,6 +278,50 @@ function UsageStats() {
           </div>
         </>
       )}
+    </div>
+  )
+}
+
+/** 用户城市分布（只到城市级，不存 IP） */
+function CityStats({ cities }: { cities?: { city: string; region: string; count: number }[] }) {
+  if (!cities || cities.length === 0) {
+    return (
+      <div className="va-card space-y-2">
+        <div className="text-sm font-semibold">📍 用户城市分布</div>
+        <div className="text-xs text-ink-500 leading-relaxed">
+          还没有城市数据。从现在开始，每次访问会记录到<strong>城市级</strong>
+          （不保存 IP），过一两天就能看到分布了。
+        </div>
+      </div>
+    )
+  }
+  const max = Math.max(...cities.map((c) => c.count))
+  const total = cities.reduce((a, c) => a + c.count, 0)
+  return (
+    <div className="va-card space-y-2.5">
+      <div className="flex items-center justify-between">
+        <div className="text-sm font-semibold">📍 用户城市分布</div>
+        <div className="text-[10px] text-ink-400">只到城市级 · 不存 IP</div>
+      </div>
+      <div className="space-y-1.5">
+        {cities.map((c) => (
+          <div key={c.city + c.region} className="flex items-center gap-2 text-xs">
+            <div className="w-24 shrink-0 truncate" title={`${c.city} ${c.region}`}>
+              {c.city}
+              <span className="text-ink-400 ml-1">{c.region}</span>
+            </div>
+            <div className="flex-1 h-4 bg-ink-50 rounded overflow-hidden">
+              <div
+                className="h-full bg-ink-800 rounded"
+                style={{ width: `${(c.count / max) * 100}%` }}
+              />
+            </div>
+            <div className="w-14 text-right tabular-nums text-ink-600 shrink-0">
+              {c.count} ({Math.round((c.count / total) * 100)}%)
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

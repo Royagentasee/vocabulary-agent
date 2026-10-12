@@ -16,6 +16,21 @@ import { getAdminToken } from '@/services/stats'
  * 核心：用户付款后申报 → 这里核对微信收款记录 → 点「确认开通」
  * 用户下次打开 App 自动变会员，不用发码、不用加微信。
  */
+/** 把服务端返回的 UTC 时间转成本机时区显示
+ *  （原来直接截字符串显示，比北京时间早 8 小时，很容易看错）
+ */
+function fmtLocal(iso: string): string {
+  if (!iso) return ''
+  try {
+    const d = new Date(iso.endsWith('Z') || iso.includes('+') ? iso : iso + 'Z')
+    if (isNaN(d.getTime())) return iso.slice(0, 16).replace('T', ' ')
+    const p = (n: number) => String(n).padStart(2, '0')
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
+  } catch {
+    return iso.slice(0, 16).replace('T', ' ')
+  }
+}
+
 export function AdminPaymentsPage() {
   const [token, setToken] = useState(getAdminToken())
   const [input, setInput] = useState('')
@@ -274,8 +289,8 @@ export function AdminPaymentsPage() {
                     <div className="text-xs text-ink-600 mt-1 break-all">备注：{it.note}</div>
                   )}
                   <div className="text-[11px] text-ink-400 mt-0.5">
-                    申报于 {String(it.created_at || '').slice(0, 16).replace('T', ' ')}
-                    {it.handled_at && ` · 处理于 ${String(it.handled_at).slice(0, 16).replace('T', ' ')}`}
+                    申报于 {fmtLocal(String(it.created_at || ''))}
+                    {it.handled_at && ` · 处理于 ${fmtLocal(String(it.handled_at || ''))}`}
                   </div>
                 </div>
 

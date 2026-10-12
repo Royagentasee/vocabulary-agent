@@ -12,7 +12,7 @@
 from __future__ import annotations
 
 import hashlib
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from loguru import logger
@@ -24,6 +24,9 @@ CREATE TABLE IF NOT EXISTS usage_devices (
     last_seen   TEXT NOT NULL,
     visit_count INTEGER NOT NULL DEFAULT 1,
     user_agent  TEXT DEFAULT '',
+    city        TEXT DEFAULT '',
+    region      TEXT DEFAULT '',
+    country     TEXT DEFAULT '',
     platform    TEXT DEFAULT ''
 );
 CREATE TABLE IF NOT EXISTS usage_events (
@@ -59,13 +62,46 @@ def _ensure_schema(db) -> None:
         return
     with db.conn() as conn:
         conn.executescript(_SCHEMA)
+        # 老库补列（SQLite 的 ADD COLUMN 不支持 IF NOT EXISTS，失败即已存在）
+        for sql in _MIGRATIONS:
+            try:
+                conn.execute(sql)
+            except Exception:
+                pass
         conn.commit()
     _ready = True
 
 
+# 报表按北京时间分天（用户主要在中国；服务器在东京且时区是 UTC）
+REPORT_TZ_OFFSET = 8
+
+
+# 老库补列
+_MIGRATIONS = [
+    "ALTER TABLE usage_devices ADD COLUMN city TEXT DEFAULT ''",
+    "ALTER TABLE usage_devices ADD COLUMN region TEXT DEFAULT ''",
+    "ALTER TABLE usage_devices ADD COLUMN country TEXT DEFAULT ''",
+]
+
+
 def _now() -> str:
-    # 服务器在 +0800，用本地时间便于按「自然日」统计
-    return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    """事件时间戳：统一存 UTC
+
+    注意历史包袱：老腾讯服务器是 +0800，那段时间的数据是北京时间。
+    迁移后的数据是 UTC，两者差 8 小时。这里不去动历史数据，
+    只在「按天分桶」时统一换算到北京时间，影响可控。
+    """
+    return datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+
+
+def _bj_now() -> datetime:
+    """当前北京时间（用于按自然日分桶）"""
+    return datetime.now(timezone.utc) + timedelta(hours=REPORT_TZ_OFFSET)
+
+
+def _bj_date(days_ago: int = 0) -> str:
+    """北京时间的某一天，YYYY-MM-DD"""
+    return (_bj_now() - timedelta(days=days_ago)).strftime('%Y-%m-%d')
 
 
 def _platform_of(ua: str) -> str:
@@ -90,7 +126,8 @@ def hash_device(raw: str) -> str:
     return hashlib.sha256(raw.strip().encode('utf-8')).hexdigest()[:32]
 
 
-def record_event(device_id: str, event: str, detail: str = '', user_agent: str = '') -> bool:
+def record_event(device_id: str, event: str, detail: str = '',
+                 user_agent: str = '', geo: dict | None = None) -> bool:
     """记录一次事件。首次出现该设备时同时登记设备。"""
     db = _backend()
     if db is None or not device_id:
@@ -102,15 +139,21 @@ def record_event(device_id: str, event: str, detail: str = '', user_agent: str =
         with db.conn() as conn:
             conn.execute(
                 """
-                INSERT INTO usage_devices (device_id, first_seen, last_seen, visit_count, user_agent, platform)
-                VALUES (?, ?, ?, 1, ?, ?)
+                INSERT INTO usage_devices (device_id, first_seen, last_seen, visit_count,
+                                       user_agent, platform, city, region, country)
+                VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?)
                 ON CONFLICT(device_id) DO UPDATE SET
                     last_seen   = excluded.last_seen,
                     visit_count = usage_devices.visit_count + 1,
                     user_agent  = excluded.user_agent,
+            city        = CASE WHEN usage_devices.city = '' THEN excluded.city ELSE usage_devices.city END,
+            region      = CASE WHEN usage_devices.region = '' THEN excluded.region ELSE usage_devices.region END,
+            country     = CASE WHEN usage_devices.country = '' THEN excluded.country ELSE usage_devices.country END,
                     platform    = excluded.platform
                 """,
-                (did, now, now, (user_agent or '')[:300], _platform_of(user_agent)),
+                (did, now, now, (user_agent or '')[:300], _platform_of(user_agent),
+             (geo or {}).get('city', '')[:40], (geo or {}).get('region', '')[:40],
+             (geo or {}).get('country', '')[:40]),
             )
             conn.execute(
                 'INSERT INTO usage_events (device_id, event, detail, created_at) VALUES (?,?,?,?)',
@@ -125,7 +168,7 @@ def record_event(device_id: str, event: str, detail: str = '', user_agent: str =
 
 def _retention(conn, days: int) -> dict:
     """留存分析：按「首次出现日期」分组的次日留存 / 7 日留存。"""
-    since = (datetime.now() - timedelta(days=days - 1)).strftime('%Y-%m-%d')
+    since = (_bj_now() - timedelta(days=days - 1)).strftime('%Y-%m-%d')
     rows = conn.execute(
         """
         SELECT date(first_seen) AS cohort,
@@ -133,13 +176,13 @@ def _retention(conn, days: int) -> dict:
                SUM(CASE WHEN EXISTS (
                      SELECT 1 FROM usage_events e
                      WHERE e.device_id = usage_devices.device_id
-                       AND date(e.created_at) = date(usage_devices.first_seen, '+1 day')
+                       AND date(e.created_at, '+8 hours') = date(usage_devices.first_seen, '+1 day')
                    ) THEN 1 ELSE 0 END) AS d1,
                SUM(CASE WHEN EXISTS (
                      SELECT 1 FROM usage_events e
                      WHERE e.device_id = usage_devices.device_id
-                       AND date(e.created_at) > date(usage_devices.first_seen)
-                       AND date(e.created_at) <= date(usage_devices.first_seen, '+7 day')
+                       AND date(e.created_at, '+8 hours') > date(usage_devices.first_seen, '+8 hours')
+                       AND date(e.created_at, '+8 hours') <= date(usage_devices.first_seen, '+7 day')
                    ) THEN 1 ELSE 0 END) AS d7
         FROM usage_devices
         WHERE date(first_seen) >= ?
@@ -148,7 +191,7 @@ def _retention(conn, days: int) -> dict:
         (since,),
     ).fetchall()
 
-    today = datetime.now().date()
+    today = _bj_now().date()
     daily = []
     for r in rows:
         try:
@@ -171,23 +214,23 @@ def _retention(conn, days: int) -> dict:
 
     # 整体留存（只统计窗口已走完的用户）
     tot = conn.execute(
-        """SELECT COUNT(*) FROM usage_devices WHERE date(first_seen) <= date('now','localtime','-1 day')"""
+        """SELECT COUNT(*) FROM usage_devices WHERE date(first_seen) <= date('now','+8 hours','-1 day')"""
     ).fetchone()[0] or 0
     d1_all = conn.execute(
         """SELECT COUNT(*) FROM usage_devices d
-           WHERE date(d.first_seen) <= date('now','localtime','-1 day')
+           WHERE date(d.first_seen) <= date('now','+8 hours','-1 day')
              AND EXISTS (SELECT 1 FROM usage_events e WHERE e.device_id=d.device_id
-                         AND date(e.created_at) = date(d.first_seen,'+1 day'))"""
+                         AND date(e.created_at, '+8 hours') = date(d.first_seen,'+1 day'))"""
     ).fetchone()[0] or 0
     tot7 = conn.execute(
-        """SELECT COUNT(*) FROM usage_devices WHERE date(first_seen) <= date('now','localtime','-7 day')"""
+        """SELECT COUNT(*) FROM usage_devices WHERE date(first_seen) <= date('now','+8 hours','-7 day')"""
     ).fetchone()[0] or 0
     d7_all = conn.execute(
         """SELECT COUNT(*) FROM usage_devices d
-           WHERE date(d.first_seen) <= date('now','localtime','-7 day')
+           WHERE date(d.first_seen) <= date('now','+8 hours','-7 day')
              AND EXISTS (SELECT 1 FROM usage_events e WHERE e.device_id=d.device_id
-                         AND date(e.created_at) > date(d.first_seen)
-                         AND date(e.created_at) <= date(d.first_seen,'+7 day'))"""
+                         AND date(e.created_at, '+8 hours') > date(d.first_seen)
+                         AND date(e.created_at, '+8 hours') <= date(d.first_seen,'+7 day'))"""
     ).fetchone()[0] or 0
 
     return {
@@ -236,9 +279,9 @@ def get_overview(days: int = 14) -> dict:
 
     try:
         _ensure_schema(db)
-        today = datetime.now().strftime('%Y-%m-%d')
-        week_ago = (datetime.now() - timedelta(days=6)).strftime('%Y-%m-%d')
-        month_ago = (datetime.now() - timedelta(days=29)).strftime('%Y-%m-%d')
+        today = _bj_now().strftime('%Y-%m-%d')
+        week_ago = (_bj_now() - timedelta(days=6)).strftime('%Y-%m-%d')
+        month_ago = (_bj_now() - timedelta(days=29)).strftime('%Y-%m-%d')
 
         with db.conn() as conn:
             total_users = _scalar(conn, 'SELECT COUNT(*) FROM usage_devices')
@@ -254,10 +297,10 @@ def get_overview(days: int = 14) -> dict:
                 conn, 'SELECT COUNT(DISTINCT device_id) FROM usage_events WHERE date(created_at)>=?', (month_ago,))
             online_10min = _scalar(
                 conn,
-                "SELECT COUNT(DISTINCT device_id) FROM usage_events WHERE created_at >= datetime('now','localtime','-10 minutes')")
+                "SELECT COUNT(DISTINCT device_id) FROM usage_events WHERE created_at >= datetime('now','+8 hours','-10 minutes')")
 
             # 近 N 天趋势
-            since = (datetime.now() - timedelta(days=days - 1)).strftime('%Y-%m-%d')
+            since = (_bj_now() - timedelta(days=days - 1)).strftime('%Y-%m-%d')
             rows = conn.execute(
                 """
                 SELECT date(created_at) AS d,
@@ -273,7 +316,7 @@ def get_overview(days: int = 14) -> dict:
 
             daily = []
             for i in range(days - 1, -1, -1):
-                d = (datetime.now() - timedelta(days=i)).strftime('%Y-%m-%d')
+                d = (_bj_now() - timedelta(days=i)).strftime('%Y-%m-%d')
                 u, v = by_day.get(d, (0, 0))
                 daily.append({'date': d, 'users': u, 'visits': v})
 
@@ -301,6 +344,7 @@ def get_overview(days: int = 14) -> dict:
 
         return {
             'totalUsers': total_users,
+        'cities': by_city(12),
             'todayUsers': today_users,
             'weekUsers': week_users,
             'monthUsers': month_users,
@@ -320,9 +364,10 @@ def get_overview(days: int = 14) -> dict:
 
 
 def _empty_overview(days: int) -> dict:
-    today = datetime.now()
+    today = _bj_now()
     return {
         'totalUsers': 0, 'todayUsers': 0, 'weekUsers': 0, 'monthUsers': 0,
+        'cities': [],
         'onlineNow': 0, 'totalVisits': 0, 'todayVisits': 0, 'totalEvents': 0,
         'daily': [
             {'date': (today - timedelta(days=i)).strftime('%Y-%m-%d'), 'users': 0, 'visits': 0}
@@ -333,3 +378,17 @@ def _empty_overview(days: int) -> dict:
         'retention': {'d1Rate': 0, 'd1Base': 0, 'd7Rate': 0, 'd7Base': 0, 'daily': []},
         'recent': [],
     }
+
+
+def by_city(limit: int = 10) -> list[dict]:
+    """用户城市分布（只到城市级，不存 IP）"""
+    db = _backend()
+    if not db:
+        return []
+    with db.conn() as conn:
+        rows = conn.execute(
+            "SELECT city, region, COUNT(*) c FROM usage_devices"
+            " WHERE city != '' GROUP BY city, region ORDER BY c DESC LIMIT ?",
+            (limit,),
+        ).fetchall()
+        return [{'city': r['city'], 'region': r['region'], 'count': r['c']} for r in rows]
