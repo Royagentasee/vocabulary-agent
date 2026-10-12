@@ -11,6 +11,33 @@ declare global {
   }
 }
 
+/*
+ * 作者密钥：必须在 React 渲染之前处理
+ *
+ * 原来放在 App 的 useEffect 里，但那样跑在首屏渲染之后，
+ * /admin 与 /admin/payments 这类后台页面首次挂载时读不到密钥，
+ * 会先显示「需要作者密钥」表单。这里提前到模块加载时同步处理。
+ */
+try {
+  const params = new URLSearchParams(location.search)
+  const q = params.get('admin')
+  if (q && q !== '0' && q !== '1') {
+    localStorage.setItem('va-admin', '1')
+    localStorage.setItem('va-admin-token', q)
+    // 不留痕：把密钥从地址栏抹掉
+    params.delete('admin')
+    const qs = params.toString()
+    window.history.replaceState({}, '', location.pathname + (qs ? `?${qs}` : ''))
+  } else if (q === '1') {
+    localStorage.setItem('va-admin', '1')
+    params.delete('admin')
+    const qs = params.toString()
+    window.history.replaceState({}, '', location.pathname + (qs ? `?${qs}` : ''))
+  }
+} catch {
+  /* ignore */
+}
+
 // React 挂载会清掉 #root 里的启动占位，index.html 的自愈脚本靠这个标志判断
 window.__VA_BOOTED__ = true
 

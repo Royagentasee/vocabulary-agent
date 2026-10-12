@@ -26,6 +26,7 @@ import { LeaderboardPage } from '@/pages/LeaderboardPage'
 import { GuidePage } from '@/pages/GuidePage'
 import { AddToHomeBanner, WelcomeModal } from '@/features/onboarding/WelcomeModal'
 import { UpgradePage } from '@/pages/UpgradePage'
+import { AdminPaymentsPage } from '@/pages/AdminPaymentsPage'
 import { ProGate, TrialBanner, TrialEndedBanner } from '@/features/paywall/Paywall'
 import { useEntitlementStore } from '@/stores/entitlementStore'
 import { isProRoute } from '@/services/entitlement'
@@ -361,6 +362,7 @@ export default function App() {
           <Route path="/upgrade" element={<UpgradePage />} />
           <Route path="/support" element={<SupportPage />} />
           <Route path="/admin" element={<AdminUsagePage />} />
+          <Route path="/admin/payments" element={<AdminPaymentsPage />} />
           <Route path="/ui" element={<UIKit />} />
         </Routes>
       </main>

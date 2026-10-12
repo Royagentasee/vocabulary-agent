@@ -5,6 +5,7 @@ import { untilText } from '@/services/entitlement'
 import { usePointsStore } from '@/stores/pointsStore'
 import { QuotaBadge } from '@/components/Quota'
 import { trackEvent } from '@/services/stats'
+import { fetchMyClaim, submitClaim, type Claim } from '@/services/payment'
 
 const PERKS = [
   ['🎧', '听力精听', '1000 篇托福 / 雅思材料'],
@@ -29,11 +30,30 @@ export function UpgradePage() {
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState('')
   const [err, setErr] = useState('')
+  const [claim, setClaim] = useState<Claim | null>(null)
+  const [note, setNote] = useState('')
+  const [claimBusy, setClaimBusy] = useState(false)
 
   useEffect(() => {
     void refresh(true)
     trackEvent('upgrade_view')
+    void fetchMyClaim().then(setClaim).catch(() => {})
   }, [refresh])
+
+  const doClaim = async () => {
+    setClaimBusy(true)
+    setErr('')
+    try {
+      const c = await submitClaim(note.trim(), price)
+      setClaim(c)
+      setNote('')
+      trackEvent('payment_claim')
+    } catch (e: any) {
+      setErr(e?.message || '提交失败')
+    } finally {
+      setClaimBusy(false)
+    }
+  }
 
   const doRedeem = async () => {
     const c = code.trim()
@@ -163,6 +183,57 @@ export function UpgradePage() {
           </div>
         </div>
       </section>
+
+      {/* 已付款申报 */}
+      {!paid && (
+        <section className="va-card space-y-3">
+          <div className="text-sm font-semibold">💸 我已经付过款了</div>
+
+          {claim && claim.status === 'pending' ? (
+            <div className="text-xs text-amber-800 bg-amber-50 rounded-lg px-3 py-2.5 leading-relaxed">
+              ⏳ 已收到你的申报，等作者核对微信收款记录后就会开通
+              （一般几小时内，最慢一天）。<strong>开通后你下次打开 App 自动生效</strong>，
+              不用再操作。
+              <br />
+              <span className="text-amber-700">
+                申报时间：{String(claim.created_at || '').slice(0, 16).replace('T', ' ')}
+              </span>
+            </div>
+          ) : claim && claim.status === 'approved' ? (
+            <div className="text-xs text-green-700 bg-green-50 rounded-lg px-3 py-2.5">
+              ✅ 已开通 {claim.days} 天会员，刷新页面即可使用。
+            </div>
+          ) : claim && claim.status === 'rejected' ? (
+            <div className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2.5 leading-relaxed">
+              这条申报没有核对上。可能是金额或时间对不上 ——
+              请把付款截图发给作者，或重新提交一次（备注里写清微信昵称和付款时间）。
+            </div>
+          ) : (
+            <div className="text-xs text-ink-500 leading-relaxed">
+              付款后在这里点一下，作者核对到账就会给你开通。
+              备注里写上<strong>微信昵称和付款时间</strong>能加快核对。
+            </div>
+          )}
+
+          {(!claim || claim.status === 'rejected') && (
+            <>
+              <input
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="微信昵称 + 付款时间（如：小明 10月12日 20:30）"
+                className="w-full px-3.5 py-3 bg-ink-50 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-ink-900"
+              />
+              <button
+                onClick={doClaim}
+                disabled={claimBusy}
+                className="w-full py-3 rounded-xl bg-green-600 text-white text-sm font-medium active:opacity-80 disabled:opacity-40"
+              >
+                {claimBusy ? '提交中…' : '提交，等作者开通'}
+              </button>
+            </>
+          )}
+        </section>
+      )}
 
       {/* 激活码 */}
       <section className="va-card space-y-3">
