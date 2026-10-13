@@ -29,7 +29,8 @@ CREATE TABLE IF NOT EXISTS payment_claims (
     days       INTEGER DEFAULT 30,
     created_at TEXT NOT NULL,
     handled_at TEXT DEFAULT '',
-    handled_by TEXT DEFAULT ''
+    handled_by TEXT DEFAULT '',
+    ip_prefix  TEXT DEFAULT ''
 );
 CREATE INDEX IF NOT EXISTS idx_claims_status ON payment_claims (status, created_at);
 CREATE INDEX IF NOT EXISTS idx_claims_user ON payment_claims (user_id);
@@ -57,6 +58,12 @@ def _ensure(db) -> None:
     try:
         with db.conn() as conn:
             conn.executescript(_SCHEMA)
+            # 老库补列
+            for sql in ("ALTER TABLE payment_claims ADD COLUMN ip_prefix TEXT DEFAULT ''",):
+                try:
+                    conn.execute(sql)
+                except Exception:
+                    pass
             conn.commit()
         _ready = True
     except Exception as e:

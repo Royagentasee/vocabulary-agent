@@ -54,6 +54,11 @@ export function UpgradePage() {
       setClaim(c)
       setNote('')
       trackEvent('payment_claim')
+      // 自动开通成功 → 立刻刷新权限，用户无需等待
+      if (c && c.status === 'approved') {
+        setMsg('开通成功！所有功能已解锁 🎉')
+        void refresh(true)
+      }
     } catch (e: any) {
       setErr(e?.message || '提交失败')
     } finally {
@@ -157,13 +162,13 @@ export function UpgradePage() {
             <>
               ① 长按上面的二维码 → 选「识别二维码」付款 ¥{price}
               <br />
-              ② 付完回来点下面的按钮，作者核对到账就开通
+              ② 付完回来点下面的按钮，立刻自动开通
             </>
           ) : (
             <>
               ① 用微信扫上面的码支付 ¥{price}
               <br />
-              ② 付完回来点下面的按钮，作者核对到账就开通
+              ② 付完回来点下面的按钮，立刻自动开通
             </>
           )}
         </div>
@@ -173,7 +178,7 @@ export function UpgradePage() {
           <div className="text-xs text-amber-800 bg-amber-50 rounded-xl px-3 py-3 leading-relaxed text-center">
             ⏳ <strong>已收到你的申报</strong>
             <br />
-            等作者核对微信收款记录后开通（一般几小时内）。
+            已提交，作者核对后会开通（一般是同一 IP 多次开通等情况才需要人工）。
             <br />
             开通后你<strong>下次打开 App 自动生效</strong>，不用再操作。
             <br />
@@ -206,7 +211,7 @@ export function UpgradePage() {
             <input
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="备注：微信昵称 + 付款时间（可选，填了核对更快）"
+              placeholder="备注（可选，一般不用填）"
               className="w-full px-3.5 py-3 bg-ink-50 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-ink-900"
             />
             <button

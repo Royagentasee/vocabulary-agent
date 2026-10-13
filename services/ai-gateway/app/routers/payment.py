@@ -1,8 +1,8 @@
 """付款申报路由"""
-from fastapi import APIRouter, Header, HTTPException, Query
+from fastapi import APIRouter, Header, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
-from app.services import claims, entitlement as ent
+from app.services import auto_activate, claims, entitlement as ent, geoip
 from app.services.quota import is_admin
 
 router = APIRouter(prefix="/api/payment", tags=["payment"])
@@ -32,12 +32,87 @@ def _full_stats() -> dict:
 
 
 @router.post("/claim")
-async def post_claim(req: ClaimRequest, user_id: str = Query(..., max_length=64)) -> dict:
-    """用户申报已付款（我等作者核对后开通）"""
-    r = claims.create_claim(user_id, req.note, req.amount)
-    if not r.get('ok'):
+async def post_claim(req: ClaimRequest, request: Request,
+                     user_id: str = Query(..., max_length=64)) -> dict:
+    """用户申报已付款 → 立即自动开通（带防滥用）
+
+    没有支付网关时服务端无法验证是否真的付款，所以采用信任制：
+    立即开通、用户无感，但同一用户 30 天只能自动开通一次、
+    同一 IP 段 24 小时最多 3 次，超过则转人工审核。
+    """
+    ip = geoip.client_ip(
+        request.headers.get('x-real-ip', ''),
+        request.headers.get('x-forwarded-for', ''),
+        request.client.host if request.client else '',
+    )
+
+    if auto_activate.AUTO_ACTIVATE:
+        r = auto_activate.auto_activate(user_id, req.note, req.amount, ip)
+        if r.get('ok'):
+            return {**r, 'claim': claims.my_claim(user_id),
+                    **ent.entitlement(user_id)}
+        # 防滥用拦下 / 出错 → 退回到人工申报
+        r2 = claims.create_claim(user_id, req.note, req.amount)
+        return {**r2, 'auto': False, 'reason': r.get('reason', ''),
+                'claim': claims.my_claim(user_id)}
+
+    # 自动开通关掉时走人工
+    r2 = claims.create_claim(user_id, req.note, req.amount)
+    if not r2.get('ok'):
         raise HTTPException(status_code=503, detail='提交失败，请稍后再试')
-    return {**r, 'claim': claims.my_claim(user_id)}
+    return {**r2, 'auto': False, 'claim': claims.my_claim(user_id)}
+
+
+@router.post("/notify")
+async def post_notify(request: Request) -> dict:
+    """支付网关回调（虎皮椒 / 易支付等）
+
+    接入真实网关后，把平台的回调地址指向这里。
+    需要按各平台规则校验签名，这里只做最小可用的骨架。
+
+    POST 参数（form 或 json）：
+      order_id / orderId / trade_no   订单号
+      user_id  / uid                  我们传过去的用户标识
+      amount   / money                金额
+      days                            开通天数（可选，默认 30）
+    """
+    try:
+        payload = dict(request.query_params)
+        try:
+            body = await request.json()
+            if isinstance(body, dict):
+                payload.update(body)
+        except Exception:
+            try:
+                form = await request.form()
+                payload.update({k: str(v) for k, v in form.items()})
+            except Exception:
+                pass
+    except Exception:
+        payload = {}
+
+    order_id = str(payload.get('order_id') or payload.get('orderId')
+                   or payload.get('trade_no') or '')
+    uid = str(payload.get('user_id') or payload.get('uid') or '')
+    try:
+        amount = float(payload.get('amount') or payload.get('money') or 0)
+    except Exception:
+        amount = 0.0
+    try:
+        days = int(payload.get('days') or 30)
+    except Exception:
+        days = 30
+
+    if not order_id or not uid:
+        raise HTTPException(status_code=400, detail='缺少订单号或用户标识')
+
+    import json as _json
+
+    r = auto_activate.record_gateway_payment(
+        order_id, uid, amount, days, _json.dumps(payload, ensure_ascii=False)[:200]
+    )
+    # 网关一般要求返回纯文本 success
+    return {'ok': bool(r.get('ok')), 'detail': r}
 
 
 @router.get("/claim")
