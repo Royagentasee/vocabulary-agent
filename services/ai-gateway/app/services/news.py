@@ -72,19 +72,31 @@ def _text(el, tag: str) -> str:
     return ''
 
 
+_AUDIO_EXT = ('.mp3', '.m4a', '.aac', '.ogg', '.wav', '.mp4')
+
+
 def _find_audio(item) -> str:
-    """从 RSS item 里找音频地址（enclosure / media:content / itunes）"""
-    for child in item:
-        tag = child.tag.split('}')[-1]
-        if tag == 'enclosure':
-            url = child.attrib.get('url', '')
-            if url and any(url.lower().split('?')[0].endswith(x)
-                           for x in ('.mp3', '.m4a', '.aac', '.ogg')):
-                return url
-        if tag in ('content', 'link') and 'media' in child.tag:
-            url = child.attrib.get('url', '')
-            if url and '.mp3' in url.lower():
-                return url
+    """从 RSS item 里找音频地址
+
+    各家格式差别很大（enclosure / media:content / itunes:... / 自定义标签），
+    所以先把整个 item 序列化回 XML，再正则扫一遍所有 URL —— 比逐个标签判断稳。
+    """
+    try:
+        raw = ET.tostring(item, encoding='unicode')
+    except Exception:
+        raw = ''
+
+    # 1) 任何以音频扩展名结尾的 URL（优先）
+    for m in re.finditer(r'url=["\']([^"\']+)["\']', raw):
+        url = m.group(1)
+        base = url.lower().split('?')[0]
+        if base.endswith(_AUDIO_EXT):
+            return url
+
+    # 2) NPR 这类把音频放在 link 里的（用 .mp3 出现在任意位置兜底）
+    for m in re.finditer(r'(https?://[^"\'\s<>]+?\.mp3[^"\'\s<>]*)', raw):
+        return m.group(1)
+
     return ''
 
 
@@ -181,3 +193,13 @@ def get_item(item_id: str) -> Optional[dict]:
         if it['id'] == item_id:
             return it
     return None
+
+
+async def translate_news(text: str) -> dict:
+    """把新闻标题/摘要译成中文，并挑出值得记的词
+
+    复用拍照翻译那套 LLM 逻辑（同样的输出结构），省一份实现。
+    """
+    from app.services.ocr import translate_text
+
+    return await translate_text(text[:1500])

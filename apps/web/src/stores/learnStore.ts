@@ -63,6 +63,8 @@ interface LearnState {
 
   // 错题本
   startReviewWrongWords: () => void  // 把错词装入 reviewQueue
+  /** 手动把一个词加入生词本（新闻/阅读里点词保存用） */
+  addToWordbook: (word: Word) => void
   removeWrongWord: (wordId: string) => void
   clearWrongWords: () => void
 
@@ -243,6 +245,13 @@ export const useLearnStore = create<LearnState>()(
         const shuffled = [...queue].sort(() => Math.random() - 0.5)
         set({ reviewQueue: shuffled, reviewIndex: 0 })
       },
+
+      addToWordbook: (word) => {
+
+        set({ wrongWords: addWrongWord(get().wrongWords, word) })
+
+      },
+
 
       removeWrongWord: (wordId) => {
         set({ wrongWords: get().wrongWords.filter((w) => w.word.id !== wordId) })

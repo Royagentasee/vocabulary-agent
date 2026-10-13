@@ -51,7 +51,28 @@ def ensure_remote_dir(sftp, path):
                 pass
 
 
+# 这些数据文件体积大（且线上可能比仓库里更新，比如扩充过的书库），
+# 重新部署时不要覆盖，否则会把线上的数据打回去。
+# 需要强制同步时设环境变量 VOCAB_FORCE_DATA=1。
+SKIP_FILES = {
+    'library_books.json',        # 书库（线上已从 25 本扩到 86 本）
+    'reading_levels.json',
+    'listening_bank.json',
+    'reading_bank.json',
+    'writing_prompt_bank.json',
+}
+
+
+def _skip(fn: str) -> bool:
+    import os as _os
+
+    if _os.environ.get('VOCAB_FORCE_DATA') == '1':
+        return False
+    return fn in SKIP_FILES
+
+
 def upload_tree(sftp, local_root, remote_root, label):
+    skipped: list[str] = []
     n = 0
     for root, dirs, files in os.walk(local_root):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
@@ -61,9 +82,14 @@ def upload_tree(sftp, local_root, remote_root, label):
         for fn in files:
             if fn.endswith(('.pyc', '.pyo')):
                 continue
+            if _skip(fn):
+                skipped.append(fn)
+                continue
             sftp.put(os.path.join(root, fn), posixpath.join(remote_dir, fn))
             n += 1
     log(f'  {label}: 上传 {n} 个文件')
+    if skipped:
+        log(f"  已跳过数据文件（避免覆盖线上）: {', '.join(sorted(set(skipped)))}")
     return n
 
 

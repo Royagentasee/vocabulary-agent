@@ -1,11 +1,22 @@
 """国外新闻路由"""
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel, Field
 
 from app.core.deps import require_quota
 
 from app.services import news
 
 router = APIRouter(prefix="/api/news", tags=["news"])
+
+
+class TranslateRequest(BaseModel):
+    text: str = Field(..., min_length=1, max_length=2000)
+
+
+@router.post("/translate", dependencies=[Depends(require_quota('news'))])
+async def post_translate(req: TranslateRequest) -> dict:
+    """把新闻译成中文（计入 news 额度）"""
+    return await news.translate_news(req.text)
 
 
 @router.get("")

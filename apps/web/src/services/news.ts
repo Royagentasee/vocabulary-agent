@@ -72,3 +72,25 @@ export function timeAgo(pub: string): string {
     return ''
   }
 }
+
+export interface NewsTranslation {
+  translation: string
+  summary: string
+  vocabulary: { word: string; meaning: string }[]
+}
+
+/** 把新闻摘要译成中文 */
+export async function translateNews(text: string): Promise<NewsTranslation | null> {
+  try {
+    const resp = await fetchWithFallback('/api/news/translate', api('/api/news/translate'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    })
+    if (!resp.ok) throw new Error(String(resp.status))
+    return await resp.json()
+  } catch (e) {
+    console.warn('[news] 翻译失败', e)
+    return null
+  }
+}

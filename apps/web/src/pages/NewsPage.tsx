@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { fetchNews, fetchSources, timeAgo, type NewsItem, type NewsSource } from '@/services/news'
+import { fetchNews, fetchSources, timeAgo, translateNews,
+  type NewsItem, type NewsSource, type NewsTranslation } from '@/services/news'
+import { useLearnStore } from '@/stores/learnStore'
 import { speakText, stopSpeaking, getTtsVoice, TTS_VOICES, setTtsVoice } from '@/components/SpeakButton'
 import { trackEvent } from '@/services/stats'
 
@@ -105,6 +107,9 @@ function NewsDetail({ item, onBack }: { item: NewsItem; onBack: () => void }) {
   const [playing, setPlaying] = useState(false)
   const [rate, setRate] = useState(1)
   const [showVoice, setShowVoice] = useState(false)
+  const [tr, setTr] = useState<NewsTranslation | null>(null)
+  const [trBusy, setTrBusy] = useState(false)
+  const [trErr, setTrErr] = useState('')
   const [voice, setVoice] = useState(getTtsVoice())
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
@@ -254,6 +259,68 @@ function NewsDetail({ item, onBack }: { item: NewsItem; onBack: () => void }) {
         <ClickableText text={item.title} className="text-base font-medium leading-relaxed" />
         <ClickableText text={item.summary} className="text-sm leading-[1.9]" />
 
+        {/* 中文翻译 */}
+        <div className="border-t border-ink-100 pt-3 space-y-2.5">
+          {!tr ? (
+            <button
+              onClick={async () => {
+                setTrBusy(true)
+                setTrErr('')
+                try {
+                  const r = await translateNews(text)
+                  if (!r) throw new Error('翻译失败，稍后再试')
+                  setTr(r)
+                  trackEvent('news_translate', item.source)
+                } catch (e: any) {
+                  setTrErr(e?.message || '翻译失败')
+                } finally {
+                  setTrBusy(false)
+                }
+              }}
+              disabled={trBusy}
+              className="w-full py-2.5 rounded-xl bg-ink-50 text-ink-700 text-sm active:bg-ink-100 disabled:opacity-40"
+            >
+              {trBusy ? '翻译中…' : '🌐 译成中文'}
+            </button>
+          ) : (
+            <div className="space-y-2">
+              {tr.summary && (
+                <div className="text-xs text-accent-deep bg-accent-soft rounded-lg px-3 py-2">
+                  📌 {tr.summary}
+                </div>
+              )}
+              <div className="text-sm leading-[1.9] text-ink-800 whitespace-pre-wrap">
+                {tr.translation}
+              </div>
+              {tr.vocabulary?.length > 0 && (
+                <div className="border-t border-ink-100 pt-2 space-y-1.5">
+                  <div className="text-[11px] font-semibold text-ink-500">值得记的词</div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                    {tr.vocabulary.slice(0, 8).map((v, i) => (
+                      <div key={i} className="flex items-baseline gap-2 text-xs">
+                        <button
+                          onClick={() => void speakText(v.word)}
+                          className="font-mono font-medium text-accent-deep hover:underline shrink-0"
+                        >
+                          {v.word}
+                        </button>
+                        <span className="text-ink-600 flex-1">{v.meaning}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <button
+                onClick={() => setTr(null)}
+                className="text-[11px] text-ink-400 hover:text-ink-700"
+              >
+                收起翻译
+              </button>
+            </div>
+          )}
+          {trErr && <div className="text-xs text-red-600">{trErr}</div>}
+        </div>
+
         {item.link && (
           <a
             href={item.link}
@@ -276,6 +343,35 @@ function NewsDetail({ item, onBack }: { item: NewsItem; onBack: () => void }) {
 /** 可点词查询的文本 */
 function ClickableText({ text, className = '' }: { text: string; className?: string }) {
   const [popup, setPopup] = useState<{ w: string; loading: boolean; data: any } | null>(null)
+  const [saved, setSaved] = useState('')
+  const addToWordbook = useLearnStore((s2) => s2.addToWordbook)
+
+  /** 把查到的词塞进生词本（复用 learnStore 的错词列表） */
+  const saveWord = (d: any, fallback: string) => {
+    try {
+      const head = d?.headword || fallback
+      const senses = (d?.senses || []).map((x: any) => ({
+        pos: x.pos || '',
+        definitionEn: x.definitionEn || '',
+        definitionCn: x.definitionCn || '',
+      }))
+      addToWordbook({
+        id: String(d?.id || head),
+        headword: head,
+        pos: d?.pos || [],
+        ipa: d?.ipa || '',
+        audioUrl: '',
+        senses: senses.length ? senses : [{ pos: '', definitionEn: '', definitionCn: d?.translation || '' }],
+        etymology: '',
+        collocations: [],
+        examTags: [],
+        examples: [],
+        translation: d?.translation || '',
+      } as any)
+    } catch (e) {
+      console.warn('[news] 保存生词失败', e)
+    }
+  }
 
   const lookup = async (raw: string) => {
     const w = raw.replace(/^[^A-Za-z'-]+|[^A-Za-z'-]+$/g, '')
@@ -338,6 +434,19 @@ function ClickableText({ text, className = '' }: { text: string; className?: str
                   popup.data?.translation ||
                   '没查到这个词'}
               </div>
+            )}
+            {!popup.loading && popup.data?.found && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  saveWord(popup.data, popup.w)
+                  setSaved(popup.w)
+                  window.setTimeout(() => setSaved(''), 2000)
+                }}
+                className="w-full py-2 rounded-lg bg-ink-900 text-white text-xs font-medium active:opacity-80"
+              >
+                {saved === popup.w ? '✅ 已加入生词本' : '＋ 加入生词本'}
+              </button>
             )}
             <div className="text-[10px] text-ink-400">点空白处关闭</div>
           </div>
