@@ -28,7 +28,7 @@ FREE_ROUTES = {
 
 # 需要会员的路由
 PRO_ROUTES = {
-    '/listening', '/speaking', '/dialogue', '/writing', '/reading',
+    '/listening', '/news', '/speaking', '/dialogue', '/writing', '/reading',
     '/photo', '/grammar', '/coach',
 }
 

@@ -22,6 +22,7 @@ import { PointsPage } from '@/pages/PointsPage'
 import { PhotoPage } from '@/pages/PhotoPage'
 import { PathPage } from '@/pages/PathPage'
 import { CoachPage } from '@/pages/CoachPage'
+import { NewsPage } from '@/pages/NewsPage'
 import { LeaderboardPage } from '@/pages/LeaderboardPage'
 import { GuidePage } from '@/pages/GuidePage'
 import { AddToHomeBanner, WelcomeModal } from '@/features/onboarding/WelcomeModal'
@@ -69,6 +70,7 @@ const NAV_GROUPS: NavGroup[] = [
     emoji: '🎯',
     items: [
       { to: '/listening', label: '听力', emoji: '🎧' },
+      { to: '/news', label: '国外新闻', emoji: '📰' },
       { to: '/speaking', label: '口语跟读', emoji: '🎙️' },
       { to: '/dialogue', label: '对话陪练', emoji: '💬' },
       { to: '/reading', label: '阅读', emoji: '📰' },
@@ -381,6 +383,7 @@ export default function App() {
           <Route path="/plan" element={<PlanPage />} />
           <Route path="/path" element={<PathPage />} />
           <Route path="/coach" element={<CoachPage />} />
+          <Route path="/news" element={<NewsPage />} />
           <Route path="/badges" element={<LeaderboardPage />} />
           <Route path="/points" element={<PointsPage />} />
           <Route path="/account" element={<AccountPage />} />
