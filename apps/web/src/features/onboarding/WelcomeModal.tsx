@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AddToHome } from '@/components/AddToHome'
-import { getPlatform } from '@/services/platform'
+import { getPlatform, isShotMode } from '@/services/platform'
 import { trackEvent } from '@/services/stats'
 
 const SEEN_KEY = 'va-welcome-seen'
@@ -10,6 +10,7 @@ const SNOOZE_KEY = 'va-addhome-snooze'
 /** 是否该弹欢迎引导 */
 function shouldShow(): boolean {
   try {
+    if (isShotMode()) return false
     // 已经装成 App 了就不用引导
     if (getPlatform().standalone) return false
     if (localStorage.getItem(SEEN_KEY)) return false
@@ -232,6 +233,7 @@ export function AddToHomeBanner() {
 
   useEffect(() => {
     const t = window.setTimeout(() => {
+      if (isShotMode()) return
       const p = getPlatform()
       if (!p.isMobile || p.standalone) return
       try {

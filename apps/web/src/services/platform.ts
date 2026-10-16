@@ -280,3 +280,18 @@ export function isIOSDevice(): boolean {
 export function isWechat(): boolean {
   return /MicroMessenger/i.test(ua())
 }
+
+
+/**
+ * 截图/演示模式：?shot=1
+ *
+ * 隐藏欢迎弹窗、试用横幅、主屏提醒条等遮挡物，
+ * 方便抓干净的界面图做推广素材。对正常使用无影响。
+ */
+export function isShotMode(): boolean {
+  try {
+    return new URLSearchParams(location.search).get('shot') === '1'
+  } catch {
+    return false
+  }
+}

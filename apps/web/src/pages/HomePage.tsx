@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useLearnStore } from '@/stores/learnStore'
 import { usePointsStore } from '@/stores/pointsStore'
 import { DailyPlan } from '@/features/plan/DailyPlan'
@@ -11,8 +11,57 @@ export function HomePage() {
   const member = usePointsStore((s) => s.isMember())
   const daysLeft = usePointsStore((s) => s.memberDaysLeft())
 
+  // 新访客（还没学过任何词）：给个明确起点，别让他看到一排 0
+
+  const learnedCount = useLearnStore((s) => s.learnedWords.length)
+
+  const isNewUser = learnedCount === 0
+
+  const nav = useNavigate()
+
+
   return (
     <div className="space-y-5 sm:space-y-8">
+
+      {/* 新访客引导 */}
+      {isNewUser && (
+        <section className="va-card space-y-4 border-ink-900">
+          <div className="space-y-1.5">
+            <div className="text-lg font-semibold">👋 欢迎，从这三步开始</div>
+            <div className="text-sm text-ink-500 leading-relaxed">
+              不用注册、没有广告。背单词和读书永久免费。
+            </div>
+          </div>
+          <div className="space-y-2">
+            {[
+              ['1', '🗺️', '打开学习路径', '跟着走就行，不用想今天学什么', '/path'],
+              ['2', '📖', '先背 20 个词', '选一本考试词书，5 分钟能开始', '/wordbooks'],
+              ['3', '📷', '试试拍照翻译', '拍书上英文，秒变中文', '/photo'],
+            ].map(([n, e, t, d, to]) => (
+              <button
+                key={n}
+                onClick={() => nav(to)}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-xl bg-ink-50 hover:bg-ink-100 active:bg-ink-100 text-left transition-colors"
+              >
+                <span className="w-6 h-6 rounded-full bg-ink-900 text-white text-xs flex items-center justify-center shrink-0">
+                  {n}
+                </span>
+                <span className="text-lg shrink-0">{e}</span>
+                <span className="flex-1 min-w-0">
+                  <span className="block text-sm font-medium">{t}</span>
+                  <span className="block text-[11px] text-ink-500">{d}</span>
+                </span>
+                <span className="text-ink-300 shrink-0">›</span>
+              </button>
+            ))}
+          </div>
+          <div className="text-[11px] text-ink-500 leading-relaxed border-t border-ink-100 pt-3">
+            📚 这里还有 <strong>86 本英文名著</strong>、<strong>1000 篇听力</strong>、
+            <strong>330 道 SAT 真题</strong> —— 都在底部「⋯ 更多」里。
+          </div>
+        </section>
+      )}
+
       <section>
         <h1 className="text-xl sm:text-3xl font-semibold tracking-tight">
           你好，今天学一会儿 👋

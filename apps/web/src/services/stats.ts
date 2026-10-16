@@ -24,6 +24,18 @@ const PATH_ACTIVITY: Record<string, ActivityType> = {
   writing_generate: 'writing',
 }
 
+/**
+ * 只累加 lifetime 计数、不参与学习路径的事件
+ * （新闻和 AI 教练没有对应的路径课程，但成就要用）
+ */
+const LIFETIME_ONLY: Record<string, string> = {
+  news_open: 'news',
+  coach_chat: 'coach',
+  learn_answer: 'learn',
+  review_answer: 'review',
+  wordbook_select: 'wordbook',
+}
+
 /** 取（或生成）本机匿名设备 ID */
 export function getDeviceId(): string {
   try {
@@ -53,6 +65,15 @@ export function trackEvent(event: string, detail = ''): void {
     try {
       usePathStore.getState().reportActivity(activity)
       usePointsStore.getState().bumpLifetime(activity)
+    } catch {
+      /* ignore */
+    }
+  }
+  // 只计数的（新闻、AI 教练等）
+  const only = LIFETIME_ONLY[event]
+  if (only) {
+    try {
+      usePointsStore.getState().bumpLifetime(only)
     } catch {
       /* ignore */
     }

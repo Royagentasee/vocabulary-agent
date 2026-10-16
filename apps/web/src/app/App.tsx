@@ -31,6 +31,7 @@ import { AdminPaymentsPage } from '@/pages/AdminPaymentsPage'
 import { TrialBanner, TrialEndedBanner } from '@/features/paywall/Paywall'
 import { useEntitlementStore } from '@/stores/entitlementStore'
 import { isProRoute } from '@/services/entitlement'
+import { isShotMode } from '@/services/platform'
 import { useAccountStore } from '@/stores/accountStore'
 import { useLearnStore } from '@/stores/learnStore'
 import { usePlanStore } from '@/stores/planStore'
@@ -262,8 +263,8 @@ export default function App() {
       <QuotaGate />
       <WelcomeModal />
       <AddToHomeBanner />
-      <TrialBanner />
-      <TrialEndedBanner />
+      {!isShotMode() && <TrialBanner />}
+      {!isShotMode() && <TrialEndedBanner />}
 
       {/* 点空白处收起桌面下拉 */}
       {openGroup && (

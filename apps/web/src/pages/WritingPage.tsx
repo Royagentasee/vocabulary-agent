@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { WritingToolkit } from '@/features/writing/WritingToolkit'
 import { useLearnStore } from '@/stores/learnStore'
 import {
   generateWriting,
@@ -9,7 +10,7 @@ import {
 import { trackEvent } from '@/services/stats'
 import { QuotaBadge } from '@/components/Quota'
 
-type Mode = 'bank' | 'free'
+type Mode = 'bank' | 'free' | 'toolkit'
 
 export function WritingPage() {
   const [mode, setMode] = useState<Mode>('bank')
@@ -31,9 +32,14 @@ export function WritingPage() {
         <TabBtn active={mode === 'free'} onClick={() => setMode('free')}>
           ✏️ 自由主题
         </TabBtn>
+        <TabBtn active={mode === 'toolkit'} onClick={() => setMode('toolkit')}>
+          🧰 素材库
+        </TabBtn>
       </div>
 
-      {mode === 'bank' ? <BankWriting /> : <FreeWriting />}
+      {mode === 'bank' && <BankWriting />}
+      {mode === 'free' && <FreeWriting />}
+      {mode === 'toolkit' && <WritingToolkit />}
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import {
   fetchBooks,
@@ -33,8 +34,13 @@ const SPINE: Record<string, string> = {
 
 export function LibraryPage() {
   const nav = useNavigate()
-  const [tab, setTab] = useState<Tab>('all')
-  const [level, setLevel] = useState('')
+  // 支持 ?kind=classic / story、?level=B1，便于分享与截图直达
+  const [params] = useSearchParams()
+  const initKind = params.get('kind')
+  const [tab, setTab] = useState<Tab>(
+    initKind === 'classic' || initKind === 'story' ? (initKind as Tab) : 'all',
+  )
+  const [level, setLevel] = useState(params.get('level') || '')
   const [category, setCategory] = useState('')
   const [letter, setLetter] = useState('')
   const [books, setBooks] = useState<BookSummary[]>([])
