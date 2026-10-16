@@ -3,6 +3,35 @@
  */
 import { config, fetchWithFallback } from '../config'
 
+export interface OcrLang {
+  code: string
+  name: string
+  flag: string
+  cjk: boolean
+}
+
+export interface OcrTarget {
+  code: string
+  name: string
+}
+
+/** 可识别语言 + 可翻译目标语言 */
+export async function fetchOcrLangs(): Promise<{ languages: OcrLang[]; targets: OcrTarget[] }> {
+  const path = '/api/ocr/langs'
+  try {
+    const resp = await fetchWithFallback(path, config.aiGateway ? `${config.aiGateway}${path}` : path, {
+      method: 'GET',
+    })
+    if (!resp.ok) throw new Error(String(resp.status))
+    return await resp.json()
+  } catch {
+    return {
+      languages: [{ code: 'eng', name: '英语', flag: '🇬🇧', cjk: false }],
+      targets: [{ code: 'zh', name: '中文' }],
+    }
+  }
+}
+
 export interface OcrResult {
   ok: boolean
   text: string
@@ -62,8 +91,8 @@ export async function ocrStatus(): Promise<{ available: boolean }> {
   }
 }
 
-export async function recognizeImage(blob: Blob): Promise<OcrResult> {
-  const path = '/api/ocr'
+export async function recognizeImage(blob: Blob, lang = 'eng'): Promise<OcrResult> {
+  const path = `/api/ocr?lang=${encodeURIComponent(lang)}`
   const fd = new FormData()
   fd.append('file', blob, 'photo.jpg')
 
@@ -78,12 +107,16 @@ export async function recognizeImage(blob: Blob): Promise<OcrResult> {
   return resp.json()
 }
 
-export async function translateText(text: string): Promise<TranslateResult> {
+export async function translateText(
+  text: string,
+  target = 'zh',
+  source = '',
+): Promise<TranslateResult> {
   const path = '/api/ocr/translate'
   const resp = await fetchWithFallback(path, config.aiGateway ? `${config.aiGateway}${path}` : path, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify({ text, target, source }),
   })
   if (!resp.ok) {
     const body = await resp.text().catch(() => '')

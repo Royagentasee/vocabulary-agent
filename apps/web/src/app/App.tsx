@@ -21,6 +21,7 @@ import { PlanPage } from '@/pages/PlanPage'
 import { PointsPage } from '@/pages/PointsPage'
 import { PhotoPage } from '@/pages/PhotoPage'
 import { PathPage } from '@/pages/PathPage'
+import { SessionPage } from '@/pages/SessionPage'
 import { CoachPage } from '@/pages/CoachPage'
 import { NewsPage } from '@/pages/NewsPage'
 import { LeaderboardPage } from '@/pages/LeaderboardPage'
@@ -105,6 +106,7 @@ const NAV_GROUPS: NavGroup[] = [
 /** 手机端：底部常驻 4 个主入口 + 「更多」 */
 const TAB_ITEMS = [
   { to: '/path', label: '路径', emoji: '🗺️' },
+  { to: '/session', label: '课程', emoji: '🎯' },
   { to: '/learn', label: '学习', emoji: '📖' },
   { to: '/coach', label: '教练', emoji: '🧠' },
   { to: '/badges', label: '成就', emoji: '🏅' },
@@ -383,6 +385,7 @@ export default function App() {
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/plan" element={<PlanPage />} />
           <Route path="/path" element={<PathPage />} />
+          <Route path="/session" element={<SessionPage />} />
           <Route path="/coach" element={<CoachPage />} />
           <Route path="/news" element={<NewsPage />} />
           <Route path="/badges" element={<LeaderboardPage />} />

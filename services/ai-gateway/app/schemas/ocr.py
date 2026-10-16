@@ -16,6 +16,8 @@ class OcrResponse(BaseModel):
 
 
 class TranslateRequest(BaseModel):
+    target: str = 'zh'      # 目标语言代码
+    source: str = ''        # 源语言代码（可空，让模型自己判断）
     text: str = Field(..., min_length=1, max_length=6000)
 
 

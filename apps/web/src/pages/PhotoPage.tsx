@@ -6,6 +6,9 @@ import {
   translateText,
   OcrResult,
   TranslateResult,
+  fetchOcrLangs,
+  type OcrLang,
+  type OcrTarget,
 } from '@/services/ocr'
 import { QuotaBadge } from '@/components/Quota'
 import { speakText } from '@/components/SpeakButton'
@@ -23,10 +26,21 @@ export function PhotoPage() {
   const [error, setError] = useState('')
   const [popup, setPopup] = useState<{ word: string; loading: boolean; data: WordLookup | null } | null>(null)
   const [editing, setEditing] = useState(false)
+  const [langs, setLangs] = useState<OcrLang[]>([])
+  const [targets, setTargets] = useState<OcrTarget[]>([])
+  const [lang, setLang] = useState('eng')
+  const [target, setTarget] = useState('zh')
+  const [showLang, setShowLang] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     ocrStatus().then((s) => setAvailable(s.available)).catch(() => {})
+    fetchOcrLangs()
+      .then((d) => {
+        setLangs(d.languages)
+        setTargets(d.targets)
+      })
+      .catch(() => {})
     trackEvent('photo_view')
   }, [])
 
@@ -49,7 +63,7 @@ export function PhotoPage() {
       const blob = await compressImage(file)
 
       setBusy('正在识别文字…')
-      const r = await recognizeImage(blob)
+      const r = await recognizeImage(blob, lang)
       setOcr(r)
       setText(r.text)
       trackEvent('photo_ocr', r.quality)
@@ -66,7 +80,7 @@ export function PhotoPage() {
     setBusy('正在翻译…')
     setError('')
     try {
-      const r = await translateText(text)
+      const r = await translateText(text, target, lang)
       setTr(r)
       useQuotaStore.getState().consumeLocal('photo')
       trackEvent('photo_translate')
@@ -108,7 +122,7 @@ export function PhotoPage() {
           <QuotaBadge feature="photo" className="align-middle" />
         </h1>
         <p className="text-ink-500 text-sm">
-          拍书上或屏幕上的英文，自动识别成文字并翻译成中文
+          拍书上、屏幕上、菜单路牌，识别成文字并翻译
         </p>
       </header>
 
@@ -125,6 +139,66 @@ export function PhotoPage() {
           e.target.value = ''
         }}
       />
+
+      {/* 语言选择 */}
+      <section className="va-card !py-3 space-y-2.5">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-ink-500 shrink-0">识别</span>
+          <button
+            onClick={() => setShowLang((v) => !v)}
+            className="flex-1 flex items-center gap-2 px-3 py-2 bg-ink-50 rounded-lg text-sm active:bg-ink-100"
+          >
+            <span>{langs.find((l) => l.code === lang)?.flag || '🌐'}</span>
+            <span className="flex-1 text-left">
+              {langs.find((l) => l.code === lang)?.name || '英语'}
+            </span>
+            <span className={`text-ink-400 text-xs transition-transform ${showLang ? 'rotate-180' : ''}`}>
+              ▾
+            </span>
+          </button>
+          <span className="text-xs text-ink-400 shrink-0">→</span>
+          <select
+            value={target}
+            onChange={(e) => setTarget(e.target.value)}
+            className="px-2.5 py-2 bg-ink-50 rounded-lg text-sm focus:outline-none"
+          >
+            {targets.map((t) => (
+              <option key={t.code} value={t.code}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {showLang && (
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
+            {langs.map((l) => (
+              <button
+                key={l.code}
+                onClick={() => {
+                  setLang(l.code)
+                  setShowLang(false)
+                }}
+                className={`py-2 rounded-lg text-[11px] border transition-colors ${
+                  lang === l.code
+                    ? 'bg-ink-900 text-white border-ink-900'
+                    : 'bg-white border-ink-100 text-ink-700 hover:border-ink-900'
+                }`}
+              >
+                <div className="text-sm leading-none mb-0.5">{l.flag}</div>
+                {l.name}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {lang !== 'eng' && target === 'zh' && (
+          <div className="text-[11px] text-ink-400 leading-relaxed">
+            💡 提示：识别非英文时<strong>点词查释义不可用</strong>（词库是英文的），
+            但翻译和朗读正常。
+          </div>
+        )}
+      </section>
 
       {!preview && (
         <button
