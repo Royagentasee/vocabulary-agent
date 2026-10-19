@@ -7,6 +7,7 @@
 import { config } from '../config'
 import { usePathStore, type ActivityType } from '@/stores/pathStore'
 import { usePointsStore } from '@/stores/pointsStore'
+import { usePlanStore } from '@/stores/planStore'
 
 const DEVICE_KEY = 'va-device-id'
 
@@ -25,8 +26,8 @@ const PATH_ACTIVITY: Record<string, ActivityType> = {
 }
 
 /**
- * 只累加 lifetime 计数、不参与学习路径的事件
- * （新闻和 AI 教练没有对应的路径课程，但成就要用）
+ * 只累加 lifetime 计数（成就用），不参与学习路径
+ * 注意：这里不要放 task 映射，任务进度用下面的 TASK_OF_EVENT
  */
 const LIFETIME_ONLY: Record<string, string> = {
   news_open: 'news',
@@ -34,12 +35,26 @@ const LIFETIME_ONLY: Record<string, string> = {
   learn_answer: 'learn',
   review_answer: 'review',
   wordbook_select: 'wordbook',
-  // 下面这些同时计入「每日任务」进度，任务不再允许手动打勾
   listening_practice: 'listening',
   speaking_practice: 'speaking',
   dialogue_turn: 'dialogue',
   reading_done: 'reading',
-  news_open: 'reading',
+  writing_generate: 'writing',
+  library_chapter: 'library',
+}
+
+/**
+ * 事件 → 每日任务 id（TASKS 里的 id）
+ * 任务完成状态完全由这里推导，用户不能手动打勾。
+ */
+const TASK_OF_EVENT: Record<string, string> = {
+  learn_answer: 'newWords',
+  review_answer: 'review',
+  listening_practice: 'listening',
+  speaking_practice: 'speaking',
+  dialogue_turn: 'dialogue',
+  reading_done: 'reading',
+  news_open: 'reading',      // 看新闻算阅读
   writing_generate: 'writing',
   library_chapter: 'library',
 }
@@ -88,12 +103,12 @@ export function trackEvent(event: string, detail = ''): void {
   }
 
   // 每日任务进度（按真实行为累加，用户不能手动打勾）
-  // 注意：复用上面的 only（同一个映射表既当 lifetime key 又当任务 id）
-  if (only) {
+  const taskId = TASK_OF_EVENT[event]
+  if (taskId) {
     try {
-      usePlanStore.getState().bumpActivity(only)
-    } catch {
-      /* ignore */
+      usePlanStore.getState().bumpActivity(taskId)
+    } catch (e) {
+      console.warn('[task] 任务进度记录失败', e)
     }
   }
 
