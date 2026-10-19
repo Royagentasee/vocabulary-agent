@@ -107,12 +107,17 @@ interface PlanState {
   targetScore: string
   /** 'YYYY-MM-DD' -> 已完成的任务 id 列表 */
   taskDone: Record<string, string[]>
+  /** 每日各模块的真实活动次数：{ '2026-10-16': { listening: 2 } }
+   *  任务完成状态由它推导，用户不能手动打勾 */
+  activity: Record<string, Record<string, number>>
   /** 每日任务目标数量（可自定义） */
   taskTargets: Record<string, number>
 
   checkin: (date?: string) => void
   setExam: (v: { type?: ExamType; date?: string; target?: string }) => void
   toggleTask: (taskId: string, date?: string) => void
+  /** 记一次真实活动（由 trackEvent 调用），返回该任务当天累计次数 */
+  bumpActivity: (taskId: string, n?: number) => number
   completeTask: (taskId: string, date?: string) => void
   setTaskTarget: (taskId: string, count: number) => void
   clearPlan: () => void
@@ -128,6 +133,7 @@ export const usePlanStore = create<PlanState>()(
       examDate: '',
       targetScore: '',
       taskDone: {},
+      activity: {},
       taskTargets: {},
 
       checkin: (date) => {
@@ -143,6 +149,22 @@ export const usePlanStore = create<PlanState>()(
         if (v.date !== undefined) next.examDate = v.date
         if (v.target !== undefined) next.targetScore = v.target
         set(next)
+      },
+
+      bumpActivity: (taskId, n = 1) => {
+        const key = todayKey()
+        const all = { ...get().activity }
+        const day = { ...(all[key] || {}) }
+        day[taskId] = (day[taskId] || 0) + n
+        all[key] = day
+        // 只保留最近 14 天，避免无限增长
+        const keys = Object.keys(all).sort()
+        while (keys.length > 14) {
+          const drop = keys.shift()
+          if (drop) delete all[drop]
+        }
+        set({ activity: all })
+        return day[taskId]
       },
 
       toggleTask: (taskId, date) => {

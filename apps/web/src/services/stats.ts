@@ -34,6 +34,14 @@ const LIFETIME_ONLY: Record<string, string> = {
   learn_answer: 'learn',
   review_answer: 'review',
   wordbook_select: 'wordbook',
+  // 下面这些同时计入「每日任务」进度，任务不再允许手动打勾
+  listening_practice: 'listening',
+  speaking_practice: 'speaking',
+  dialogue_turn: 'dialogue',
+  reading_done: 'reading',
+  news_open: 'reading',
+  writing_generate: 'writing',
+  library_chapter: 'library',
 }
 
 /** 取（或生成）本机匿名设备 ID */
@@ -74,6 +82,16 @@ export function trackEvent(event: string, detail = ''): void {
   if (only) {
     try {
       usePointsStore.getState().bumpLifetime(only)
+    } catch {
+      /* ignore */
+    }
+  }
+
+  // 每日任务进度（按真实行为累加，用户不能手动打勾）
+  // 注意：复用上面的 only（同一个映射表既当 lifetime key 又当任务 id）
+  if (only) {
+    try {
+      usePlanStore.getState().bumpActivity(only)
     } catch {
       /* ignore */
     }

@@ -57,7 +57,7 @@ function WeekStrip({ dates }: { dates: string[] }) {
 }
 
 export function DailyPlan() {
-  const { checkinDates, examType, examDate, targetScore, taskDone, toggleTask } = usePlanStore()
+  const { checkinDates, examType, examDate, targetScore, activity, taskTargets } = usePlanStore()
   const todayLearned = useLearnStore((s) => s.todayLearned)
   const todayReviewed = useLearnStore((s) => s.todayReviewed)
   const dailyGoal = useLearnStore((s) => s.dailyGoal)
@@ -68,9 +68,9 @@ export function DailyPlan() {
   const left = daysUntil(examDate)
 
   const key = todayKey()
-  const doneToday = taskDone[key] || []
+  const dayActivity = activity[key] || {}
 
-  /** 任务完成状态：新词/复习按真实数据算，其余按用户勾选 */
+  /** 任务完成状态：全部按真实行为统计，用户不能手动打勾 */
   const taskState = TASKS.map((t) => {
     if (t.id === 'newWords') {
       return { ...t, auto: true, current: todayLearned, target: dailyGoal }
@@ -78,7 +78,8 @@ export function DailyPlan() {
     if (t.id === 'review') {
       return { ...t, auto: true, current: todayReviewed, target: dailyGoal }
     }
-    return { ...t, auto: false, current: doneToday.includes(t.id) ? 1 : 0, target: 1 }
+    const target = taskTargets[t.id] || t.defaultCount || 1
+    return { ...t, auto: true, current: dayActivity[t.id] || 0, target }
   })
 
   const doneCount = taskState.filter((t) =>
@@ -168,34 +169,22 @@ export function DailyPlan() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
           {taskState.map((t) => {
-            const done = t.auto ? t.current >= t.target : doneToday.includes(t.id)
+            const done = t.current >= t.target
             return (
-              <button
+              <div
                 key={t.id}
-                onClick={() => {
-                  if (!t.auto) toggleTask(t.id)
-                }}
-                disabled={t.auto}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm transition-colors ${
-                  done
-                    ? 'bg-green-50 text-green-800'
-                    : t.auto
-                    ? 'bg-ink-50 text-ink-500'
-                    : 'bg-ink-50 text-ink-700 active:bg-ink-100'
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm ${
+                  done ? 'bg-green-50 text-green-800' : 'bg-ink-50 text-ink-500'
                 }`}
               >
                 <span className={`text-base ${done ? '' : 'opacity-40'}`}>
                   {done ? '✅' : t.emoji}
                 </span>
                 <span className="flex-1">{t.label}</span>
-                {t.auto ? (
-                  <span className="text-xs text-ink-400">
-                    {t.current}/{t.target}
-                  </span>
-                ) : (
-                  <span className="text-xs text-ink-400">{done ? '完成' : '点我打勾'}</span>
-                )}
-              </button>
+                <span className="text-xs text-ink-400 tabular-nums">
+                  {done ? '完成' : `${Math.min(t.current, t.target)}/${t.target}`}
+                </span>
+              </div>
             )
           })}
         </div>
