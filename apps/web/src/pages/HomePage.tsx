@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useLearnStore } from '@/stores/learnStore'
+import { useLearnStore, countTodayLearned } from '@/stores/learnStore'
 import { usePointsStore } from '@/stores/pointsStore'
 import { DailyPlan } from '@/features/plan/DailyPlan'
 
@@ -7,6 +7,8 @@ const GOAL_OPTIONS = [5, 10, 15, 20, 30, 50]
 
 export function HomePage() {
   const { todayLearned, todayReviewed, wrongWords, learnedWords, dailyGoal, setDailyGoal } = useLearnStore()
+  // 今日新词用 learnedAt 现算，避免计数器跨天漂移导致显示为 0
+  const learnedToday = countTodayLearned(learnedWords)
   const balance = usePointsStore((s) => s.balance)
   const member = usePointsStore((s) => s.isMember())
   const daysLeft = usePointsStore((s) => s.memberDaysLeft())
@@ -96,7 +98,7 @@ export function HomePage() {
       </Link>
 
       <section className="grid grid-cols-3 gap-2 sm:gap-4">
-        <StatCard label="今日新词" value={todayLearned} />
+        <StatCard label="今日新词" value={learnedToday} />
         <StatCard label="今日复习" value={todayReviewed} />
         <StatCard label="已学词数" value={learnedWords.length} />
       </section>

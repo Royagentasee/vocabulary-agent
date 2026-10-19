@@ -109,6 +109,29 @@ function addWrongWord(wrongWords: WrongWord[], word: Word): WrongWord[] {
   ]
 }
 
+/**
+ * 今天真正学了多少个新词 —— 按 learnedAt 时间戳现算。
+ *
+ * 为什么不直接用 todayLearned 计数器：那个计数器只在 learnRate 里累加，
+ * 跨天靠 lastActiveDate 清零。一旦队列是昨天留下的（未重新 startLearn），
+ * 就会出现「页面说学完了 20 个，但计数器是 0」的不一致。
+ * 用真实时间戳算，永远不会错。
+ */
+export function countTodayLearned(learnedWords: LearnedWord[]): number {
+  const today = dayKey()
+  return (learnedWords || []).filter((l) => {
+    if (!l?.learnedAt) return false
+    const d = new Date(l.learnedAt)
+    if (isNaN(d.getTime())) return false
+    return dayKey(d) === today
+  }).length
+}
+
+/** 判断学习队列是不是今天开始建的（跨天要重建） */
+export function isQueueStale(lastActiveDate: string): boolean {
+  return lastActiveDate !== dayKey()
+}
+
 export const useLearnStore = create<LearnState>()(
   persist(
     (set, get) => ({

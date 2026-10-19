@@ -1,5 +1,11 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Rating, useLearnStore } from '@/stores/learnStore'
+import {
+  Rating,
+  useLearnStore,
+  countTodayLearned,
+  isQueueStale,
+} from '@/stores/learnStore'
 import { trackEvent } from '@/services/stats'
 import { LearningCard } from '@/features/learn/LearningCard'
 
@@ -9,7 +15,21 @@ export function LearnPage() {
   const {
     learnQueue, learnIndex, nextLearn, learnRate,
     currentWordbookId, dailyGoal, setDailyGoal, startLearn,
+    learnedWords, lastActiveDate,
   } = useLearnStore()
+
+  // 今天的真实学习数（按 learnedAt 现算，不信任会漂移的计数器）
+  const todayCount = countTodayLearned(learnedWords)
+  // 队列是否是昨天建的 —— 跨天必须重建，否则会一直显示「学完了」
+  const stale = isQueueStale(lastActiveDate)
+
+  useEffect(() => {
+    if (!currentWordbookId) return
+    if (stale || learnQueue.length === 0) {
+      void startLearn()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentWordbookId, stale])
 
   if (!currentWordbookId) {
     return (
@@ -28,7 +48,7 @@ export function LearnPage() {
       <div className="va-card text-center space-y-4">
         <div className="text-4xl">🎉</div>
         <h2 className="text-xl font-semibold">今日新词学完了！</h2>
-        <p className="text-ink-500">共学了 {learnQueue.length} 个新词</p>
+        <p className="text-ink-500">今天共学了 {todayCount} 个新词</p>
         <div className="flex justify-center gap-3">
           <Link to="/review" className="va-btn va-btn--primary va-btn--md">
             去复习
