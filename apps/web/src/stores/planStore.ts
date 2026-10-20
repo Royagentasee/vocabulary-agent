@@ -114,6 +114,8 @@ interface PlanState {
   taskTargets: Record<string, number>
 
   checkin: (date?: string) => void
+  /** 取消某天的打卡（默认今天）。用于误打卡后自己撤销 */
+  removeCheckin: (date?: string) => void
   setExam: (v: { type?: ExamType; date?: string; target?: string }) => void
   toggleTask: (taskId: string, date?: string) => void
   /** 记一次真实活动（由 trackEvent 调用），返回该任务当天累计次数 */
@@ -141,6 +143,13 @@ export const usePlanStore = create<PlanState>()(
         const cur = get().checkinDates
         if (cur.includes(key)) return
         set({ checkinDates: [...cur, key].sort() })
+      },
+
+      removeCheckin: (date) => {
+        const key = date || todayKey()
+        const cur = get().checkinDates
+        if (!cur.includes(key)) return
+        set({ checkinDates: cur.filter((d) => d !== key) })
       },
 
       setExam: (v) => {

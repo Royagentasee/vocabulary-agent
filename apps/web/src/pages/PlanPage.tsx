@@ -90,7 +90,7 @@ function MonthCalendar({ dates, cursor, onShift }: {
 export function PlanPage() {
   const {
     checkinDates, examType, examDate, targetScore, taskTargets,
-    setExam, setTaskTarget, clearPlan, checkin,
+    setExam, setTaskTarget, clearPlan, checkin, removeCheckin,
   } = usePlanStore()
   const dailyGoal = useLearnStore((s) => s.dailyGoal)
 
@@ -149,12 +149,23 @@ export function PlanPage() {
             <span className="text-ink-600">今天还没打卡</span>
           )}
         </div>
-        {!checkinDates.includes(todayKey()) && (
+        {!checkinDates.includes(todayKey()) ? (
           <button
             onClick={() => checkin()}
             className="va-btn va-btn--primary va-btn--sm shrink-0"
           >
             立即打卡
+          </button>
+        ) : (
+          <button
+            onClick={() => {
+              if (window.confirm('取消今天的打卡？连续天数会相应减少。')) {
+                removeCheckin()
+              }
+            }}
+            className="text-xs text-ink-400 hover:text-red-600 shrink-0 transition-colors"
+          >
+            取消打卡
           </button>
         )}
       </section>
