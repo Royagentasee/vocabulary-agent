@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Rating, useLearnStore } from '@/stores/learnStore'
+import { Rating, useLearnStore, isQueueStale } from '@/stores/learnStore'
 import { trackEvent } from '@/services/stats'
 import { LearningCard } from '@/features/learn/LearningCard'
 
@@ -8,13 +8,23 @@ export function ReviewPage() {
   useEffect(() => {
     trackEvent('review_open')
   }, [])
-  const { reviewQueue, reviewIndex, nextReview, reviewRate, learnedWords, startReview } = useLearnStore()
+  const {
+    reviewQueue, reviewIndex, nextReview, reviewRate,
+    learnedWords, startReview, lastActiveDate,
+  } = useLearnStore()
 
-  // 进入复习页时，若还没有复习队列，自动筛选到期词
+  // 进入复习页时重建队列。
+  //
+  // 之前只判断「队列为空」，于是上次复习走完的队列被持久化下来，
+  // 一点「去复习」就直接跳到「复习完成」屏，显示的还是老队列的数量。
+  // 现在三种情况都重建：队列为空 / 上次已走完 / 跨天了。
   useEffect(() => {
-    if (reviewQueue.length === 0 && learnedWords.length > 0) {
+    if (learnedWords.length === 0) return
+    const done = reviewQueue.length > 0 && reviewIndex >= reviewQueue.length
+    if (reviewQueue.length === 0 || done || isQueueStale(lastActiveDate)) {
       startReview()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // 没有学过的词
