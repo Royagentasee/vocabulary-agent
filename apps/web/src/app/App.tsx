@@ -34,7 +34,7 @@ import { useEntitlementStore } from '@/stores/entitlementStore'
 import { isProRoute } from '@/services/entitlement'
 import { isShotMode } from '@/services/platform'
 import { useAccountStore } from '@/stores/accountStore'
-import { useLearnStore } from '@/stores/learnStore'
+import { useLearnStore, countTodayLearned, countTodayReviewed } from '@/stores/learnStore'
 import { usePlanStore } from '@/stores/planStore'
 import { usePointsStore } from '@/stores/pointsStore'
 import { useQuotaStore } from '@/stores/quotaStore'
@@ -189,13 +189,20 @@ export default function App() {
   }, [initAccount])
 
   // 学习/复习过就自动打卡（不用手动点）
+  //
+  // 必须用真实时间戳判断，不能用 todayLearned/todayReviewed 计数器：
+  // 那两个只在答题时跨天清零，今天没做事时还残留昨天的数，
+  // 会导致「一打开 App 就自动打卡」。
   useEffect(() => {
     const checkin = usePlanStore.getState().checkin
-    const unsub = useLearnStore.subscribe((s) => {
-      if ((s.todayLearned || 0) > 0 || (s.todayReviewed || 0) > 0) checkin()
+    const hasToday = () => {
+      const words = useLearnStore.getState().learnedWords
+      return countTodayLearned(words) > 0 || countTodayReviewed(words) > 0
+    }
+    const unsub = useLearnStore.subscribe(() => {
+      if (hasToday()) checkin()
     })
-    const s = useLearnStore.getState()
-    if ((s.todayLearned || 0) > 0 || (s.todayReviewed || 0) > 0) checkin()
+    if (hasToday()) checkin()
     return unsub
   }, [])
 
