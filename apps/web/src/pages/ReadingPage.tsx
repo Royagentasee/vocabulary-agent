@@ -7,6 +7,7 @@ import {
   BankItem,
 } from '@/services/reading'
 import { LevelReading } from '@/features/reading/LevelReading'
+import { useLearnStore } from '@/stores/learnStore'
 import { trackEvent } from '@/services/stats'
 
 type Mode = 'levels' | 'bank' | 'ai'
@@ -77,6 +78,7 @@ function BankPractice() {
   const [correctCount, setCorrectCount] = useState(0)
   const [answeredCount, setAnsweredCount] = useState(0)
   const [finished, setFinished] = useState(false)
+  const addWrongQuestion = useLearnStore((s) => s.addWrongQuestion)
 
   const load = async () => {
     setLoading(true)
@@ -105,7 +107,26 @@ function BankPractice() {
     if (selected !== null || !current) return
     setSelected(label)
     setAnsweredCount((n) => n + 1)
-    if (label === current.correctLabel) setCorrectCount((n) => n + 1)
+    const textOf = (lb: string) =>
+      current.choices.find((c) => c.label === lb)?.text ?? lb
+    if (label === current.correctLabel) {
+      setCorrectCount((n) => n + 1)
+    } else {
+      // 答错：记入错题本（标签「阅读」）
+      try {
+        addWrongQuestion({
+          kind: 'reading',
+          context: [current.exam, current.source].filter(Boolean).join(' · '),
+          question: current.question,
+          options: current.choices.map((c) => c.text),
+          correct: textOf(current.correctLabel),
+          chosen: textOf(label),
+          explain: current.explanation || undefined,
+        })
+      } catch (e) {
+        console.warn('[reading] 记录错题失败', e)
+      }
+    }
   }
 
   const handleNext = () => {

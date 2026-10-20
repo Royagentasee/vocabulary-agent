@@ -29,6 +29,32 @@ interface WrongWord {
   lastWrongAt: string
 }
 
+/**
+ * 错题（阅读/语法/听力里的选择题）。
+ *
+ * 这些答错的对象是「一道题」而不是「一个词」，塞不进 wrongWords，
+ * 单独存一份，在错题本里用另一个标签页展示。
+ */
+export interface WrongQuestion {
+  id: string
+  kind: 'reading' | 'grammar' | 'listening'
+  /** 出处：文章标题 / 语法点 / 听力材料标题 */
+  context?: string
+  question: string
+  options: string[]
+  correct: string
+  chosen: string
+  explain?: string
+  wrongCount: number
+  lastWrongAt: string
+}
+
+export const QUESTION_KIND_LABEL: Record<WrongQuestion['kind'], string> = {
+  reading: '📖 阅读',
+  grammar: '📐 语法',
+  listening: '🎧 听力',
+}
+
 interface LearnState {
   currentWordbookId: string | null
 
@@ -49,6 +75,8 @@ interface LearnState {
   /** 上次活跃日期（YYYY-MM-DD），用于跨天自动重置今日计数 */
   lastActiveDate: string
   wrongWords: WrongWord[]
+  /** 错题（阅读/语法/听力选择题），和错词分开存 */
+  wrongQuestions: WrongQuestion[]
 
   // 设置
   dailyGoal: number  // 每日学习新词数量（用户可自定义）
@@ -70,6 +98,11 @@ interface LearnState {
   addToWordbook: (word: Word) => void
   removeWrongWord: (wordId: string) => void
   clearWrongWords: () => void
+
+  /** 记一道错题（阅读/语法/听力选择题答错时调用） */
+  addWrongQuestion: (q: Omit<WrongQuestion, 'id' | 'wrongCount' | 'lastWrongAt'>) => void
+  removeWrongQuestion: (id: string) => void
+  clearWrongQuestions: () => void
 
   /** 合并云端数据（换设备恢复 / 启动时同步） */
   applyRemote: (remote: any) => void
@@ -169,6 +202,7 @@ export const useLearnStore = create<LearnState>()(
       todayReviewed: 0,
       lastActiveDate: dayKey(),
       wrongWords: [],
+      wrongQuestions: [],
       dailyGoal: 20,
 
       setWordbook: (id) => set({ currentWordbookId: id }),
@@ -312,6 +346,37 @@ export const useLearnStore = create<LearnState>()(
         set({ wrongWords: [] })
       },
 
+      addWrongQuestion: (q) => {
+        const list = get().wrongQuestions || []
+        const id = `${q.kind}::${q.question}`
+        const now = new Date().toISOString()
+        const exist = list.find((x) => x.id === id)
+        if (exist) {
+          set({
+            wrongQuestions: list.map((x) =>
+              x.id === id
+                ? { ...x, wrongCount: x.wrongCount + 1, lastWrongAt: now, chosen: q.chosen }
+                : x,
+            ),
+          })
+          return
+        }
+        set({
+          wrongQuestions: [
+            { ...q, id, wrongCount: 1, lastWrongAt: now },
+            ...list,
+          ].slice(0, 200),   // 最多留 200 道，避免无限增长
+        })
+      },
+
+      removeWrongQuestion: (id) => {
+        set({ wrongQuestions: (get().wrongQuestions || []).filter((x) => x.id !== id) })
+      },
+
+      clearWrongQuestions: () => {
+        set({ wrongQuestions: [] })
+      },
+
       /** 合并云端数据：与本地取并集，避免任何一边被覆盖丢失 */
       applyRemote: (remote: any) => {
         if (!remote || typeof remote !== 'object') return
@@ -367,6 +432,7 @@ export const useLearnStore = create<LearnState>()(
           todayLearned: 0,
           todayReviewed: 0,
           wrongWords: [],
+          wrongQuestions: [],
         }),
     }),
     {

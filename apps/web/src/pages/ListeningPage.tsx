@@ -6,6 +6,7 @@ import {
   ListeningQuestion,
 } from '@/services/listening'
 import { trackEvent } from '@/services/stats'
+import { useLearnStore } from '@/stores/learnStore'
 
 type ExamFilter = 'all' | 'TOEFL' | 'IELTS'
 
@@ -93,6 +94,7 @@ export function ListeningPage() {
 
 function ListeningPlayer({ item, onBack }: { item: ListeningPassage; onBack: () => void }) {
   const [answers, setAnswers] = useState<Record<number, string>>({})
+  const addWrongQuestion = useLearnStore((s) => s.addWrongQuestion)
   const [showTranscript, setShowTranscript] = useState(false)
   const [played, setPlayed] = useState(false)
   const { playing, play, stop } = useSpeaker(item.passage)
@@ -166,7 +168,27 @@ function ListeningPlayer({ item, onBack }: { item: ListeningPassage; onBack: () 
             index={qi}
             question={q}
             selected={answers[qi] ?? null}
-            onSelect={(label) => setAnswers((a) => ({ ...a, [qi]: label }))}
+            onSelect={(label) => {
+              setAnswers((a) => ({ ...a, [qi]: label }))
+              // 答错记入错题本
+              if (label !== q.correct_label) {
+                const textOf = (lb: string) =>
+                  q.choices.find((c) => c.label === lb)?.text ?? lb
+                try {
+                  addWrongQuestion({
+                    kind: 'listening',
+                    context: item.title,
+                    question: q.question,
+                    options: q.choices.map((c) => c.text),
+                    correct: textOf(q.correct_label),
+                    chosen: textOf(label),
+                    explain: q.explanation || undefined,
+                  })
+                } catch (e) {
+                  console.warn('[listening] 记录错题失败', e)
+                }
+              }
+            }}
           />
         ))}
       </div>

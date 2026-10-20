@@ -7,6 +7,7 @@ import {
   GrammarQuestion,
 } from '@/services/grammar'
 import { SpeakButton } from '@/components/SpeakButton'
+import { useLearnStore } from '@/stores/learnStore'
 import { trackEvent } from '@/services/stats'
 import { QuotaBadge } from '@/components/Quota'
 
@@ -147,6 +148,7 @@ export function GrammarPage() {
 
 function Lesson({ result }: { result: GrammarResult }) {
   const [answers, setAnswers] = useState<Record<number, string>>({})
+  const addWrongQuestion = useLearnStore((s) => s.addWrongQuestion)
 
   return (
     <div className="space-y-4">
@@ -207,7 +209,27 @@ function Lesson({ result }: { result: GrammarResult }) {
               index={qi}
               question={q}
               selected={answers[qi] ?? null}
-              onSelect={(label) => setAnswers((a) => ({ ...a, [qi]: label }))}
+              onSelect={(label) => {
+                setAnswers((a) => ({ ...a, [qi]: label }))
+                // 答错记入错题本
+                if (label !== q.correct_label) {
+                  const textOf = (lb: string) =>
+                    q.choices.find((c) => c.label === lb)?.text ?? lb
+                  try {
+                    addWrongQuestion({
+                      kind: 'grammar',
+                      context: result.title_en || result.topic,
+                      question: q.question,
+                      options: q.choices.map((c) => c.text),
+                      correct: textOf(q.correct_label),
+                      chosen: textOf(label),
+                      explain: q.explanation || undefined,
+                    })
+                  } catch (e) {
+                    console.warn('[grammar] 记录错题失败', e)
+                  }
+                }
+              }}
             />
           ))}
         </div>
