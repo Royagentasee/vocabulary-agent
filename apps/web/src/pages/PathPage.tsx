@@ -10,7 +10,8 @@ import {
   currentLesson,
   pathPercent,
 } from '@/stores/pathStore'
-import { fetchMeaningQuizBatch, MeaningQuiz } from '@/services/words'
+import { fetchMeaningQuizBatch, quizToWord, MeaningQuiz } from '@/services/words'
+import { useLearnStore } from '@/stores/learnStore'
 import { speakText } from '@/components/SpeakButton'
 import { trackEvent } from '@/services/stats'
 
@@ -256,6 +257,8 @@ function Checkpoint({
   const [correct, setCorrect] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  // 答错的词自动进错题本，之后可以在错题本里复习
+  const addToWordbook = useLearnStore((s) => s.addToWordbook)
 
   const PASS = 14
   const TOTAL = 20
@@ -278,7 +281,16 @@ function Checkpoint({
   const choose = (label: string) => {
     if (selected) return
     setSelected(label)
-    if (label === q.correct_label) setCorrect((c) => c + 1)
+    if (label === q.correct_label) {
+      setCorrect((c) => c + 1)
+    } else {
+      // 答错：把该词加入错题本（原本这里什么都不做，导致错题本收不到路径里的错词）
+      try {
+        addToWordbook(quizToWord(q))
+      } catch (e) {
+        console.warn('[path] 加入错题本失败', e)
+      }
+    }
   }
 
   const next = () => {

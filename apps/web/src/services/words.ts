@@ -314,6 +314,35 @@ export interface MeaningQuiz {
   definition_en: string
 }
 
+/**
+ * 把一道选择题还原成一个 Word，用于「答错自动进错题本」。
+ *
+ * 选择题接口只给了词头/音标/释义，没有完整词条，
+ * 这里拼一个够错题本和复习卡片用的最小结构。
+ */
+export function quizToWord(q: MeaningQuiz): Word {
+  const zh = q.choices.find((c) => c.label === q.correct_label)?.text || ''
+  return {
+    id: q.headword,
+    headword: q.headword,
+    pos: q.pos || [],
+    ipa: q.ipa || '',
+    audioUrl: '',
+    senses: [
+      {
+        pos: (q.pos || [])[0] || '',
+        definitionEn: q.definition_en || '',
+        definitionCn: zh,
+      },
+    ],
+    etymology: '',
+    collocations: [],
+    examTags: [],
+    examples: [],
+    translation: zh,
+  } as Word
+}
+
 /** 获取"选意思"4 选 1 选择题 */
 export async function fetchMeaningQuiz(headword: string): Promise<MeaningQuiz | null> {
   try {

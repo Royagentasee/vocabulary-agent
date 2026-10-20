@@ -34,6 +34,7 @@ export function SessionPage() {
   const wrongWords = useLearnStore((s) => s.wrongWords)
   const learnedWords = useLearnStore((s) => s.learnedWords)
   const learnRate = useLearnStore((s) => s.learnRate)
+  const addToWordbook = useLearnStore((s) => s.addToWordbook)
   const earn = usePointsStore((s) => s.earn)
 
   const [questions, setQuestions] = useState<Question[]>([])
@@ -173,6 +174,31 @@ export function SessionPage() {
         /* ignore */
       }
     } else {
+      // 答错进错题本
+      try {
+        addToWordbook({
+          id: q.headword,
+          headword: q.headword,
+          pos: [],
+          ipa: q.ipa || '',
+          audioUrl: '',
+          senses: [
+            {
+              pos: '',
+              definitionEn: '',
+              definitionCn: q.type === 'meaning' ? q.answer : q.prompt,
+            },
+          ],
+          etymology: '',
+          collocations: [],
+          examTags: [],
+          examples: [],
+          translation: q.type === 'meaning' ? q.answer : q.prompt,
+        } as any)
+      } catch (e) {
+        console.warn('[session] 加入错题本失败', e)
+      }
+
       setCombo(0)
       const h = hearts - 1
       setHearts(h)
