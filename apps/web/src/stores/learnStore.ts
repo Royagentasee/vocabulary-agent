@@ -18,6 +18,9 @@ interface LearnedWord {
   word: Word
   card: FSRSCardState
   learnedAt: string
+  /** 最后一次复习时间（只有走过 reviewRate 才有）。
+   *  用它算「今日复习」，避免计数器跨天不重置 */
+  reviewedAt?: string
 }
 
 interface WrongWord {
@@ -132,6 +135,27 @@ export function isQueueStale(lastActiveDate: string): boolean {
   return lastActiveDate !== dayKey()
 }
 
+/**
+ * 今天真正复习了多少个词 —— 按 reviewedAt 时间戳现算。
+ *
+ * 和 countTodayLearned 同样的道理：todayReviewed 计数器只在 reviewRate 里
+ * 累加、跨天靠 lastActiveDate 清零，所以「今天还没用就显示复习完成」。
+ * 用时间戳算，跨天自然是 0。
+ *
+ * 注意：只有走过 reviewRate 的词才有 reviewedAt，
+ * 新学的词不会算进复习（它的 reviewedAt 是空的）。
+ */
+export function countTodayReviewed(learnedWords: LearnedWord[]): number {
+  const today = dayKey()
+  return (learnedWords || []).filter((l) => {
+    const ts = l?.reviewedAt
+    if (!ts) return false
+    const d = new Date(ts)
+    if (isNaN(d.getTime())) return false
+    return dayKey(d) === today
+  }).length
+}
+
 export const useLearnStore = create<LearnState>()(
   persist(
     (set, get) => ({
@@ -226,7 +250,11 @@ export const useLearnStore = create<LearnState>()(
 
         // 用 FSRS 更新卡片状态
         const result = scheduler.review(current.card, rating)
-        const updated: LearnedWord = { ...current, card: result.card }
+        const updated: LearnedWord = {
+          ...current,
+          card: result.card,
+          reviewedAt: new Date().toISOString(),
+        }
 
         const newLearned = learnedWords.map((l) =>
           l.word.id === current.word.id ? updated : l,

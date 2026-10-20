@@ -1,12 +1,15 @@
 import { useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { useLearnStore } from '@/stores/learnStore'
+import { useLearnStore, countTodayLearned, countTodayReviewed } from '@/stores/learnStore'
 import { usePointsStore } from '@/stores/pointsStore'
 import { buildWeeklyReport, type DayStat } from '@/services/report'
 import { evaluatePoints } from '@/services/pointsEngine'
 
 export function StatsPage() {
-  const { todayLearned, todayReviewed, wrongWords, learnedWords } = useLearnStore()
+  const { wrongWords, learnedWords } = useLearnStore()
+  // 按时间戳现算，避免跨天后仍显示昨天的数
+  const todayLearned = countTodayLearned(learnedWords)
+  const todayReviewed = countTodayReviewed(learnedWords)
   const isMember = usePointsStore((s) => s.isMember())
   const total = learnedWords.length
   const progress = total > 0 ? Math.round((todayReviewed / total) * 100) : 0

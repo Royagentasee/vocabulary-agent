@@ -10,7 +10,7 @@ import {
   monthCheckins,
   daysUntil,
 } from '@/stores/planStore'
-import { useLearnStore, countTodayLearned } from '@/stores/learnStore'
+import { useLearnStore, countTodayLearned, countTodayReviewed } from '@/stores/learnStore'
 
 /** 最近 7 天的打卡状态小条 */
 function WeekStrip({ dates }: { dates: string[] }) {
@@ -58,10 +58,10 @@ function WeekStrip({ dates }: { dates: string[] }) {
 
 export function DailyPlan() {
   const { checkinDates, examType, examDate, targetScore, activity, taskTargets } = usePlanStore()
-  // 今日新词按 learnedAt 现算，和首页保持同一口径
+  // 今日新词/复习都按时间戳现算，和首页保持同一口径
   const learnedWords = useLearnStore((s) => s.learnedWords)
   const todayLearned = countTodayLearned(learnedWords)
-  const todayReviewed = useLearnStore((s) => s.todayReviewed)
+  const todayReviewed = countTodayReviewed(learnedWords)
   const dailyGoal = useLearnStore((s) => s.dailyGoal)
 
   const streak = currentStreak(checkinDates)
