@@ -22,6 +22,7 @@ export function AccountPage() {
   const { user, status, lastSyncAt, error, restore, regenerate, pushNow } = useAccountStore()
   const learnedWords = useLearnStore((s) => s.learnedWords)
   const wrongWords = useLearnStore((s) => s.wrongWords)
+  const wrongQuestions = useLearnStore((s) => s.wrongQuestions)
   const reset = useLearnStore((s) => s.reset)
 
   const [code, setCode] = useState('')
@@ -119,21 +120,35 @@ export function AccountPage() {
 
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div className="bg-ink-50 rounded-lg px-3 py-2">
-            <div className="text-xs text-ink-500">已备份单词</div>
+            <div className="text-xs text-ink-500">本机单词</div>
             <div className="font-semibold">{learnedWords.length}</div>
           </div>
           <div className="bg-ink-50 rounded-lg px-3 py-2">
-            <div className="text-xs text-ink-500">错题本</div>
-            <div className="font-semibold">{wrongWords.length}</div>
+            <div className="text-xs text-ink-500">本机错题</div>
+            <div className="font-semibold">
+              {wrongWords.length + (wrongQuestions?.length || 0)}
+            </div>
           </div>
         </div>
+
+        {/* 本机没数据时，明确提示「不是丢了，是要去旧设备拉」 */}
+        {learnedWords.length === 0 && (
+          <div className="text-xs text-accent-deep bg-accent-soft rounded-lg px-3 py-2 leading-relaxed">
+            这两项是<strong>本机</strong>的数量，不是云端的。
+            如果这是新设备，本机是空的属正常 ——
+            去下面「② 从另一台设备恢复数据」填入旧设备的同步码即可。
+          </div>
+        )}
 
         {error && <div className="text-xs text-red-600">{error}</div>}
       </section>
 
-      {/* 同步码 */}
+      {/* 同步码（本机的，给别的设备用） */}
       <section className="va-card space-y-3">
-        <div className="text-sm font-semibold">你的同步码</div>
+        <div className="flex items-baseline justify-between gap-2">
+          <div className="text-sm font-semibold">① 本机的同步码</div>
+          <span className="text-[11px] text-ink-400">带去新设备用</span>
+        </div>
 
         <div className="flex items-center gap-2">
           <div className="flex-1 text-center font-mono text-xl sm:text-2xl font-semibold tracking-wider bg-ink-50 rounded-xl py-3 select-all">
@@ -145,8 +160,8 @@ export function AccountPage() {
         </div>
 
         <div className="text-xs text-ink-500 leading-relaxed">
-          在<strong className="text-ink-700">另一台设备</strong>打开本应用 → 进入本页面 →
-          输入这个码 → 学习数据自动恢复。
+          把上面这个码<strong className="text-ink-700">带到你的新设备</strong>（或新浏览器），
+          在那边的本页面填入「② 从另一台设备恢复」，学习数据就会同步过去。
         </div>
         <div className="text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2">
           ⚠️ 建议截图保存。同步码是找回数据的唯一凭证，清理浏览器数据后没有它就找不回来了。
@@ -157,15 +172,22 @@ export function AccountPage() {
         </button>
       </section>
 
-      {/* 恢复 */}
+      {/* 从别的设备拉数据到本机 */}
       <section className="va-card space-y-3">
-        <div className="text-sm font-semibold">在另一台设备恢复数据</div>
+        <div className="flex items-baseline justify-between gap-2">
+          <div className="text-sm font-semibold">② 从另一台设备恢复数据</div>
+          <span className="text-[11px] text-ink-400">这台设备是新的</span>
+        </div>
+        <div className="text-xs text-ink-500 leading-relaxed">
+          在<strong className="text-ink-700">旧设备</strong>的「① 本机的同步码」里查到码，
+          填到下面 → 点恢复。
+        </div>
         <div className="flex gap-2">
           <input
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
             onKeyDown={(e) => e.key === 'Enter' && doRestore()}
-            placeholder="输入同步码，如 VA-7K3M-9PQ2"
+            placeholder="粘贴旧设备的同步码，如 VA-7K3M-9PQ2"
             className="flex-1 px-3 py-2.5 bg-white border border-ink-100 rounded-xl font-mono text-sm focus:outline-none focus:border-ink-900"
           />
           <button
@@ -177,7 +199,8 @@ export function AccountPage() {
           </button>
         </div>
         <div className="text-xs text-ink-500">
-          恢复会与本机数据<strong>合并</strong>（取并集），不会覆盖你已学的内容。
+          恢复会把旧设备的数据<strong>合并</strong>到本机（取并集），
+          不会覆盖本机已有的内容。
         </div>
       </section>
 
