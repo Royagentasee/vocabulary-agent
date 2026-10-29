@@ -11,6 +11,7 @@ import {
   type PointReason,
 } from '@/stores/pointsStore'
 import { evaluatePoints } from '@/services/pointsEngine'
+import { useQuotaStore } from '@/stores/quotaStore'
 import { trackEvent } from '@/services/stats'
 
 function timeAgo(ts: number): string {
@@ -32,7 +33,8 @@ export function PointsPage() {
     trackEvent('points_view')
   }, [])
 
-  const member = isMember()
+  const memberByServer = useQuotaStore((s) => s.isMember)
+  const member = isMember() || memberByServer
   const daysLeft = memberDaysLeft()
   const today = dayKey()
   const todayMap = dailyEarned[today] || {}

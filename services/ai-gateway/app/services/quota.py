@@ -49,6 +49,11 @@ FREE_QUOTAS: dict[str, int] = {
     'coach': 10,        # AI 学习教练
 }
 
+# 每天免费查词（单词解释）上限的别名，snapshot() 会返回给前端
+# —— 之前引用过但没定义，导致 /api/accounts/{id}/quota 直接 500，
+#    前端拿不到 isMember，会员也会被当成非会员锁住功能。
+FREE_DAILY_WORDS: int = 100
+
 FEATURE_LABEL: dict[str, str] = {
     'explain': 'AI 单词解释',
     'writing': 'AI 写作批改',

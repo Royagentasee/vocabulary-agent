@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useLearnStore, countTodayLearned, countTodayReviewed } from '@/stores/learnStore'
 import { usePointsStore } from '@/stores/pointsStore'
+import { useQuotaStore } from '@/stores/quotaStore'
 import { buildWeeklyReport, type DayStat } from '@/services/report'
 import { evaluatePoints } from '@/services/pointsEngine'
 
@@ -10,7 +11,10 @@ export function StatsPage() {
   // 按时间戳现算，避免跨天后仍显示昨天的数
   const todayLearned = countTodayLearned(learnedWords)
   const todayReviewed = countTodayReviewed(learnedWords)
-  const isMember = usePointsStore((s) => s.isMember())
+  // 会员判定：积分兑换的（本地）或服务端识别到的（付费/手动开通）任一成立即可
+  const memberByPoints = usePointsStore((s) => s.isMember())
+  const memberByServer = useQuotaStore((s) => s.isMember)
+  const isMember = memberByPoints || memberByServer
   const total = learnedWords.length
   const progress = total > 0 ? Math.round((todayReviewed / total) * 100) : 0
 

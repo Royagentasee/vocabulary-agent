@@ -422,14 +422,33 @@ def referral_stats(user_id: str) -> dict:
 
 
 def member_until(user_id: str) -> str:
-    """会员到期日（YYYY-MM-DD），空字符串表示非会员"""
+    """会员到期时间（ISO 字符串），空字符串表示非会员
+
+    同时认两个字段：
+    - pro_until    ：付费开通 / 手动开通（新体系，主用这个）
+    - member_until ：老版「积分兑换会员」遗留字段
+
+    之前这里只查 member_until，导致付费会员在 entitlement 里显示 isPro=True，
+    但 quota.is_member() 返回 False —— 会员仍被每日额度限制。
+    """
     db = _backend()
     if not db or not user_id:
         return ''
     _ensure_schema(db)
     with db.conn() as conn:
-        row = conn.execute('SELECT member_until FROM app_users WHERE id = ?', (user_id,)).fetchone()
-        return (row['member_until'] or '') if row else ''
+        row = conn.execute(
+            'SELECT pro_until, member_until FROM app_users WHERE id = ?', (user_id,)
+        ).fetchone()
+    if not row:
+        return ''
+    pro = (row['pro_until'] or '').strip()
+    old = (row['member_until'] or '').strip()
+    if not pro:
+        return old
+    if not old:
+        return pro
+    # 都取前 19 位（YYYY-MM-DDTHH:MM:SS）比较，避免时区后缀影响排序
+    return pro if pro[:19] >= old[:19] else old
 
 
 def stats() -> dict:

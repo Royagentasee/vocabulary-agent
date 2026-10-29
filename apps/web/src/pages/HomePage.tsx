@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useLearnStore, countTodayLearned, countTodayReviewed } from '@/stores/learnStore'
 import { usePointsStore } from '@/stores/pointsStore'
+import { useQuotaStore } from '@/stores/quotaStore'
 import { DailyPlan } from '@/features/plan/DailyPlan'
 
 const GOAL_OPTIONS = [5, 10, 15, 20, 30, 50]
@@ -11,7 +12,10 @@ export function HomePage() {
   const learnedToday = countTodayLearned(learnedWords)
   const reviewedToday = countTodayReviewed(learnedWords)
   const balance = usePointsStore((s) => s.balance)
-  const member = usePointsStore((s) => s.isMember())
+  // 会员：积分兑换的 或 服务端识别到的（付费/手动开通）
+  const memberByPoints = usePointsStore((s) => s.isMember())
+  const memberByServer = useQuotaStore((s) => s.isMember)
+  const member = memberByPoints || memberByServer
   const daysLeft = usePointsStore((s) => s.memberDaysLeft())
 
   // 新访客（还没学过任何词）：给个明确起点，别让他看到一排 0
