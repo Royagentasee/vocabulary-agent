@@ -3,18 +3,28 @@
 按「词类 → 时态语态 → 句子结构 → 从句 → 非谓语 → 虚拟/特殊句式 → 进阶写作语法」
 的顺序排列，同类相邻，由易到难。
 """
+from __future__ import annotations
 
 TOPICS: list[dict] = [
     # ============ 词类 ============
     {'id': 'articles', 'title': '冠词', 'titleEn': 'Articles',
      'description': 'a/an/the 的用法与零冠词', 'difficulty': 'easy',
      'category': '词类', 'examTags': ['IELTS', 'TOEFL']},
+    {'id': 'nouns', 'title': '名词与数词', 'titleEn': 'Nouns & Number',
+     'description': '可数/不可数、单复数、集合名词与主谓配合', 'difficulty': 'easy',
+     'category': '词类', 'examTags': ['IELTS', 'TOEFL']},
     {'id': 'pronouns', 'title': '代词', 'titleEn': 'Pronouns',
      'description': '人称/物主/反身/指示/不定代词的指代', 'difficulty': 'easy',
+     'category': '词类', 'examTags': ['IELTS', 'TOEFL', 'SAT']},
+    {'id': 'determiners', 'title': '限定词', 'titleEn': 'Determiners',
+     'description': 'some/any/each/every/many/much/few/little 的选用', 'difficulty': 'easy',
      'category': '词类', 'examTags': ['IELTS', 'TOEFL', 'SAT']},
     {'id': 'prepositions', 'title': '介词', 'titleEn': 'Prepositions',
      'description': '常见介词的固定搭配与易混辨析', 'difficulty': 'medium',
      'category': '词类', 'examTags': ['IELTS', 'TOEFL']},
+    {'id': 'adjectives-adverbs', 'title': '形容词与副词', 'titleEn': 'Adjectives & Adverbs',
+     'description': '修饰位置、-ly 副词、系动词后接形容词', 'difficulty': 'medium',
+     'category': '词类', 'examTags': ['IELTS', 'TOEFL', 'SAT']},
     {'id': 'modal-verbs', 'title': '情态动词', 'titleEn': 'Modal Verbs',
      'description': 'can/may/must/should 等的语义与推测用法', 'difficulty': 'medium',
      'category': '词类', 'examTags': ['IELTS', 'TOEFL']},
@@ -23,6 +33,9 @@ TOPICS: list[dict] = [
     {'id': 'tenses', 'title': '时态', 'titleEn': 'Verb Tenses',
      'description': '一般/进行/完成时态的用法与时间状语搭配', 'difficulty': 'easy',
      'category': '时态与语态', 'examTags': ['IELTS', 'TOEFL', 'SAT']},
+    {'id': 'future-expressions', 'title': '将来时表达', 'titleEn': 'Future Expressions',
+     'description': 'will / be going to / 现在进行时表将来的区别', 'difficulty': 'easy',
+     'category': '时态与语态', 'examTags': ['IELTS', 'TOEFL']},
     {'id': 'passive-voice', 'title': '被动语态', 'titleEn': 'Passive Voice',
      'description': '各时态的被动结构，主动被动转换', 'difficulty': 'easy',
      'category': '时态与语态', 'examTags': ['IELTS', 'TOEFL']},
@@ -31,6 +44,12 @@ TOPICS: list[dict] = [
      'category': '时态与语态', 'examTags': ['IELTS', 'TOEFL', 'GRE']},
 
     # ============ 句子结构 ============
+    {'id': 'sentence-types', 'title': '句子类型', 'titleEn': 'Sentence Types',
+     'description': '简单句/并列句/复合句的识别与升级', 'difficulty': 'easy',
+     'category': '句子结构', 'examTags': ['IELTS', 'TOEFL', 'SAT']},
+    {'id': 'questions', 'title': '疑问句', 'titleEn': 'Questions',
+     'description': '一般/特殊/选择/反意疑问句的构成', 'difficulty': 'easy',
+     'category': '句子结构', 'examTags': ['IELTS', 'TOEFL']},
     {'id': 'subject-verb-agreement', 'title': '主谓一致', 'titleEn': 'Subject-Verb Agreement',
      'description': '主语与谓语在数上保持一致，尤其是有插入语时', 'difficulty': 'medium',
      'category': '句子结构', 'examTags': ['IELTS', 'TOEFL', 'GRE', 'SAT']},
@@ -48,11 +67,17 @@ TOPICS: list[dict] = [
     {'id': 'relative-omission', 'title': '从句的省略与简化', 'titleEn': 'Clause Reduction',
      'description': '定语从句省略、分词替换从句等', 'difficulty': 'hard',
      'category': '从句', 'examTags': ['GRE', 'SAT']},
+    {'id': 'relative-vs-appositive', 'title': '定语从句与同位语从句', 'titleEn': 'Relative vs Appositive Clauses',
+     'description': '关系词引导的定语从句与 that 引导的同位语从句辨析', 'difficulty': 'hard',
+     'category': '从句', 'examTags': ['GRE', 'SAT']},
 
     # ============ 非谓语动词 ============
     {'id': 'non-finite', 'title': '非谓语动词', 'titleEn': 'Non-finite Verbs',
      'description': '动名词 / 不定式 / 分词的用法与区别', 'difficulty': 'hard',
      'category': '非谓语动词', 'examTags': ['IELTS', 'TOEFL', 'GRE', 'SAT']},
+    {'id': 'gerund-infinitive', 'title': '动名词与不定式', 'titleEn': 'Gerund vs Infinitive',
+     'description': '动词后接 doing / to do 的固定规律', 'difficulty': 'hard',
+     'category': '非谓语动词', 'examTags': ['IELTS', 'TOEFL', 'GRE']},
     {'id': 'participles', 'title': '分词作状语', 'titleEn': 'Participial Phrases',
      'description': '现在/过去分词作状语与逻辑主语', 'difficulty': 'hard',
      'category': '非谓语动词', 'examTags': ['GRE', 'SAT']},
@@ -64,8 +89,14 @@ TOPICS: list[dict] = [
     {'id': 'emphasis', 'title': '强调句', 'titleEn': 'Emphatic Sentences',
      'description': 'It is ... that ... 强调结构', 'difficulty': 'medium',
      'category': '虚拟与特殊句式', 'examTags': ['IELTS', 'TOEFL', 'GRE']},
+    {'id': 'question-tags', 'title': '反意疑问句', 'titleEn': 'Question Tags',
+     'description': '反意疑问句的构成与回答', 'difficulty': 'medium',
+     'category': '虚拟与特殊句式', 'examTags': ['IELTS', 'TOEFL']},
     {'id': 'inversion', 'title': '倒装句', 'titleEn': 'Inversion',
      'description': '部分倒装与完全倒装（否定词/only 开头等）', 'difficulty': 'hard',
+     'category': '虚拟与特殊句式', 'examTags': ['GRE', 'SAT']},
+    {'id': 'ellipsis', 'title': '省略与替代', 'titleEn': 'Ellipsis & Substitution',
+     'description': '省略重复成分与 do/so/one 替代', 'difficulty': 'hard',
      'category': '虚拟与特殊句式', 'examTags': ['GRE', 'SAT']},
 
     # ============ 进阶写作语法 ============
@@ -78,4 +109,13 @@ TOPICS: list[dict] = [
     {'id': 'conjunctions', 'title': '连词与衔接', 'titleEn': 'Conjunctions & Transitions',
      'description': '并列/从属连词与逻辑衔接词', 'difficulty': 'medium',
      'category': '进阶写作语法', 'examTags': ['IELTS', 'TOEFL', 'GRE', 'SAT']},
+    {'id': 'pronoun-reference', 'title': '代词指代一致', 'titleEn': 'Pronoun Reference',
+     'description': '代词指代清晰、无歧义（写作高频扣分点）', 'difficulty': 'medium',
+     'category': '进阶写作语法', 'examTags': ['IELTS', 'TOEFL', 'GRE', 'SAT']},
+    {'id': 'sequence-of-tenses', 'title': '时态一致性', 'titleEn': 'Sequence of Tenses',
+     'description': '主从句时态配合与时态呼应', 'difficulty': 'medium',
+     'category': '进阶写作语法', 'examTags': ['IELTS', 'TOEFL', 'GRE']},
+    {'id': 'dangling-modifiers', 'title': '悬垂修饰', 'titleEn': 'Dangling Modifiers',
+     'description': '分词短语逻辑主语与主句主语一致', 'difficulty': 'hard',
+     'category': '进阶写作语法', 'examTags': ['GRE', 'SAT']},
 ]
