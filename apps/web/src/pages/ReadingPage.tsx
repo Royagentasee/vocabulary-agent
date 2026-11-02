@@ -7,6 +7,7 @@ import {
   BankItem,
 } from '@/services/reading'
 import { LevelReading } from '@/features/reading/LevelReading'
+import { ClickableText } from '@/components/ClickableText'
 import { useLearnStore } from '@/stores/learnStore'
 import { trackEvent } from '@/services/stats'
 
@@ -187,10 +188,14 @@ function BankPractice() {
         </div>
 
         <div className="text-[15px] leading-relaxed whitespace-pre-wrap text-ink-900 bg-ink-50 rounded-xl p-4">
-          {current.passage}
+          <ClickableText text={current.passage} />
         </div>
 
-        <div className="font-medium mt-5 mb-4">{current.question}</div>
+        <div className="text-[11px] text-ink-400 mt-1.5">💡 点任意英文单词可查释义</div>
+
+        <div className="font-medium mt-4 mb-4">
+          <ClickableText text={current.question} />
+        </div>
 
         <div className="space-y-2">
           {current.choices.map((c) => {

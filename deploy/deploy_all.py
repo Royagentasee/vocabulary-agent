@@ -58,7 +58,7 @@ SKIP_FILES = {
     'library_books.json',        # 书库（线上已从 25 本扩到 86 本）
     'reading_levels.json',
     'listening_bank.json',
-    'reading_bank.json',
+    # reading_bank.json 已清洗并回写仓库，线上与仓库一致，正常同步
     'writing_prompt_bank.json',
 }
 
