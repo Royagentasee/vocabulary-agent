@@ -1,6 +1,20 @@
 """语法学习 Prompt"""
 from __future__ import annotations
 
+import random
+
+# 每次随机挑一个语境，逼着模型换句式和场景，避免反复出同一批题
+_SCENES = [
+    '日常对话（家庭、朋友、购物、天气）',
+    '校园与学习（课堂、作业、考试、社团）',
+    '职场与商务（会议、邮件、合同、出差）',
+    '新闻与时事（社会、科技、环境、体育）',
+    '学术与论文（研究、实验、数据、图书馆）',
+    '旅行与生活（机场、酒店、餐厅、问路）',
+    '健康与运动（医院、锻炼、饮食、睡眠）',
+    '文化与娱乐（电影、音乐、展览、书籍）',
+]
+
 GRAMMAR_SYSTEM = """你是一位资深的英语语法老师，擅长帮备考雅思/托福/GRE/SAT 的学员讲透语法。
 
 任务：针对给定的语法知识点，写一份讲解 + 例句 + 练习题。
@@ -21,6 +35,8 @@ GRAMMAR_SYSTEM = """你是一位资深的英语语法老师，擅长帮备考雅
 8. 四个选项之间不要有重复或等价的选项。
 9. {num} 道题**必须互不相同**：题干不能重复（哪怕只改一个词也算重复），
    考查角度也要有区分；宁可考查不同用法，也不要凑数。
+10. 刻意避开该知识点最「教科书」的例句（如冠词别每次都写 honest/university），
+    尽量选用有具体语境、主语和场景都在变化的句子。
 
 【定稿前逐题自查】
 - 把 correct_label 指向的选项代入空格，完整读一遍整句；
@@ -54,14 +70,19 @@ GRAMMAR_SYSTEM = """你是一位资深的英语语法老师，擅长帮备考雅
 
 
 def build_grammar_messages(topic: str, title_en: str, num: int,
-                           avoid: str = '') -> list[dict]:
+                           avoid: str = '', scene: str = '') -> list[dict]:
     system = GRAMMAR_SYSTEM.format(num=num)
     en = f"（英文：{title_en}）" if title_en else ""
-    user = f"语法知识点：{topic}{en}\n\n请讲解并出题。"
+    use_scene = scene or random.choice(_SCENES)
+    user = (
+        f"语法知识点：{topic}{en}\n\n请讲解并出题。\n\n"
+        f"本次出题请尽量使用「{use_scene}」场景的句子，"
+        f"主语、动作、地点都要有变化，避免教材最常见的例句。"
+    )
     if avoid:
         user += (
-            "\n\n【重要】下面这些题干已经出过，**必须回避**，"
-            "请出全新的题目，考查角度也要不同：\n" + avoid
+            "\n\n【重要】下面这些题干已经出过，**必须回避**（换场景、换主语、换考点角度），"
+            "请出全新的题目：\n" + avoid
         )
     return [
         {"role": "system", "content": system},

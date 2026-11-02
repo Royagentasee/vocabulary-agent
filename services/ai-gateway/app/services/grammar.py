@@ -12,6 +12,7 @@ from vocab_agent_llm import ChatMessage, ChatOptions
 
 from app.core.llm import get_llm_client
 from app.prompts.grammar import build_grammar_messages
+from app.services import grammar_history
 from app.schemas.grammar import (
     GrammarRequest,
     GrammarResponse,
@@ -192,10 +193,18 @@ async def generate_grammar(req: GrammarRequest) -> GrammarResponse:
 
     try:
         client = get_llm_client()
-        messages = build_grammar_messages(req.topic, req.title_en, req.num_questions)
+
+        # 把该知识点最近出过的题干作为「必须回避」清单，避免每次重复
+        seen_questions = grammar_history.recent(req.topic, limit=24)
+        avoid_text = "\n".join(f'- {q}' for q in seen_questions) if seen_questions else ''
+
+        messages = build_grammar_messages(
+            req.topic, req.title_en, req.num_questions, avoid=avoid_text
+        )
         chat_messages = [ChatMessage(role=m["role"], content=m["content"]) for m in messages]
+        # 温度调高到 0.85：同一提示词也能产出不同题目
         raw = await _to_thread(
-            client.chat, chat_messages, ChatOptions(temperature=0.4, max_tokens=2500)
+            client.chat, chat_messages, ChatOptions(temperature=0.85, max_tokens=2500)
         )
         data = _clean_json(raw)
         # 修 AI 出题的答案键错误（如选项与空格后的 of 重复）+ 批内去重
@@ -227,6 +236,9 @@ async def generate_grammar(req: GrammarRequest) -> GrammarResponse:
                         questions.append(q)
             except Exception as e2:
                 logger.warning(f"Grammar 补题失败（不影响主流程）: {e2}")
+
+        # 记下本次出的题，下次生成时作为回避清单
+        grammar_history.remember(req.topic, [q.get('question', '') for q in questions])
 
         return GrammarResponse(
             topic=req.topic,
