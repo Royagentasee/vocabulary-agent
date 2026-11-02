@@ -29,6 +29,7 @@ import { GuidePage } from '@/pages/GuidePage'
 import { AddToHomeBanner, WelcomeModal } from '@/features/onboarding/WelcomeModal'
 import { UpgradePage } from '@/pages/UpgradePage'
 import { AdminPaymentsPage } from '@/pages/AdminPaymentsPage'
+import { AdminReportsPage } from '@/pages/AdminReportsPage'
 import { TrialBanner, TrialEndedBanner } from '@/features/paywall/Paywall'
 import { useEntitlementStore } from '@/stores/entitlementStore'
 import { isProRoute } from '@/services/entitlement'
@@ -403,6 +404,7 @@ export default function App() {
           <Route path="/support" element={<SupportPage />} />
           <Route path="/admin" element={<AdminUsagePage />} />
           <Route path="/admin/payments" element={<AdminPaymentsPage />} />
+          <Route path="/admin/reports" element={<AdminReportsPage />} />
           <Route path="/ui" element={<UIKit />} />
         </Routes>
       </main>

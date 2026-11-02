@@ -7,6 +7,7 @@ import {
   GrammarQuestion,
 } from '@/services/grammar'
 import { SpeakButton } from '@/components/SpeakButton'
+import { ReportQuestion } from '@/components/ReportQuestion'
 import { useLearnStore } from '@/stores/learnStore'
 import { trackEvent } from '@/services/stats'
 import { QuotaBadge } from '@/components/Quota'
@@ -208,6 +209,7 @@ function Lesson({ result }: { result: GrammarResult }) {
               key={qi}
               index={qi}
               question={q}
+              topic={result.title_en || result.topic}
               selected={answers[qi] ?? null}
               onSelect={(label) => {
                 setAnswers((a) => ({ ...a, [qi]: label }))
@@ -245,11 +247,13 @@ function Lesson({ result }: { result: GrammarResult }) {
 function GrammarQuizCard({
   index,
   question,
+  topic,
   selected,
   onSelect,
 }: {
   index: number
   question: GrammarQuestion
+  topic?: string
   selected: string | null
   onSelect: (label: string) => void
 }) {
@@ -297,6 +301,21 @@ function GrammarQuizCard({
           {question.explanation && (
             <div className="text-ink-600 leading-relaxed">{question.explanation}</div>
           )}
+        </div>
+      )}
+
+      {/* 答完后可以报错（AI 出题偶尔会错，让用户能反馈） */}
+      {answered && (
+        <div className="mt-2.5 flex justify-end">
+          <ReportQuestion
+            kind="grammar"
+            topic={topic}
+            question={question.question}
+            options={question.choices.map((c) => c.text)}
+            correct={
+              question.choices.find((c) => c.label === question.correct_label)?.text || ''
+            }
+          />
         </div>
       )}
     </div>

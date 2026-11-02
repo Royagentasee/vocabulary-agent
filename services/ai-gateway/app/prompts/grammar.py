@@ -19,6 +19,8 @@ GRAMMAR_SYSTEM = """你是一位资深的英语语法老师，擅长帮备考雅
 7. 三个干扰项代入后必须是**语法错误**的句子（时态/单复数/搭配错），
    而不是「语法正确但意思不同」。
 8. 四个选项之间不要有重复或等价的选项。
+9. {num} 道题**必须互不相同**：题干不能重复（哪怕只改一个词也算重复），
+   考查角度也要有区分；宁可考查不同用法，也不要凑数。
 
 【定稿前逐题自查】
 - 把 correct_label 指向的选项代入空格，完整读一遍整句；
@@ -51,10 +53,16 @@ GRAMMAR_SYSTEM = """你是一位资深的英语语法老师，擅长帮备考雅
 """
 
 
-def build_grammar_messages(topic: str, title_en: str, num: int) -> list[dict]:
+def build_grammar_messages(topic: str, title_en: str, num: int,
+                           avoid: str = '') -> list[dict]:
     system = GRAMMAR_SYSTEM.format(num=num)
     en = f"（英文：{title_en}）" if title_en else ""
     user = f"语法知识点：{topic}{en}\n\n请讲解并出题。"
+    if avoid:
+        user += (
+            "\n\n【重要】下面这些题干已经出过，**必须回避**，"
+            "请出全新的题目，考查角度也要不同：\n" + avoid
+        )
     return [
         {"role": "system", "content": system},
         {"role": "user", "content": user},

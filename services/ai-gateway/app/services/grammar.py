@@ -100,6 +100,38 @@ def _repair_questions(raw_questions: list) -> list:
     return out
 
 
+def _norm_question(s: str) -> str:
+    """把题干归一化用于查重（忽略大小写、标点、空格）"""
+    return re.sub(r'[^a-z0-9\u4e00-\u9fff]+', '', str(s or '').lower())
+
+
+def _dedupe_questions(questions: list, want: int) -> list:
+    """去掉重复题干 + 剔除结构不成立的多空题
+
+    1. 题干归一化后查重（忽略大小写、标点、空白，也忽略空格长度差异，
+       所以 "___ of tourists…" 和 "____ of tourists…" 视为同一题）；
+    2. 一道 4 选 1 的单选题只能填一个空，题干里有 2 个以上 ___
+       的题目无解（如「___ moon moves around ___ earth.」），直接剔除。
+    """
+    seen: set[str] = set()
+    out: list = []
+    for q in questions:
+        if not isinstance(q, dict):
+            continue
+        raw_q = str(q.get('question') or '')
+        if len(_BLANK_RE.findall(raw_q)) > 1:
+            logger.info(f'剔除多空题（单选无解）: {raw_q[:60]}')
+            continue
+        key = _norm_question(raw_q)
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        out.append(q)
+        if want and len(out) >= want:
+            break
+    return out
+
+
 def _clean_json(raw: str) -> dict:
     cleaned = raw.strip()
     if cleaned.startswith('```'):
@@ -166,15 +198,43 @@ async def generate_grammar(req: GrammarRequest) -> GrammarResponse:
             client.chat, chat_messages, ChatOptions(temperature=0.4, max_tokens=2500)
         )
         data = _clean_json(raw)
-        # 修 AI 出题的答案键错误（如选项与空格后的 of 重复）
-        fixed_questions = _repair_questions(data.get('questions', []))
+        # 修 AI 出题的答案键错误（如选项与空格后的 of 重复）+ 批内去重
+        questions = _dedupe_questions(
+            _repair_questions(data.get('questions', [])), req.num_questions
+        )
+
+        # 去重后不够数 → 再补一次（只补一次，避免拖慢）
+        deficit = req.num_questions - len(questions)
+        if deficit > 0 and questions:
+            try:
+                avoid = "\n".join(f'- {q.get("question", "")}' for q in questions)
+                more_msgs = build_grammar_messages(
+                    req.topic, req.title_en, deficit, avoid=avoid
+                )
+                more = await _to_thread(
+                    client.chat,
+                    [ChatMessage(role=m["role"], content=m["content"]) for m in more_msgs],
+                    ChatOptions(temperature=0.7, max_tokens=1400),
+                )
+                extra = _dedupe_questions(
+                    _repair_questions(_clean_json(more).get('questions', [])), deficit
+                )
+                have = {_norm_question(q.get('question', '')) for q in questions}
+                for q in extra:
+                    k = _norm_question(q.get('question', ''))
+                    if k and k not in have:
+                        have.add(k)
+                        questions.append(q)
+            except Exception as e2:
+                logger.warning(f"Grammar 补题失败（不影响主流程）: {e2}")
+
         return GrammarResponse(
             topic=req.topic,
             title_en=req.title_en,
             explanation=data.get('explanation', ''),
             rules=[GrammarRule(**r) for r in data.get('rules', [])],
             examples=[GrammarExample(**e) for e in data.get('examples', [])],
-            questions=[GrammarQuestion(**q) for q in fixed_questions],
+            questions=[GrammarQuestion(**q) for q in questions],
             is_mock=False,
         )
     except Exception as e:

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 import { fetchOverview, isAdmin, setAdmin, Overview } from '@/services/stats'
 
 const EVENT_LABELS: Record<string, string> = {
@@ -50,14 +50,22 @@ export function AdminUsagePage() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <header className="flex items-center justify-between">
+      <header className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">📊 用户使用统计</h1>
           <p className="text-ink-500 mt-1 text-sm">
             按匿名设备去重，不采集任何个人信息
           </p>
         </div>
-        <span className="text-xs text-ink-400">🔒 作者模式</span>
+        <div className="flex items-center gap-3 shrink-0">
+          <Link to="/admin/reports" className="text-xs text-accent-deep hover:underline">
+            ⚠️ 题目报错
+          </Link>
+          <Link to="/admin/payments" className="text-xs text-accent-deep hover:underline">
+            💰 收款后台
+          </Link>
+          <span className="text-xs text-ink-400">🔒 作者模式</span>
+        </div>
       </header>
 
       <UsageStats />

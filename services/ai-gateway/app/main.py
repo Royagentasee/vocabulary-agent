@@ -8,6 +8,7 @@ from app.routers import (
     explain, analyze, dialogue, voice, words, quiz,
     writing, writing_bank, reading, reading_bank, stats, grammar, listening, speaking,
     library, accounts, ocr, coach, leaderboard, tts, push, entitlement, payment, news,
+    feedback,
 )
 from app.middleware.rate_limit import RateLimitMiddleware
 
@@ -58,6 +59,7 @@ app.include_router(push.router)
 app.include_router(entitlement.router)
 app.include_router(payment.router)
 app.include_router(news.router)
+app.include_router(feedback.router)
 
 
 @app.on_event('startup')
