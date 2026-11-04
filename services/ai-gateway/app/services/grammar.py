@@ -5,6 +5,7 @@ import asyncio
 import functools
 import json
 import os
+import random
 import re
 
 from loguru import logger
@@ -104,6 +105,50 @@ def _repair_questions(raw_questions: list) -> list:
 def _norm_question(s: str) -> str:
     """把题干归一化用于查重（忽略大小写、标点、空格）"""
     return re.sub(r'[^a-z0-9\u4e00-\u9fff]+', '', str(s or '').lower())
+
+
+_LABELS = 'ABCDEFGH'
+
+
+def _shuffle_choices(q: dict) -> dict:
+    """打乱选项顺序并重排标签
+
+    LLM 有强烈的「把正确答案放在第一个」的偏置（实测 A 占 81%），
+    用户只要一直选 A 就能全对。这里在服务端强制打乱。
+
+    语法解析不引用选项字母（用内容描述），所以打乱不会让解析失效。
+    """
+    choices = q.get('choices')
+    if not isinstance(choices, list) or len(choices) < 2:
+        return q
+
+    correct = q.get('correct_label')
+    texts: list[str] = []
+    correct_text = None
+    for c in choices:
+        if not isinstance(c, dict):
+            continue
+        t = str(c.get('text') or '')
+        texts.append(t)
+        if c.get('label') == correct:
+            correct_text = t
+
+    if not texts or correct_text is None:
+        return q
+
+    random.shuffle(texts)
+    new_choices = [
+        {'label': _LABELS[i], 'text': texts[i]}
+        for i in range(min(len(texts), len(_LABELS)))
+    ]
+    try:
+        new_correct = _LABELS[texts.index(correct_text)]
+    except ValueError:
+        return q
+
+    q['choices'] = new_choices
+    q['correct_label'] = new_correct
+    return q
 
 
 def _dedupe_questions(questions: list, want: int) -> list:
@@ -239,6 +284,9 @@ async def generate_grammar(req: GrammarRequest) -> GrammarResponse:
 
         # 记下本次出的题，下次生成时作为回避清单
         grammar_history.remember(req.topic, [q.get('question', '') for q in questions])
+
+        # 打乱选项：LLM 总把正确答案放第一个，必须强制随机
+        questions = [_shuffle_choices(q) for q in questions]
 
         return GrammarResponse(
             topic=req.topic,

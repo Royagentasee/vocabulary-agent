@@ -32,7 +32,9 @@ export function LevelReading() {
   useEffect(() => {
     if (!level) return
     setLoading(true)
-    fetchLevelItems({ level, limit: 60 })
+    // shuffle=true：每次进来都打乱顺序，否则永远从第一篇文章开始，
+    // 用户会觉得「每次再做一遍都是同样的题」
+    fetchLevelItems({ level, limit: 100, shuffle: true })
       .then((r) => {
         setItems(r.items)
         setTotal(r.total)
@@ -85,8 +87,22 @@ export function LevelReading() {
       </div>
 
       {stats && (
-        <div className="text-xs text-ink-500">
-          共 {stats.total} 篇文章 · {stats.questionCount} 道题 · 点开文章即可作答，做完立刻看解析
+        <div className="text-xs text-ink-500 flex items-center gap-2 flex-wrap">
+          <span>
+            共 {stats.total} 篇文章 · {stats.questionCount} 道题 · 点开文章即可作答，做完立刻看解析
+          </span>
+          <button
+            onClick={() => {
+              setLoading(true)
+              fetchLevelItems({ level, limit: 100, shuffle: true })
+                .then((r) => setItems(r.items))
+                .catch(() => {})
+                .finally(() => setLoading(false))
+            }}
+            className="ml-auto text-[11px] px-2 py-1 rounded-lg border border-ink-100 text-ink-600 hover:border-ink-900 shrink-0"
+          >
+            🔀 换一批
+          </button>
         </div>
       )}
 
