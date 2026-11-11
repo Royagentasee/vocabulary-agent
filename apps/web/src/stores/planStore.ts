@@ -112,8 +112,13 @@ interface PlanState {
   activity: Record<string, Record<string, number>>
   /** 每日任务目标数量（可自定义） */
   taskTargets: Record<string, number>
+  /** 用户主动取消过打卡的日期：{ '2026-11-11': true }
+   *  这些天不再自动打卡（否则用户一取消就被自动补回来） */
+  checkinOptOut: Record<string, boolean>
 
   checkin: (date?: string) => void
+  /** 自动打卡：用户当天用过 App 时调用，尊重「主动取消」的日期 */
+  autoCheckin: () => void
   /** 取消某天的打卡（默认今天）。用于误打卡后自己撤销 */
   removeCheckin: (date?: string) => void
   setExam: (v: { type?: ExamType; date?: string; target?: string }) => void
@@ -137,19 +142,39 @@ export const usePlanStore = create<PlanState>()(
       taskDone: {},
       activity: {},
       taskTargets: {},
+      checkinOptOut: {},
 
       checkin: (date) => {
         const key = date || todayKey()
         const cur = get().checkinDates
-        if (cur.includes(key)) return
-        set({ checkinDates: [...cur, key].sort() })
+        // 手动打卡时顺便清掉「主动取消」标记，之后恢复自动打卡
+        const optOut = { ...(get().checkinOptOut || {}) }
+        delete optOut[key]
+        if (cur.includes(key)) {
+          set({ checkinOptOut: optOut })
+          return
+        }
+        set({ checkinDates: [...cur, key].sort(), checkinOptOut: optOut })
+      },
+
+      autoCheckin: () => {
+        const key = todayKey()
+        // 用户当天主动取消过 → 不再自动打卡
+        if ((get().checkinOptOut || {})[key]) return
+        if (get().checkinDates.includes(key)) return
+        get().checkin(key)
       },
 
       removeCheckin: (date) => {
         const key = date || todayKey()
         const cur = get().checkinDates
-        if (!cur.includes(key)) return
-        set({ checkinDates: cur.filter((d) => d !== key) })
+        // 记下「主动取消」，避免被自动打卡立刻补回来
+        const optOut = { ...(get().checkinOptOut || {}), [key]: true }
+        if (!cur.includes(key)) {
+          set({ checkinOptOut: optOut })
+          return
+        }
+        set({ checkinDates: cur.filter((d) => d !== key), checkinOptOut: optOut })
       },
 
       setExam: (v) => {

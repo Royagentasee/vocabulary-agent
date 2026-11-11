@@ -36,7 +36,7 @@ import { isProRoute } from '@/services/entitlement'
 import { isShotMode } from '@/services/platform'
 import { useAccountStore } from '@/stores/accountStore'
 import { useLearnStore, countTodayLearned, countTodayReviewed } from '@/stores/learnStore'
-import { usePlanStore } from '@/stores/planStore'
+import { usePlanStore, todayKey } from '@/stores/planStore'
 import { usePointsStore } from '@/stores/pointsStore'
 import { useQuotaStore } from '@/stores/quotaStore'
 import { usePathStore } from '@/stores/pathStore'
@@ -189,22 +189,45 @@ export default function App() {
     void initAccount()
   }, [initAccount])
 
-  // 学习/复习过就自动打卡（不用手动点）
+  // 用过 App 就自动打卡（不用手动点）
   //
-  // 必须用真实时间戳判断，不能用 todayLearned/todayReviewed 计数器：
-  // 那两个只在答题时跨天清零，今天没做事时还残留昨天的数，
-  // 会导致「一打开 App 就自动打卡」。
+  // 「用过」的判定（任一成立即可）：
+  //   1. 今天学过 / 复习过词（按 learnedAt / reviewedAt 时间戳现算）
+  //   2. 今天有过任何真实模块行为（听力 / 阅读 / 语法 / 新闻 / 写作 /
+  //      口语 / 对话 / 书库 / 拍照 / AI 教练 …，记在 planStore.activity）
+  //   3. 打开 App 并停留 2 秒（说明确实在用，不是误点一下就退）
+  //
+  // 注意：不能用 todayLearned / todayReviewed 计数器判断 —— 那两个只在
+  // 答题时跨天清零，今天没做事时还残留昨天的数，会导致误打卡。
   useEffect(() => {
-    const checkin = usePlanStore.getState().checkin
-    const hasToday = () => {
+    const today = todayKey()
+    // autoCheckin 会尊重「用户主动取消打卡」的日期
+    const checkin = () => usePlanStore.getState().autoCheckin()
+
+    const hasRealAction = () => {
       const words = useLearnStore.getState().learnedWords
-      return countTodayLearned(words) > 0 || countTodayReviewed(words) > 0
+      if (countTodayLearned(words) > 0 || countTodayReviewed(words) > 0) return true
+      const act = usePlanStore.getState().activity[today] || {}
+      return Object.values(act).some((n) => (n || 0) > 0)
     }
-    const unsub = useLearnStore.subscribe(() => {
-      if (hasToday()) checkin()
-    })
-    if (hasToday()) checkin()
-    return unsub
+
+    // ① 停留 2 秒 = 真的在用 → 打卡
+    const stayTimer = window.setTimeout(() => checkin(), 2000)
+
+    // ② 有真实学习行为 → 立即打卡
+    const onLearn = () => {
+      if (hasRealAction()) checkin()
+    }
+    const unsubLearn = useLearnStore.subscribe(onLearn)
+    const unsubPlan = usePlanStore.subscribe(onLearn)
+
+    if (hasRealAction()) checkin()
+
+    return () => {
+      window.clearTimeout(stayTimer)
+      unsubLearn()
+      unsubPlan()
+    }
   }, [])
 
   useEffect(() => {
