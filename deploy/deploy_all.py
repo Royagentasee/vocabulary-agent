@@ -56,9 +56,8 @@ def ensure_remote_dir(sftp, path):
 # 需要强制同步时设环境变量 VOCAB_FORCE_DATA=1。
 SKIP_FILES = {
     'library_books.json',        # 书库（线上已从 25 本扩到 86 本）
-    'reading_levels.json',
-    'listening_bank.json',
-    # reading_bank.json 已清洗并回写仓库，线上与仓库一致，正常同步
+    # reading_bank / reading_levels / listening_bank / story_bank 已与线上同步
+    # （脏数据清洗、选项打乱都已回写仓库），正常部署
     'writing_prompt_bank.json',
 }
 
